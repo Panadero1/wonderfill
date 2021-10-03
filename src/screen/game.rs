@@ -1,8 +1,5 @@
 use bitflags::bitflags;
-use speedy2d::{
-    window::{VirtualKeyCode, WindowHandler, WindowHelper},
-    Graphics2D,
-};
+use speedy2d::{Graphics2D, color::Color, window::{VirtualKeyCode, WindowHandler, WindowHelper}};
 
 use super::{
     camera::Camera, get_resolution, title::TitleScreen, Screen,
@@ -27,6 +24,8 @@ pub struct GameScreen {
 
 impl WindowHandler<String> for GameScreen {
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
+
+        graphics.clear_screen(Color::GREEN);
 
         helper.request_redraw();
     }
