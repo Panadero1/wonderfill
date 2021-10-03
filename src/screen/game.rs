@@ -1,9 +1,16 @@
 use bitflags::bitflags;
-use speedy2d::{Graphics2D, color::Color, window::{VirtualKeyCode, WindowHandler, WindowHelper}};
-
-use super::{
-    camera::Camera, get_resolution, title::TitleScreen, Screen,
+use speedy2d::{
+    color::Color,
+    image::{ImageFileFormat, ImageSmoothingMode},
+    window::{VirtualKeyCode, WindowHandler, WindowHelper},
+    Graphics2D,
 };
+
+use crate::entity::{player::Player, Entity};
+
+use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
+
+const CAMERA_SCALE: f32 = 100.0;
 
 bitflags! {
     struct Input: u8 {
@@ -16,16 +23,43 @@ bitflags! {
     }
 }
 
+pub struct Sprites {
+    player: Player,
+}
+
+impl Sprites {
+    pub fn init(graphics: &mut Graphics2D) -> Sprites {
+        Sprites {
+            player: Player::new(
+                graphics
+                    .create_image_from_file_path(
+                        Some(ImageFileFormat::PNG),
+                        ImageSmoothingMode::NearestNeighbor,
+                        "assets\\img\\player.png",
+                    )
+                    .unwrap(),
+            ),
+        }
+    }
+}
+
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     current_input: Input,
     camera: Camera,
+    sprites: Option<Sprites>,
 }
 
 impl WindowHandler<String> for GameScreen {
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
-
         graphics.clear_screen(Color::GREEN);
+
+        if let Some(sprites) = &mut self.sprites {
+            sprites.player.draw(graphics, &self.camera);
+        } else {
+            self.sprites = Some(Sprites::init(graphics));
+        }
+
 
         helper.request_redraw();
     }
@@ -75,8 +109,8 @@ impl WindowHandler<String> for GameScreen {
         _helper: &mut WindowHelper<String>,
         size_pixels: speedy2d::dimen::Vector2<u32>,
     ) {
-        self.camera.width = size_pixels.x as f32 / 10.0;
-        self.camera.height = size_pixels.y as f32 / 10.0;
+        self.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
+        self.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
     }
 }
 
@@ -95,7 +129,8 @@ impl GameScreen {
         GameScreen {
             new_screen: None,
             current_input: Input { bits: 0 },
-            camera: Camera::new((0.0, 0.0).into(), res.0 as f32 / 10.0, res.1 as f32 / 10.0),
+            camera: Camera::new((0.0, 0.0).into(), res.0 as f32 / CAMERA_SCALE, res.1 as f32 / CAMERA_SCALE),
+            sprites: None,
         }
     }
 }
