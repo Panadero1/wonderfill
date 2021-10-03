@@ -125,7 +125,7 @@ impl<'a> Screen for TitleScreen<'a> {
 
 impl<'a> TitleScreen<'a> {
     pub fn new() -> TitleScreen<'a> {
-        let font = Font::new(include_bytes!("../../assets/font/Cabal-w5j3.ttf")).unwrap();
+        let font = Font::new(include_bytes!("../../assets/font/tiny-mono.ttf")).unwrap();
 
         let mut buttons = HashMap::new();
 

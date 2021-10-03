@@ -117,7 +117,7 @@ impl<'a> Screen for OptionsScreen<'a> {
 
 impl<'a> OptionsScreen<'a> {
     pub fn new() -> OptionsScreen<'a> {
-        let font = Font::new(include_bytes!("../../assets/font/Cabal-w5j3.ttf")).unwrap();
+        let font = Font::new(include_bytes!("../../assets/font/tiny-mono.ttf")).unwrap();
 
         let mut buttons = HashMap::new();
 
