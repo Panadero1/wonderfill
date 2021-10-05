@@ -11,9 +11,12 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{screen::RESOLUTION, ui::{button::Button, rect::rect_from_size, text}};
+use crate::{
+    screen::RESOLUTION,
+    ui::{button::Button, rect::rect_from_size, text},
+};
 
-use super::{RedirectHandler, Screen, game::GameScreen, options::OptionsScreen};
+use super::{game::GameScreen, options::OptionsScreen, RedirectHandler, Screen};
 
 pub struct TitleScreen<'a> {
     new_screen: Option<Box<dyn Screen>>,
@@ -80,12 +83,7 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
             button.set_bounds(rect_from_size(
                 button.width(),
                 button.height(),
-                match *name {
-                    "start" => (center.0, center.1),
-                    "options" => (center.0, center.1 + 80),
-                    "quit" => (center.0, center.1 + 160),
-                    _ => panic!("Not implemented button center scheme!!")
-                },
+                button.get_pos(),
             ));
         }
     }
@@ -99,10 +97,10 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
         match &user_event[..] {
             "start" => {
                 self.new_screen = Some(Box::new(GameScreen::new()));
-            },
+            }
             "options" => {
                 self.new_screen = Some(Box::new(OptionsScreen::new()));
-            },
+            }
             "quit" => {
                 helper.terminate_loop();
             }
@@ -132,6 +130,8 @@ impl<'a> TitleScreen<'a> {
 
         let button_size = (300, 50);
 
+        let button_padding: u32 = 10;
+
         let button_foreground = Color::BLACK;
         let button_background = Color::WHITE;
 
@@ -145,10 +145,13 @@ impl<'a> TitleScreen<'a> {
                 }),
                 button_size.0,
                 button_size.1,
-                center,
                 button_background,
                 button_foreground,
                 font.clone(),
+                Box::new(move || {
+                    let res = super::get_resolution();
+                    (res.0 / 2, res.1 / 2)
+                }),
             ),
         );
         buttons.insert(
@@ -161,10 +164,13 @@ impl<'a> TitleScreen<'a> {
                 }),
                 button_size.0,
                 button_size.1,
-                (center.0, center.1 + 80),
                 button_background,
                 button_foreground,
                 font.clone(),
+                Box::new(move || {
+                    let res = super::get_resolution();
+                    (res.0 / 2, (res.1 / 2) + (button_padding + button_size.1))
+                })
             ),
         );
         buttons.insert(
@@ -177,10 +183,13 @@ impl<'a> TitleScreen<'a> {
                 }),
                 button_size.0,
                 button_size.1,
-                (center.0, center.1 + 160),
                 button_background,
                 button_foreground,
                 font,
+                Box::new(move ||{
+                    let res = super::get_resolution();
+                    (res.0 / 2, (res.1 / 2) + 2 * (button_padding + button_size.1))
+                })
             ),
         );
 

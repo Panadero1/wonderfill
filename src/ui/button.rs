@@ -12,28 +12,30 @@ pub struct Button<'a> {
     background: Color,
     foreground: Color,
     font: Font,
+    get_pos: Box<dyn Fn() -> (u32, u32)>,
 }
 
 impl<'a> Button<'a> {
-    pub fn new<T: Fn(&UserEventSender<String>) + 'static>(
+    pub fn new(
         text: &'a str,
         font_size: f32,
-        on_click: T,
+        on_click: Box<dyn Fn(&UserEventSender<String>)>,
         width: u32,
         height: u32,
-        pos: (u32, u32),
         background: Color,
         foreground: Color,
         font: Font,
+        get_pos: Box<dyn Fn() -> (u32, u32)>,
     ) -> Button<'a> {
         Button {
             text,
             font_size,
             on_click: Box::new(on_click),
-            bounds: rect_from_size(width, height, pos),
+            bounds: rect_from_size(width, height, get_pos()),
             background,
             foreground,
             font,
+            get_pos
         }
     }
     pub fn draw(&self, graphics: &mut Graphics2D) {
@@ -73,5 +75,8 @@ impl<'a> Button<'a> {
         if self.in_bounds(pos) {
             self.click(sender);
         }
+    }
+    pub fn get_pos(&self) -> (u32, u32) {
+        (self.get_pos)()
     }
 }

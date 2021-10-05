@@ -4,6 +4,9 @@
 // Get world generating
 // Persist to file
 
+// Housekeeping
+// Fix options page
+
 fn main() {
     sonar::run();
 }

@@ -80,10 +80,7 @@ impl<'a> WindowHandler<String> for OptionsScreen<'a> {
             button.set_bounds(rect_from_size(
                 button.width(),
                 button.height(),
-                match *name {
-                    "back" => (center.0, center.1 + 160),
-                    _ => panic!("Not implemented button center scheme!!")
-                },
+                button.get_pos()
             ));
         }
     }
@@ -125,16 +122,19 @@ impl<'a> OptionsScreen<'a> {
             "back",
             Button::new(
                 "Back",
-                64.0,
+                50.0,
                 Box::new(|s: &UserEventSender<String>| {
                     s.send_event(String::from("back")).unwrap();
                 }),
-                180,
-                60,
-                (center.0, center.1 + 160),
+                230,
+                50,
                 Color::WHITE,
                 Color::BLACK,
                 font,
+                Box::new(||{
+                    let res = super::get_resolution();
+                    (res.0 / 2, (res.1 / 2) + 160)
+                })
             ),
         );
 
