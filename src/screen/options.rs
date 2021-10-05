@@ -11,10 +11,7 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{
-    screen::RESOLUTION,
-    ui::{button::Button, rect::rect_from_size},
-};
+use crate::{screen::RESOLUTION, ui::{button::Button, rect::rect_from_size, text}};
 
 use super::{RedirectHandler, Screen, game::GameScreen, title::TitleScreen};
 
@@ -117,7 +114,7 @@ impl<'a> Screen for OptionsScreen<'a> {
 
 impl<'a> OptionsScreen<'a> {
     pub fn new() -> OptionsScreen<'a> {
-        let font = Font::new(include_bytes!("../../assets/font/tiny-mono.ttf")).unwrap();
+        let font = text::get_font();
 
         let mut buttons = HashMap::new();
 

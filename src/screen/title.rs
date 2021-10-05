@@ -11,10 +11,7 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{
-    screen::RESOLUTION,
-    ui::{button::Button, rect::rect_from_size},
-};
+use crate::{screen::RESOLUTION, ui::{button::Button, rect::rect_from_size, text}};
 
 use super::{RedirectHandler, Screen, game::GameScreen, options::OptionsScreen};
 
@@ -125,7 +122,7 @@ impl<'a> Screen for TitleScreen<'a> {
 
 impl<'a> TitleScreen<'a> {
     pub fn new() -> TitleScreen<'a> {
-        let font = Font::new(include_bytes!("../../assets/font/tiny-mono.ttf")).unwrap();
+        let font = text::get_font();
 
         let mut buttons = HashMap::new();
 
@@ -133,19 +130,24 @@ impl<'a> TitleScreen<'a> {
 
         let center = (res.0 / 2, res.1 / 2);
 
+        let button_size = (300, 50);
+
+        let button_foreground = Color::BLACK;
+        let button_background = Color::WHITE;
+
         buttons.insert(
             "start",
             Button::new(
                 "Start",
-                64.0,
+                button_size.1 as f32,
                 Box::new(|s: &UserEventSender<String>| {
                     s.send_event(String::from("start")).unwrap();
                 }),
-                250,
-                60,
+                button_size.0,
+                button_size.1,
                 center,
-                Color::WHITE,
-                Color::BLACK,
+                button_background,
+                button_foreground,
                 font.clone(),
             ),
         );
@@ -153,15 +155,15 @@ impl<'a> TitleScreen<'a> {
             "options",
             Button::new(
                 "Options",
-                64.0,
+                button_size.1 as f32,
                 Box::new(|s: &UserEventSender<String>| {
                     s.send_event(String::from("options")).unwrap();
                 }),
-                250,
-                60,
+                button_size.0,
+                button_size.1,
                 (center.0, center.1 + 80),
-                Color::WHITE,
-                Color::BLACK,
+                button_background,
+                button_foreground,
                 font.clone(),
             ),
         );
@@ -169,15 +171,15 @@ impl<'a> TitleScreen<'a> {
             "quit",
             Button::new(
                 "Quit",
-                64.0,
+                button_size.1 as f32,
                 Box::new(|s: &UserEventSender<String>| {
                     s.send_event(String::from("quit")).unwrap();
                 }),
-                250,
-                60,
+                button_size.0,
+                button_size.1,
                 (center.0, center.1 + 160),
-                Color::WHITE,
-                Color::BLACK,
+                button_background,
+                button_foreground,
                 font,
             ),
         );
