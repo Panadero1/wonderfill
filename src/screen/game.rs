@@ -6,22 +6,22 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::entity::{player::Player, Entity};
+use crate::{entity::{Entity, player::{Player, PlayerHat}}, ui::img::get_image_handle};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
 const CAMERA_SCALE: f32 = 100.0;
 
-bitflags! {
-    struct Input: u8 {
-        const NONE   = 0b00000000;
-        const LEFT   = 0b00000001;
-        const RIGHT  = 0b00000010;
-        const UP     = 0b00000100;
-        const DOWN   = 0b00001000;
-        const ATTACK = 0b00010000;
-    }
-}
+// bitflags! {
+//     struct Input: u8 {
+//         const NONE   = 0b00000000;
+//         const LEFT   = 0b00000001;
+//         const RIGHT  = 0b00000010;
+//         const UP     = 0b00000100;
+//         const DOWN   = 0b00001000;
+//         const ATTACK = 0b00010000;
+//     }
+// }
 
 pub struct Sprites {
     player: Player,
@@ -30,22 +30,14 @@ pub struct Sprites {
 impl Sprites {
     pub fn init(graphics: &mut Graphics2D) -> Sprites {
         Sprites {
-            player: Player::new(
-                graphics
-                    .create_image_from_file_path(
-                        Some(ImageFileFormat::PNG),
-                        ImageSmoothingMode::NearestNeighbor,
-                        "assets\\img\\player.png",
-                    )
-                    .unwrap(),
-            ),
+            player: Player::new(get_image_handle(graphics, "assets\\img\\player.png").unwrap()),
         }
     }
 }
 
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
-    current_input: Input,
+    // current_input: Input,
     camera: Camera,
     sprites: Option<Sprites>,
 }
@@ -55,11 +47,11 @@ impl WindowHandler<String> for GameScreen {
         graphics.clear_screen(Color::GREEN);
 
         if let Some(sprites) = &mut self.sprites {
+            sprites.player.update();
             sprites.player.draw(graphics, &self.camera);
         } else {
             self.sprites = Some(Sprites::init(graphics));
         }
-
 
         helper.request_redraw();
     }
@@ -73,17 +65,27 @@ impl WindowHandler<String> for GameScreen {
             match virtual_key_code {
                 VirtualKeyCode::Escape => {
                     self.new_screen = Some(Box::new(TitleScreen::new()));
-                }
+                },
                 _ => {
-                    self.current_input |= match virtual_key_code {
-                        VirtualKeyCode::Left => Input::LEFT,
-                        VirtualKeyCode::Up => Input::UP,
-                        VirtualKeyCode::Down => Input::DOWN,
-                        VirtualKeyCode::Right => Input::RIGHT,
-                        VirtualKeyCode::X => Input::ATTACK,
-                        _ => Input::NONE,
+                    if let Some(sprites) = &mut self.sprites {
+                        sprites.player.set_hat(match virtual_key_code {
+                            VirtualKeyCode::A => PlayerHat::Acid,
+                            VirtualKeyCode::B => PlayerHat::Helmet,
+                            VirtualKeyCode::C => PlayerHat::Teardrop,
+                            _ => PlayerHat::None,
+                        })
                     }
-                }
+                },
+                // _ => {
+                //     self.current_input |= match virtual_key_code {
+                //         VirtualKeyCode::Left => Input::LEFT,
+                //         VirtualKeyCode::Up => Input::UP,
+                //         VirtualKeyCode::Down => Input::DOWN,
+                //         VirtualKeyCode::Right => Input::RIGHT,
+                //         VirtualKeyCode::X => Input::ATTACK,
+                //         _ => Input::NONE,
+                //     }
+                // }
             }
         }
     }
@@ -94,14 +96,14 @@ impl WindowHandler<String> for GameScreen {
         _scancode: speedy2d::window::KeyScancode,
     ) {
         if let Some(virtual_key_code) = virtual_key_code {
-            self.current_input &= !match virtual_key_code {
-                VirtualKeyCode::Right => Input::RIGHT,
-                VirtualKeyCode::Left => Input::LEFT,
-                VirtualKeyCode::Up => Input::UP,
-                VirtualKeyCode::Down => Input::DOWN,
-                VirtualKeyCode::X => Input::ATTACK,
-                _ => Input::NONE,
-            }
+            // self.current_input &= !match virtual_key_code {
+            //     VirtualKeyCode::Right => Input::RIGHT,
+            //     VirtualKeyCode::Left => Input::LEFT,
+            //     VirtualKeyCode::Up => Input::UP,
+            //     VirtualKeyCode::Down => Input::DOWN,
+            //     VirtualKeyCode::X => Input::ATTACK,
+            //     _ => Input::NONE,
+            // }
         }
     }
     fn on_resize(
@@ -128,8 +130,12 @@ impl GameScreen {
         let res = get_resolution();
         GameScreen {
             new_screen: None,
-            current_input: Input { bits: 0 },
-            camera: Camera::new((0.0, 0.0).into(), res.0 as f32 / CAMERA_SCALE, res.1 as f32 / CAMERA_SCALE),
+            // current_input: Input { bits: 0 },
+            camera: Camera::new(
+                (0.0, 0.0).into(),
+                res.0 as f32 / CAMERA_SCALE,
+                res.1 as f32 / CAMERA_SCALE,
+            ),
             sprites: None,
         }
     }

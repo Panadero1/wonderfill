@@ -2,14 +2,23 @@ use std::collections::HashMap;
 
 use speedy2d::{color::Color, image::ImageHandle, shape::Rectangle};
 
-use crate::{utility::animation::Animation, world::space::GamePos};
+use crate::{utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
 
 use super::Entity;
+
+#[derive(Debug)]
+pub enum PlayerHat {
+    None,
+    Helmet,
+    Acid,
+    Teardrop,
+}
 
 pub struct Player {
     pos: GamePos,
     anim: Animation,
     size: GamePos,
+    hat: PlayerHat
 }
 impl Entity for Player {
     fn draw(
@@ -52,15 +61,34 @@ impl Entity for Player {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
+
+    fn update(&mut self) {
+        if let Err(AnimationSelectError::NotFound) = self.anim.select(&(format!("{:?}", self.hat).to_lowercase())[..]) {
+            panic!("Animation not found");
+        }
+    }
 }
 
 impl Player {
     pub fn new(src: ImageHandle,) -> Player {
-        let frames: HashMap<&str, (bool, Vec<(u16, u16)>)> = HashMap::new();
+        let mut frames: HashMap<&str, (bool, Vec<(u16, u16)>)> = HashMap::new();
+
+        frames.insert("none", (true, vec![(2, 3)]));
+
+        frames.insert("helmet", (true, vec![(0, 0)]));
+
+        frames.insert("acid", (true, vec![(2, 4)]));
+
+        frames.insert("teardrop", (true, vec![(2, 2)]));
+
         Player {
             pos: (0.0, 0.0).into(),
             anim: Animation::new(src, (7, 7), frames, (9, 0), 100),
             size: (0.7, 0.7).into(),
+            hat: PlayerHat::None,
         }
+    }
+    pub fn set_hat(&mut self, hat: PlayerHat) {
+        self.hat = hat;
     }
 }

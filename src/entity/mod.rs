@@ -11,4 +11,5 @@ pub trait Entity {
     fn intercept_anim(&mut self, anim_name: &str) -> Result<(), AnimationSelectError>;
     fn remove_anim(&mut self);
     fn get_pos(&self) -> GamePos;
+    fn update(&mut self);
 }
