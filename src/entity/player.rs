@@ -4,9 +4,11 @@ use speedy2d::{color::Color, image::ImageHandle, shape::Rectangle};
 
 use crate::{utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
 
+use serde::{Serialize, Deserialize};
+
 use super::Entity;
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
 pub enum PlayerHat {
     None,
     Helmet,
@@ -14,6 +16,7 @@ pub enum PlayerHat {
     Teardrop,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Player {
     pos: GamePos,
     anim: Animation,

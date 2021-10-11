@@ -7,6 +7,8 @@ use speedy2d::{
     Graphics2D,
 };
 
+use serde::{Serialize, Deserialize, ser::SerializeStruct};
+
 #[derive(Debug)]
 pub enum AnimationSelectError {
     AlreadyPlaying,
@@ -21,6 +23,26 @@ pub struct Animation {
     pub frame_loop: Option<(bool, Vec<(u16, u16)>)>,
     start: Instant,
     iter_speed_ms: u16,
+}
+impl Serialize for Animation {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer {
+        let mut state = serializer.serialize_struct("Animation", 7)?;
+        state.serialize_field("frame_size", &self.frame_size)?;
+        state.serialize_field("frames", &self.frames)?;
+        state.serialize_field("default", &self.default)?;
+        state.serialize_field("frame_loop", &self.frame_loop)?;
+        state.serialize_field("iter_speed_ms", &self.iter_speed_ms)?;
+        state.end()
+    }
+}
+impl Deserialize for Animation {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de> {
+        todo!()
+    }
 }
 impl Animation {
     pub fn new(
