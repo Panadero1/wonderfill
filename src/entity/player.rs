@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use speedy2d::{color::Color, image::ImageHandle, shape::Rectangle};
 
-use crate::{utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
+use crate::{ui::img::{Img, ImgState}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
 
 use serde::{Serialize, Deserialize};
 
 use super::Entity;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum PlayerHat {
     None,
     Helmet,
@@ -73,20 +73,20 @@ impl Entity for Player {
 }
 
 impl Player {
-    pub fn new(src: ImageHandle,) -> Player {
-        let mut frames: HashMap<&str, (bool, Vec<(u16, u16)>)> = HashMap::new();
+    pub fn new() -> Player {
+        let mut frames: HashMap<String, (bool, Vec<(u16, u16)>)> = HashMap::new();
 
-        frames.insert("none", (true, vec![(2, 3)]));
+        frames.insert(String::from("none"), (true, vec![(2, 3)]));
 
-        frames.insert("helmet", (true, vec![(0, 0)]));
+        frames.insert(String::from("helmet"), (true, vec![(0, 0)]));
 
-        frames.insert("acid", (true, vec![(2, 4)]));
+        frames.insert(String::from("acid"), (true, vec![(2, 4)]));
 
-        frames.insert("teardrop", (true, vec![(2, 2)]));
+        frames.insert(String::from("teardrop"), (true, vec![(2, 2)]));
 
         Player {
             pos: (0.0, 0.0).into(),
-            anim: Animation::new(src, (7, 7), frames, (9, 0), 100),
+            anim: Animation::new(Img::new(String::from("assets/img/player.png")), (7, 7), frames, (9, 0), 100),
             size: (0.7, 0.7).into(),
             hat: PlayerHat::None,
         }

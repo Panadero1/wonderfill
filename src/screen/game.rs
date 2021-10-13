@@ -6,7 +6,14 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{entity::{Entity, player::{Player, PlayerHat}}, ui::img::get_image_handle};
+use crate::{
+    entity::{
+        player::{Player, PlayerHat},
+        Entity,
+    },
+    ui::img::get_image_handle,
+    world::World,
+};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
@@ -23,35 +30,20 @@ const CAMERA_SCALE: f32 = 100.0;
 //     }
 // }
 
-pub struct Sprites {
-    player: Player,
-}
-
-impl Sprites {
-    pub fn init(graphics: &mut Graphics2D) -> Sprites {
-        Sprites {
-            player: Player::new(get_image_handle(graphics, "assets\\img\\player.png").unwrap()),
-        }
-    }
-}
-
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     // current_input: Input,
     camera: Camera,
-    sprites: Option<Sprites>,
+    world: World,
 }
 
 impl WindowHandler<String> for GameScreen {
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
         graphics.clear_screen(Color::GREEN);
 
-        if let Some(sprites) = &mut self.sprites {
-            sprites.player.update();
-            sprites.player.draw(graphics, &self.camera);
-        } else {
-            self.sprites = Some(Sprites::init(graphics));
-        }
+        self.world.player.update();
+
+        self.world.player.draw(graphics, &self.camera);
 
         helper.request_redraw();
     }
@@ -65,27 +57,25 @@ impl WindowHandler<String> for GameScreen {
             match virtual_key_code {
                 VirtualKeyCode::Escape => {
                     self.new_screen = Some(Box::new(TitleScreen::new()));
-                },
+                }
                 _ => {
-                    if let Some(sprites) = &mut self.sprites {
-                        sprites.player.set_hat(match virtual_key_code {
-                            VirtualKeyCode::A => PlayerHat::Acid,
-                            VirtualKeyCode::B => PlayerHat::Helmet,
-                            VirtualKeyCode::C => PlayerHat::Teardrop,
-                            _ => PlayerHat::None,
-                        })
-                    }
-                },
-                // _ => {
-                //     self.current_input |= match virtual_key_code {
-                //         VirtualKeyCode::Left => Input::LEFT,
-                //         VirtualKeyCode::Up => Input::UP,
-                //         VirtualKeyCode::Down => Input::DOWN,
-                //         VirtualKeyCode::Right => Input::RIGHT,
-                //         VirtualKeyCode::X => Input::ATTACK,
-                //         _ => Input::NONE,
-                //     }
-                // }
+                    self.world.player.set_hat(match virtual_key_code {
+                        VirtualKeyCode::A => PlayerHat::Acid,
+                        VirtualKeyCode::B => PlayerHat::Helmet,
+                        VirtualKeyCode::C => PlayerHat::Teardrop,
+                        _ => PlayerHat::None,
+                    });
+                }
+                 // _ => {
+                  //     self.current_input |= match virtual_key_code {
+                  //         VirtualKeyCode::Left => Input::LEFT,
+                  //         VirtualKeyCode::Up => Input::UP,
+                  //         VirtualKeyCode::Down => Input::DOWN,
+                  //         VirtualKeyCode::Right => Input::RIGHT,
+                  //         VirtualKeyCode::X => Input::ATTACK,
+                  //         _ => Input::NONE,
+                  //     }
+                  // }
             }
         }
     }
@@ -136,7 +126,7 @@ impl GameScreen {
                 res.0 as f32 / CAMERA_SCALE,
                 res.1 as f32 / CAMERA_SCALE,
             ),
-            sprites: None,
+            world: World::new(vec![], Player::new()),
         }
     }
 }

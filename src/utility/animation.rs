@@ -7,7 +7,11 @@ use speedy2d::{
     Graphics2D,
 };
 
-use serde::{Serialize, Deserialize, ser::SerializeStruct};
+use serde::{Deserialize, Serialize, de::Visitor, ser::SerializeStruct};
+
+use crate::ui::img::{Img, ImgError, ImgState};
+
+use super::time::NInstant;
 
 #[derive(Debug)]
 pub enum AnimationSelectError {
@@ -15,40 +19,21 @@ pub enum AnimationSelectError {
     NotFound,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Animation {
-    src: ImageHandle,
+    src: Img,
     frame_size: (u16, u16),
-    frames: HashMap<&'static str, (bool, Vec<(u16, u16)>)>,
+    frames: HashMap<String, (bool, Vec<(u16, u16)>)>,
     default: (u16, u16),
     pub frame_loop: Option<(bool, Vec<(u16, u16)>)>,
-    start: Instant,
+    start: NInstant,
     iter_speed_ms: u16,
-}
-impl Serialize for Animation {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer {
-        let mut state = serializer.serialize_struct("Animation", 7)?;
-        state.serialize_field("frame_size", &self.frame_size)?;
-        state.serialize_field("frames", &self.frames)?;
-        state.serialize_field("default", &self.default)?;
-        state.serialize_field("frame_loop", &self.frame_loop)?;
-        state.serialize_field("iter_speed_ms", &self.iter_speed_ms)?;
-        state.end()
-    }
-}
-impl Deserialize for Animation {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de> {
-        todo!()
-    }
 }
 impl Animation {
     pub fn new(
-        src: ImageHandle,
+        src: Img,
         frame_size: (u16, u16),
-        frames: HashMap<&'static str, (bool, Vec<(u16, u16)>)>,
+        frames: HashMap<String, (bool, Vec<(u16, u16)>)>,
         default: (u16, u16),
         iter_speed_ms: u16,
     ) -> Animation {
@@ -58,7 +43,7 @@ impl Animation {
             frames,
             default,
             frame_loop: None,
-            start: Instant::now(),
+            start: NInstant::now(),
             iter_speed_ms,
         }
     }
@@ -68,7 +53,7 @@ impl Animation {
                 if Some(frames) == self.frame_loop.as_ref() {
                     return Err(AnimationSelectError::AlreadyPlaying)
                 }
-                self.start = Instant::now();
+                self.start = NInstant::now();
                 self.frame_loop = Some(frames.clone());
                 Ok(())
             }
@@ -91,9 +76,12 @@ impl Animation {
         self.frame_loop = None;
     }
     pub fn draw(&mut self, graphics: &mut Graphics2D, window_rect: Rectangle<f32>, color: Color) {
+        if self.src.state.is_none() {
+            self.src.init(graphics);
+        }
         let frame_pos = match &self.frame_loop {
             Some((do_loop, frame_loop)) => {
-                let duration_ms = self.start.elapsed().as_millis();
+                let duration_ms = self.start.get_instant().elapsed().as_millis();
                 let frame_count = duration_ms / self.iter_speed_ms as u128;
                 if !do_loop && frame_count > frame_loop.len() as u128 {
                     self.deselect();
@@ -108,15 +96,19 @@ impl Animation {
             None => self.default,
         };
 
-        graphics.draw_rectangle_image_subset_tinted(
-            window_rect,
-            color,
-            self.get_bounds_rect_from_pos(frame_pos),
-            &self.src,
-        );
+        if let Some(img) = &self.src.state {
+            graphics.draw_rectangle_image_subset_tinted(
+                window_rect,
+                color,
+                self.get_bounds_rect_from_pos(frame_pos),
+                img,
+            );
+        }
+
     }
     fn get_bounds_rect_from_pos(&self, pos: (u16, u16)) -> Rectangle {
-        let img_bounds = self.src.size();
+        
+        let img_bounds = self.src.state.as_ref().unwrap().size();
         let top_left = (
             (pos.0 as f32) * (self.frame_size.0 as f32 + 1.0) / (img_bounds.x as f32),
             (pos.1 as f32) * (self.frame_size.1 as f32 + 1.0) / (img_bounds.y as f32),
@@ -125,6 +117,6 @@ impl Animation {
             ((pos.0 as f32 + 1.0) * (self.frame_size.0 as f32 + 1.0) - 1.0) / (img_bounds.x as f32),
             ((pos.1 as f32 + 1.0) * (self.frame_size.1 as f32 + 1.0) - 1.0) / (img_bounds.y as f32),
         );
-        Rectangle::from_tuples(top_left, bottom_right)
+        return Rectangle::from_tuples(top_left, bottom_right);
     }
 }

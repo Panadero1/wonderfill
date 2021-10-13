@@ -3,6 +3,8 @@
 // Get player anims based on hat
 // Get world generating
 // Persist to file
+// Deserialize
+// Region drawing
 
 // [Housekeeping]
 // Fix options page

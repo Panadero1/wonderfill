@@ -5,10 +5,10 @@ use serde::{Serialize, Deserialize};
 
 pub mod space;
 
-#[derive(Serialize, Deserialize)]
+//#[derive(Serialize, Deserialize)]
 pub struct World {
-    regions: Vec<Region>,
-    player: Player,
+    pub regions: Vec<Region>,
+    pub player: Player,
 }
 
 impl World {
