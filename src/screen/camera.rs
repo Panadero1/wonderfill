@@ -26,7 +26,13 @@ impl Camera {
             ((self.width / 2.0) + point.x - self.pos.x) / self.width,
             ((self.height / 2.0) + point.y - self.pos.y) / self.height,
         );
-        let resul = (a_pos.0 * (res.0 as f32), a_pos.1 * (res.1 as f32));
-        resul
+        let result = (a_pos.0 * (res.0 as f32), a_pos.1 * (res.1 as f32));
+        result
+    }
+    pub fn rect_from_center(&self, pos: GamePos, size: GamePos) -> Rectangle {
+        Rectangle::from_tuples(
+        self.game_to_pix(pos - (size / 2.0)).into(),
+        self.game_to_pix(pos + (size / 2.0)).into(),
+        )
     }
 }

@@ -26,6 +26,7 @@ impl ImgState {
     }
 }
 
+#[derive(Debug)]
 pub struct Img {
     pub state: Option<ImageHandle>,
     path: String,

@@ -1,6 +1,7 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use serde::{Serialize, Deserialize};
 
+
 // GamePos
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct GamePos {
@@ -79,15 +80,3 @@ impl GamePos {
     }
 }
 
-
-// Tile & region
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Tile {
-
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Region {
-    tiles: Vec<Option<Tile>>,
-    width: u16,
-    origin: GamePos
-}

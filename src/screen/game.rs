@@ -17,7 +17,8 @@ use crate::{
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
-const CAMERA_SCALE: f32 = 100.0;
+// Larger number -> smaller bounds
+const CAMERA_SCALE: f32 = 50.0;
 
 // bitflags! {
 //     struct Input: u8 {

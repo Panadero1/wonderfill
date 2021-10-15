@@ -31,10 +31,7 @@ impl Entity for Player {
     ) {
         self.anim.draw(
             graphics,
-            Rectangle::from_tuples(
-                camera.game_to_pix(self.pos - (self.size / 2.0)).into(),
-                camera.game_to_pix(self.pos + (self.size / 2.0)).into(),
-            ),
+            camera.rect_from_center(self.pos, self.size),
             Color::WHITE,
         );
     }
@@ -87,7 +84,7 @@ impl Player {
         Player {
             pos: (0.0, 0.0).into(),
             anim: Animation::new(Img::new(String::from("assets/img/player.png")), (7, 7), frames, (9, 0), 100),
-            size: (0.7, 0.7).into(),
+            size: (1.0, 1.0).into(),
             hat: PlayerHat::None,
         }
     }

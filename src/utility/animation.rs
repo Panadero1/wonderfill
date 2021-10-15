@@ -19,7 +19,7 @@ pub enum AnimationSelectError {
     NotFound,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Animation {
     src: Img,
     frame_size: (u16, u16),
@@ -47,8 +47,8 @@ impl Animation {
             iter_speed_ms,
         }
     }
-    pub fn select(&mut self, anim: &str) -> Result<(), AnimationSelectError> {
-        match self.frames.get(anim) {
+    pub fn select(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
+        match self.frames.get(anim_name) {
             Some(frames) => {
                 if Some(frames) == self.frame_loop.as_ref() {
                     return Err(AnimationSelectError::AlreadyPlaying)
@@ -60,8 +60,8 @@ impl Animation {
             None => Err(AnimationSelectError::NotFound),
         }
     }
-    pub fn intercept(&mut self, anim: &str) -> Result<(), AnimationSelectError> {
-        match self.frames.get(anim) {
+    pub fn intercept(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
+        match self.frames.get(anim_name) {
             Some(frames) => {
                 if Some(frames) == self.frame_loop.as_ref() {
                     return Err(AnimationSelectError::AlreadyPlaying)
