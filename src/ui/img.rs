@@ -1,3 +1,5 @@
+use std::{cell::RefCell, collections::{HashMap, HashSet}, rc::Rc};
+
 use serde::{Deserialize, Serialize, de::Visitor};
 use speedy2d::{
     error::{BacktraceError, ErrorMessage},
@@ -27,8 +29,30 @@ impl ImgState {
 }
 
 #[derive(Debug)]
+pub struct ImgManager {
+    imgs: HashMap<String, Rc<ImageHandle>>,
+}
+impl ImgManager {
+    pub fn new() -> ImgManager {
+        ImgManager {
+            imgs: HashMap::new(),
+        }
+    }
+    pub fn get_img(&mut self, path: &String, graphics: &mut Graphics2D) -> Rc<ImageHandle> {
+        if let Some(val) = self.imgs.get(path) {
+            return Rc::clone(&val);
+        }
+        else {
+            let result = Rc::new(get_image_handle(graphics, path).unwrap());
+            self.imgs.insert(path.clone(), Rc::clone(&result));
+            return result;
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Img {
-    pub state: Option<ImageHandle>,
+    pub state: Option<Rc<ImageHandle>>,
     path: String,
 }
 
@@ -55,8 +79,8 @@ impl Img {
             path,
         }
     }
-    pub fn init(&mut self, graphics: &mut Graphics2D) {
-        self.state = Some(get_image_handle(graphics, &self.path).unwrap());
+    pub fn init(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
+        self.state = Some(manager.get_img(&self.path, graphics));
     }
 }
 

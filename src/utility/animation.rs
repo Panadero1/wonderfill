@@ -9,7 +9,7 @@ use speedy2d::{
 
 use serde::{Deserialize, Serialize, de::Visitor, ser::SerializeStruct};
 
-use crate::ui::img::{Img, ImgError, ImgState};
+use crate::ui::img::{Img, ImgError, ImgManager, ImgState};
 
 use super::time::NInstant;
 
@@ -19,7 +19,7 @@ pub enum AnimationSelectError {
     NotFound,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Animation {
     src: Img,
     frame_size: (u16, u16),
@@ -75,9 +75,9 @@ impl Animation {
     pub fn deselect(&mut self) {
         self.frame_loop = None;
     }
-    pub fn draw(&mut self, graphics: &mut Graphics2D, window_rect: Rectangle<f32>, color: Color) {
+    pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, window_rect: Rectangle<f32>, color: Color) {
         if self.src.state.is_none() {
-            self.src.init(graphics);
+            self.src.init(graphics, manager);
         }
         let frame_pos = match &self.frame_loop {
             Some((do_loop, frame_loop)) => {

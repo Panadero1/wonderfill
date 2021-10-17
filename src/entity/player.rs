@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use speedy2d::{color::Color, image::ImageHandle, shape::Rectangle};
 
-use crate::{ui::img::{Img, ImgState}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
+use crate::{ui::img::{Img, ImgManager, ImgState}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
 
 use serde::{Serialize, Deserialize};
 
@@ -27,10 +27,12 @@ impl Entity for Player {
     fn draw(
         &mut self,
         graphics: &mut speedy2d::Graphics2D,
+        manager: &mut ImgManager,
         camera: &crate::screen::camera::Camera,
     ) {
         self.anim.draw(
             graphics,
+            manager,
             camera.rect_from_center(self.pos, self.size),
             Color::WHITE,
         );

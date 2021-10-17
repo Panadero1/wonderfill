@@ -1,0 +1,9 @@
+Implementing Rc on ImageHandle to keep out repetitive instances in memory
+Very effective, it seems, although there wasn't much testing of before Rc
+
+# of tiles      MB of RAM
+200             76
+400             75
+900             76
+1600            77
+100000          92
