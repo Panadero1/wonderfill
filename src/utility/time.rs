@@ -2,7 +2,7 @@ use std::time::{self, Instant};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NInstant(time::Instant);
 
 impl Serialize for NInstant {

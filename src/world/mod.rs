@@ -1,9 +1,4 @@
-use crate::{
-    entity::{player::Player, Entity},
-    screen::camera::Camera,
-    ui::img::Img,
-    utility::animation::{Animation, AnimationSelectError},
-};
+use crate::{entity::{player::Player, Entity}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}};
 
 use self::space::GamePos;
 use serde::{Deserialize, Serialize};
@@ -31,9 +26,10 @@ pub struct Tile {
 }
 
 impl Entity for Tile {
-    fn draw(&mut self, graphics: &mut Graphics2D, camera: &Camera) {
+    fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
         self.anim.draw(
             graphics,
+            manager,
             camera.rect_from_center(self.pos, (1.0, 1.0).into()),
             Color::WHITE,
         );
@@ -75,23 +71,19 @@ impl Tile {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Region {
-    tiles: Vec<Option<Tile>>,
-    origin: GamePos,
+    tiles: Vec<Tile>,
 }
 
 impl Region {
-    pub fn new(tiles: Vec<Option<Tile>>, origin: GamePos, path: String) -> Region {
+    pub fn new(tiles: Vec<Tile>) -> Region {
         Region {
             tiles,
-            origin,
         }
     }
 
-    pub fn draw(&mut self, graphics: &mut Graphics2D, camera: &Camera) {
+    pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
         for tile in &mut self.tiles {
-            if let Some(tile) = tile {
-                tile.draw(graphics, camera);
-            }
+            tile.draw(graphics, manager, camera);
         }
     }
 }
