@@ -3,6 +3,7 @@ use speedy2d::Graphics2D;
 use crate::{screen::camera::Camera, ui::img::ImgManager, utility::animation::AnimationSelectError, world::space::GamePos};
 
 pub mod player;
+pub mod tile;
 
 pub trait Entity {
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera);

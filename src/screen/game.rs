@@ -8,10 +8,7 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{entity::{
-        player::{Player, PlayerHat},
-        Entity,
-    }, ui::img::{Img, ImgManager, get_image_handle}, utility::animation::Animation, world::{Region, Tile, World}};
+use crate::{entity::{Entity, player::{Player, PlayerHat}, tile::Tile}, ui::img::{Img, ImgManager, get_image_handle}, utility::animation::Animation, world::{Region, World}};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
