@@ -1,4 +1,9 @@
-use crate::{entity::{Entity, player::Player, tile::Tile}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}};
+use crate::{
+    entity::{player::Player, tile::Tile, Entity},
+    screen::camera::Camera,
+    ui::img::{Img, ImgManager},
+    utility::animation::{Animation, AnimationSelectError},
+};
 
 use self::space::GamePos;
 use serde::{Deserialize, Serialize};
@@ -25,13 +30,36 @@ pub struct Region {
 
 impl Region {
     pub fn new(tiles: Vec<Tile>) -> Region {
-        Region {
-            tiles,
-        }
+        Region { tiles }
     }
 
-    pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
-        for tile in &mut self.tiles {
+    pub fn draw_before_player(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        camera: &Camera,
+        player_pos: GamePos,
+    ) {
+        for tile in self
+            .tiles
+            .iter_mut()
+            .filter(|t| t.get_pos().y <= player_pos.y)
+        {
+            tile.draw(graphics, manager, camera);
+        }
+    }
+    pub fn draw_after_player(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        camera: &Camera,
+        player_pos: GamePos,
+    ) {
+        for tile in self
+            .tiles
+            .iter_mut()
+            .filter(|t| t.get_pos().y > player_pos.y)
+        {
             tile.draw(graphics, manager, camera);
         }
     }

@@ -1,6 +1,7 @@
 use std::{collections::HashMap, ops::Not};
 
 use bitflags::bitflags;
+use rand::Rng;
 use speedy2d::{
     color::Color,
     image::{ImageFileFormat, ImageSmoothingMode},
@@ -63,15 +64,19 @@ pub struct GameScreen {
 
 impl WindowHandler<String> for GameScreen {
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
-        graphics.clear_screen(Color::GREEN);
+        graphics.clear_screen(Color::GRAY);
 
         self.world.player.update();
 
         for region in &mut self.world.regions {
-            region.draw(graphics, &mut self.img_manager, &self.camera);
+            region.draw_before_player(graphics, &mut self.img_manager, &self.camera, self.world.player.get_pos());
         }
 
         self.world.player.draw(graphics, &mut self.img_manager, &self.camera);
+
+        for region in &mut self.world.regions {
+            region.draw_after_player(graphics, &mut self.img_manager, &self.camera, self.world.player.get_pos());
+        }
 
         helper.request_redraw();
     }
@@ -96,13 +101,15 @@ impl WindowHandler<String> for GameScreen {
                 // },
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
-                        self.world.player.moove(match virtual_key_code {
+                        let move_pos = match virtual_key_code {
                             VirtualKeyCode::Up => (0.0, -1.0),
                             VirtualKeyCode::Left => (-1.0, 0.0),
                             VirtualKeyCode::Down => (0.0, 1.0),
                             VirtualKeyCode::Right => (1.0, 0.0),
                             _ => (0.0, 0.0),
-                        }.into())
+                        }.into();
+                        self.world.player.moove(move_pos);
+                        self.camera.moove(move_pos);
                     }
                     self.current_input |= virtual_key_code.into();
                 }
@@ -143,25 +150,30 @@ impl GameScreen {
     pub fn new() -> GameScreen {
         let res = get_resolution();
 
-        let size = 10;
+        let size = 50;
 
         let mut tiles = Vec::with_capacity(size * size);
 
         let mut frames = HashMap::new();
 
-        frames.insert(String::from(""), (true, vec![(0, 0)]));
+        frames.insert(String::from("ground"), (true, vec![(0, 0)]));
+        frames.insert(String::from("wall"), (true, vec![(2, 0)]));
 
         let tile_anim = Animation::new(
             Img::new(String::from("assets\\img\\tiles.png")),
-            (7, 7),
+            (7, 10),
             frames,
-            (0, 0),
+            (5, 0),
             100,
         );
 
+        let mut r = rand::thread_rng();
+
         for y in 0..size {
             for x in 0..size {
-                tiles.push(Tile::new((x as f32, y as f32).into(), tile_anim.clone()));
+                let mut tile = Tile::new((x as f32, y as f32).into(), tile_anim.clone());
+                tile.set_anim(if r.gen_ratio(1, 3) {"wall"} else {"ground"}).unwrap();
+                tiles.push(tile);
             }
         }
 
