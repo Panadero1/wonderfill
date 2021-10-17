@@ -6,6 +6,7 @@ use super::Entity;
 
 use serde::{Serialize, Deserialize};
 
+const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Tile {
@@ -18,12 +19,12 @@ impl Entity for Tile {
         self.anim.draw(
             graphics,
             manager,
-            camera.rect_from_center(self.pos, (1.0, 1.0).into()),
+            camera.rect_from_offset(self.pos, (1.0, HEIGHT_GAMEPOS).into(), (0.0, 1.0 - HEIGHT_GAMEPOS).into()),
             Color::WHITE,
         );
     }
 
-    fn moove(&mut self, change_pos: (f32, f32)) {
+    fn moove(&mut self, _change_pos: (f32, f32)) {
         // Don't do anything; tiles shouldn't move
     }
 

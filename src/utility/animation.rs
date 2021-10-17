@@ -110,12 +110,12 @@ impl Animation {
         
         let img_bounds = self.src.state.as_ref().unwrap().size();
         let top_left = (
-            (pos.0 as f32) * (self.frame_size.0 as f32 + 1.0) / (img_bounds.x as f32),
-            (pos.1 as f32) * (self.frame_size.1 as f32 + 1.0) / (img_bounds.y as f32),
+            ((pos.0 as f32) * (self.frame_size.0 as f32 + 2.0) + 1.0) / (img_bounds.x as f32),
+            ((pos.1 as f32) * (self.frame_size.1 as f32 + 2.0) + 1.0) / (img_bounds.y as f32),
         );
         let bottom_right = (
-            ((pos.0 as f32 + 1.0) * (self.frame_size.0 as f32 + 1.0) - 1.0) / (img_bounds.x as f32),
-            ((pos.1 as f32 + 1.0) * (self.frame_size.1 as f32 + 1.0) - 1.0) / (img_bounds.y as f32),
+            ((pos.0 as f32 + 1.0) * (self.frame_size.0 as f32 + 2.0) - 1.0) / (img_bounds.x as f32),
+            ((pos.1 as f32 + 1.0) * (self.frame_size.1 as f32 + 2.0) - 1.0) / (img_bounds.y as f32),
         );
         return Rectangle::from_tuples(top_left, bottom_right);
     }

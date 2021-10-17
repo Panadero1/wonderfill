@@ -31,8 +31,14 @@ impl Camera {
     }
     pub fn rect_from_center(&self, pos: GamePos, size: GamePos) -> Rectangle {
         Rectangle::from_tuples(
-        self.game_to_pix(pos - (size / 2.0)).into(),
-        self.game_to_pix(pos + (size / 2.0)).into(),
+        self.game_to_pix(pos - (size / 2.0)),
+        self.game_to_pix(pos + (size / 2.0)),
+        )
+    }
+    pub fn rect_from_offset(&self, pos: GamePos, size: GamePos, offset: GamePos) -> Rectangle {
+        Rectangle::from_tuples(
+            self.game_to_pix(pos - (size / 2.0) + (offset / 2.0)),
+            self.game_to_pix(pos + (size / 2.0) + (offset / 2.0))
         )
     }
 }
