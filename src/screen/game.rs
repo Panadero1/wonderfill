@@ -9,7 +9,16 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{entity::{Entity, player::{Player, PlayerHat}, tile::Tile}, ui::img::{Img, ImgManager, get_image_handle}, utility::animation::Animation, world::{Region, World}};
+use crate::{
+    entity::{
+        player::{Player, PlayerHat},
+        tile::Tile,
+        Entity,
+    },
+    ui::img::{get_image_handle, Img, ImgManager},
+    utility::animation::Animation,
+    world::{Region, World},
+};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
@@ -69,13 +78,25 @@ impl WindowHandler<String> for GameScreen {
         self.world.player.update();
 
         for region in &mut self.world.regions {
-            region.draw_before_player(graphics, &mut self.img_manager, &self.camera, self.world.player.get_pos());
+            region.draw_before_player(
+                graphics,
+                &mut self.img_manager,
+                &self.camera,
+                self.world.player.get_pos(),
+            );
         }
 
-        self.world.player.draw(graphics, &mut self.img_manager, &self.camera);
+        self.world
+            .player
+            .draw(graphics, &mut self.img_manager, &self.camera);
 
         for region in &mut self.world.regions {
-            region.draw_after_player(graphics, &mut self.img_manager, &self.camera, self.world.player.get_pos());
+            region.draw_after_player(
+                graphics,
+                &mut self.img_manager,
+                &self.camera,
+                self.world.player.get_pos(),
+            );
         }
 
         helper.request_redraw();
@@ -107,7 +128,8 @@ impl WindowHandler<String> for GameScreen {
                             VirtualKeyCode::Down => (0.0, 1.0),
                             VirtualKeyCode::Right => (1.0, 0.0),
                             _ => (0.0, 0.0),
-                        }.into();
+                        }
+                        .into();
                         self.world.player.moove(move_pos);
                         self.camera.moove(move_pos);
                     }
@@ -154,16 +176,21 @@ impl GameScreen {
 
         let mut tiles = Vec::with_capacity(size * size);
 
-        let mut frames = HashMap::new();
+        let frames = HashMap::new();
 
-        frames.insert(String::from("ground"), (true, vec![(0, 0)]));
-        frames.insert(String::from("wall"), (true, vec![(2, 0)]));
+        let tile_anim_ground = Animation::new(
+            Img::new(String::from("assets\\img\\tiles.png")),
+            (7, 10),
+            frames.clone(),
+            (0, 0),
+            100,
+        );
 
-        let tile_anim = Animation::new(
+        let tile_anim_wall = Animation::new(
             Img::new(String::from("assets\\img\\tiles.png")),
             (7, 10),
             frames,
-            (5, 0),
+            (2, 0),
             100,
         );
 
@@ -171,8 +198,15 @@ impl GameScreen {
 
         for y in 0..size {
             for x in 0..size {
-                let mut tile = Tile::new((x as f32, y as f32).into(), tile_anim.clone());
-                tile.set_anim(if r.gen_ratio(1, 3) {"wall"} else {"ground"}).unwrap();
+                let tile = Tile::new(
+                    (x as f32, y as f32).into(),
+                    if r.gen_ratio(1, 3) {
+                        tile_anim_wall.clone()
+                    } else {
+                        tile_anim_ground.clone()
+                    },
+                );
+
                 tiles.push(tile);
             }
         }
@@ -186,7 +220,7 @@ impl GameScreen {
                 res.1 as f32 / CAMERA_SCALE,
             ),
             world: World::new(vec![Region::new(tiles)], Player::new()),
-            img_manager: ImgManager::new()
+            img_manager: ImgManager::new(),
         }
     }
 }
