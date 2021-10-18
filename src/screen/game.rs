@@ -1,7 +1,15 @@
-use std::{collections::HashMap, ops::Not};
+use std::{
+    collections::HashMap,
+    env,
+    fs::{self, File},
+    io::{self, BufReader},
+    ops::Not,
+    path::{Path, PathBuf},
+};
 
 use bitflags::bitflags;
 use rand::Rng;
+use serde::Serialize;
 use speedy2d::{
     color::Color,
     image::{ImageFileFormat, ImageSmoothingMode},
@@ -17,7 +25,7 @@ use crate::{
     },
     ui::img::{get_image_handle, Img, ImgManager},
     utility::animation::Animation,
-    world::{Region, World},
+    world::{self, Region, World},
 };
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
@@ -66,7 +74,6 @@ impl Into<Option<VirtualKeyCode>> for Input {
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     current_input: Input,
-    camera: Camera,
     world: World,
     img_manager: ImgManager,
 }
@@ -81,20 +88,20 @@ impl WindowHandler<String> for GameScreen {
             region.draw_before_player(
                 graphics,
                 &mut self.img_manager,
-                &self.camera,
+                &self.world.camera,
                 self.world.player.get_pos(),
             );
         }
 
         self.world
             .player
-            .draw(graphics, &mut self.img_manager, &self.camera);
+            .draw(graphics, &mut self.img_manager, &self.world.camera);
 
         for region in &mut self.world.regions {
             region.draw_after_player(
                 graphics,
                 &mut self.img_manager,
-                &self.camera,
+                &self.world.camera,
                 self.world.player.get_pos(),
             );
         }
@@ -110,6 +117,7 @@ impl WindowHandler<String> for GameScreen {
         if let Some(virtual_key_code) = virtual_key_code {
             match virtual_key_code {
                 VirtualKeyCode::Escape => {
+                    self.save_world();
                     self.new_screen = Some(Box::new(TitleScreen::new()));
                 }
                 // _ => {
@@ -131,7 +139,7 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        self.camera.moove(move_pos);
+                        self.world.camera.moove(move_pos);
                     }
                     self.current_input |= virtual_key_code.into();
                 }
@@ -154,8 +162,11 @@ impl WindowHandler<String> for GameScreen {
         _helper: &mut WindowHelper<String>,
         size_pixels: speedy2d::dimen::Vector2<u32>,
     ) {
-        self.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
-        self.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
+        self.world.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
+        self.world.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
+    }
+    fn on_start(&mut self, helper: &mut WindowHelper<String>, info: speedy2d::window::WindowStartupInfo) {
+        self.on_resize(helper, get_resolution().into());
     }
 }
 
@@ -211,16 +222,52 @@ impl GameScreen {
             }
         }
 
-        GameScreen {
-            new_screen: None,
-            current_input: Input { bits: 0 },
-            camera: Camera::new(
+        GameScreen::with_world(World::new(
+            vec![Region::new(tiles)],
+            Player::new(),
+            Camera::new(
                 (0.0, 0.0).into(),
                 res.0 as f32 / CAMERA_SCALE,
                 res.1 as f32 / CAMERA_SCALE,
             ),
-            world: World::new(vec![Region::new(tiles)], Player::new()),
+        ))
+    }
+
+    pub fn load() -> GameScreen {
+        GameScreen::with_world(GameScreen::load_world())
+    }
+
+    fn with_world(world: World) -> GameScreen {
+        GameScreen {
+            new_screen: None,
+            current_input: Input::NONE,
+            world,
             img_manager: ImgManager::new(),
         }
+    }
+
+    fn save_world(&self) {
+        let path = GameScreen::get_save_file_path();
+        let file = fs::File::create(path).unwrap();
+        let writer = io::LineWriter::new(file);
+        serde_json::to_writer(writer, &self.world).unwrap();
+    }
+
+    fn get_save_file_path() -> PathBuf {
+        let dir = env::current_dir().unwrap();
+        let path = Path::new(&dir).join("saves\\");
+        if !path.exists() {
+            fs::create_dir(&path).unwrap();
+        }
+        path.join("out.json")
+    }
+
+    fn load_world() -> World {
+        let path = GameScreen::get_save_file_path();
+        // let file = fs::File::open(path).unwrap();
+        let contents = fs::read_to_string(path).unwrap();
+        // let rdr = BufReader::new(file);
+        
+        serde_json::from_str(&contents).unwrap()
     }
 }

@@ -11,15 +11,16 @@ use speedy2d::{color::Color, Graphics2D};
 
 pub mod space;
 
-//#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct World {
     pub regions: Vec<Region>,
     pub player: Player,
+    pub camera: Camera,
 }
 
 impl World {
-    pub fn new(regions: Vec<Region>, player: Player) -> World {
-        World { regions, player }
+    pub fn new(regions: Vec<Region>, player: Player, camera: Camera) -> World {
+        World { regions, player, camera }
     }
 }
 

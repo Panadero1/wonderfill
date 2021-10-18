@@ -1,9 +1,11 @@
+use serde::{Deserialize, Serialize};
 use speedy2d::shape::Rectangle;
 
 use crate::world::space::GamePos;
 
 use super::get_resolution;
 
+#[derive(Serialize, Deserialize)]
 pub struct Camera {
     pub pos: GamePos,
     pub width: f32,
