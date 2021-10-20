@@ -1,8 +1,7 @@
 // [TODO]
-// Tile trait implementations
 // Tile interactions
 // Clock struct
-// Think up world regionsd
+// Think up world regions
 
 // [Housekeeping]
 // Fix options page
