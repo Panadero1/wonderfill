@@ -17,16 +17,7 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{
-    entity::{
-        player::{Player, PlayerHat},
-        tile::Tile,
-        Entity,
-    },
-    ui::img::{get_image_handle, Img, ImgManager},
-    utility::animation::Animation,
-    world::{self, Region, World},
-};
+use crate::{entity::{Entity, player::{Player, PlayerHat}, tile::{Tile, test_ground::{self, TestGround}, test_pillar::TestPillar}}, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, Region, World}};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
@@ -105,8 +96,6 @@ impl WindowHandler<String> for GameScreen {
                 self.world.player.get_pos(),
             );
         }
-
-        helper.request_redraw();
     }
     fn on_key_down(
         &mut self,
@@ -166,16 +155,18 @@ impl WindowHandler<String> for GameScreen {
         self.world.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
     }
     fn on_start(&mut self, helper: &mut WindowHelper<String>, info: speedy2d::window::WindowStartupInfo) {
-        self.on_resize(helper, get_resolution().into());
     }
 }
 
-impl Screen for GameScreen {
+impl<'a> Screen for GameScreen {
     fn change_screen(&mut self) -> Option<Box<dyn Screen>> {
         if self.new_screen.is_some() {
             return self.new_screen.take();
         }
         None
+    }
+    fn init(&mut self, helper: &mut WindowHelper<String>) {
+        self.on_resize(helper, get_resolution().into());
     }
 }
 
@@ -209,14 +200,11 @@ impl GameScreen {
 
         for y in 0..size {
             for x in 0..size {
-                let tile = Tile::new(
-                    (x as f32, y as f32).into(),
-                    if r.gen_ratio(1, 3) {
-                        tile_anim_wall.clone()
-                    } else {
-                        tile_anim_ground.clone()
-                    },
-                );
+                let pos = (x as f32, y as f32).into();
+                let mut tile: Box<dyn Tile> = if r.gen_ratio(1, 10) { Box::new(TestPillar::new(pos)) } else { Box::new(TestGround::new(pos)) };
+
+                tile.get_anim().select("light").unwrap();
+                
 
                 tiles.push(tile);
             }
@@ -264,10 +252,9 @@ impl GameScreen {
 
     fn load_world() -> World {
         let path = GameScreen::get_save_file_path();
-        // let file = fs::File::open(path).unwrap();
-        let contents = fs::read_to_string(path).unwrap();
-        // let rdr = BufReader::new(file);
+        let file = fs::File::open(path).unwrap();
+        let rdr = BufReader::new(file);
         
-        serde_json::from_str(&contents).unwrap()
+        serde_json::from_reader(rdr).unwrap()
     }
 }

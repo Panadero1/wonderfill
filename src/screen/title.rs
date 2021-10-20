@@ -3,13 +3,7 @@ use std::{
     sync::atomic::Ordering,
 };
 
-use speedy2d::{
-    color::Color,
-    font::{Font, TextAlignment, TextLayout, TextOptions},
-    shape::Rectangle,
-    window::{MouseButton, UserEventSender, VirtualKeyCode, WindowHandler, WindowHelper},
-    Graphics2D,
-};
+use speedy2d::{Graphics2D, color::Color, font::{Font, TextAlignment, TextLayout, TextOptions}, shape::Rectangle, window::{MouseButton, UserEventSender, VirtualKeyCode, WindowHandler, WindowHelper, WindowStartupInfo}};
 
 use crate::{
     screen::RESOLUTION,
@@ -36,8 +30,6 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
         for (name, button) in self.buttons.iter() {
             button.draw(graphics);
         }
-
-        helper.request_redraw();
     }
     fn on_key_down(
         &mut self,
@@ -96,7 +88,7 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
     fn on_user_event(&mut self, helper: &mut WindowHelper<String>, user_event: String) {
         match &user_event[..] {
             "start" => {
-                self.new_screen = Some(Box::new(GameScreen::load()));
+                self.new_screen = Some(Box::new(GameScreen::new()));
             }
             "options" => {
                 self.new_screen = Some(Box::new(OptionsScreen::new()));
@@ -115,6 +107,9 @@ impl<'a> Screen for TitleScreen<'a> {
             return self.new_screen.take();
         }
         None
+    }
+    fn init(&mut self, helper: &mut WindowHelper<String>) {
+
     }
 }
 

@@ -29,6 +29,7 @@ pub fn set_resolution(new_width: u32, new_height: u32) {
 
 pub trait Screen: WindowHandler<String> {
     fn change_screen(&mut self) -> Option<Box<dyn Screen>>;
+    fn init(&mut self, helper: &mut WindowHelper<String>);
 }
 
 pub struct RedirectHandler {
@@ -58,7 +59,8 @@ impl WindowHandler<String> for RedirectHandler {
     }
 
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
-        if let Some(new_screen) = self.my_handler.change_screen() {
+        if let Some(mut new_screen) = self.my_handler.change_screen() {
+            new_screen.init(helper);
             self.my_handler = new_screen;
         }
         self.my_handler.on_draw(helper, graphics);

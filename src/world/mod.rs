@@ -1,9 +1,4 @@
-use crate::{
-    entity::{player::Player, tile::Tile, Entity},
-    screen::camera::Camera,
-    ui::img::{Img, ImgManager},
-    utility::animation::{Animation, AnimationSelectError},
-};
+use crate::{entity::{Entity, player::Player, tile::Tile}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}};
 
 use self::space::GamePos;
 use serde::{Deserialize, Serialize};
@@ -26,11 +21,11 @@ impl World {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Region {
-    tiles: Vec<Tile>,
+    tiles: Vec<Box<dyn Tile>>,
 }
 
 impl Region {
-    pub fn new(tiles: Vec<Tile>) -> Region {
+    pub fn new(tiles: Vec<Box<dyn Tile>>) -> Region {
         Region { tiles }
     }
 

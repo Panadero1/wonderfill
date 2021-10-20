@@ -107,6 +107,9 @@ impl<'a> Screen for OptionsScreen<'a> {
         }
         None
     }
+    fn init(&mut self, helper: &mut WindowHelper<String>) {
+
+    }
 }
 
 impl<'a> OptionsScreen<'a> {
