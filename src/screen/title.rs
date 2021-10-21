@@ -88,7 +88,12 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
     fn on_user_event(&mut self, helper: &mut WindowHelper<String>, user_event: String) {
         match &user_event[..] {
             "start" => {
-                self.new_screen = Some(Box::new(GameScreen::new()));
+                if let Ok(screen) = GameScreen::load() {
+                    self.new_screen = Some(Box::new(screen));
+                }
+                else {
+                    self.new_screen = Some(Box::new(GameScreen::new()));
+                }
             }
             "options" => {
                 self.new_screen = Some(Box::new(OptionsScreen::new()));

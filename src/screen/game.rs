@@ -1,11 +1,4 @@
-use std::{
-    collections::HashMap,
-    env,
-    fs::{self, File},
-    io::{self, BufReader},
-    ops::Not,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, env, fs::{self, File}, io::{self, BufReader}, ops::Not, path::{Path, PathBuf}};
 
 use bitflags::bitflags;
 use rand::Rng;
@@ -221,8 +214,8 @@ impl GameScreen {
         ))
     }
 
-    pub fn load() -> GameScreen {
-        GameScreen::with_world(GameScreen::load_world())
+    pub fn load() -> io::Result<GameScreen> {
+        Ok(GameScreen::with_world(GameScreen::load_world()?))
     }
 
     fn with_world(world: World) -> GameScreen {
@@ -241,20 +234,27 @@ impl GameScreen {
         serde_json::to_writer(writer, &self.world).unwrap();
     }
 
+    /// Gets a pathbuf to the save file path. Creates a file if one does not exist
     fn get_save_file_path() -> PathBuf {
-        let dir = env::current_dir().unwrap();
-        let path = Path::new(&dir).join("saves\\");
+        let path = GameScreen::get_file_path();
         if !path.exists() {
             fs::create_dir(&path).unwrap();
         }
         path.join("out.json")
     }
 
-    fn load_world() -> World {
-        let path = GameScreen::get_save_file_path();
-        let file = fs::File::open(path).unwrap();
+    fn get_file_path() -> PathBuf {
+        let dir = env::current_dir().unwrap();
+        Path::new(&dir).join("saves\\out.json")
+    }
+
+
+
+    fn load_world() -> io::Result<World> {
+        let path = GameScreen::get_file_path();
+        let file: File = File::open(path)?;
         let rdr = BufReader::new(file);
         
-        serde_json::from_reader(rdr).unwrap()
+        Ok(serde_json::from_reader(rdr).unwrap())
     }
 }
