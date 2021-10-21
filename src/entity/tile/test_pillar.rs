@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::player::Player, ui::img::Img, utility::animation::Animation, world::space::GamePos};
+use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::space::GamePos};
 
 use super::{Tile, get_default_anim};
 
@@ -20,8 +20,8 @@ impl Tile for TestPillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player) {
-        // Doesn't need to do anything
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
+        player.moove(-move_pos);
     }
 
     fn update(&mut self) {

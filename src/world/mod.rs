@@ -59,4 +59,7 @@ impl Region {
             tile.draw(graphics, manager, camera);
         }
     }
+    pub fn tile_at_pos(&mut self, pos: GamePos) -> Option<&mut Box<dyn Tile>> {
+        self.tiles.iter_mut().find(|t| t.get_pos() == pos)
+    }
 }

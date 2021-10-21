@@ -20,7 +20,7 @@ impl Tile for TestGround {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player) {
+    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) {
         // Doesn't need to do anything
     }
 

@@ -15,7 +15,7 @@ const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim(&mut self) -> &mut Animation;
-    fn on_player_enter(&mut self, player: &mut Player);
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos);
     fn update(&mut self);
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
         let pos = self.get_pos();

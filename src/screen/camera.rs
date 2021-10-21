@@ -19,8 +19,8 @@ impl Camera {
             height,
         }
     }
-    pub fn moove(&mut self, change_pos: (f32, f32)) {
-        self.pos += (change_pos.0, change_pos.1).into();
+    pub fn moove(&mut self, change_pos: GamePos) {
+        self.pos += change_pos;
     }
     pub fn game_to_pix(&self, point: GamePos) -> (f32, f32) {
         let res = get_resolution();

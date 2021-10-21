@@ -38,8 +38,8 @@ impl Entity for Player {
         );
     }
 
-    fn moove(&mut self, change_pos: (f32, f32)) {
-        self.pos += change_pos.into();
+    fn moove(&mut self, change_pos: GamePos) {
+        self.pos += change_pos;
     }
 
     fn set_anim(

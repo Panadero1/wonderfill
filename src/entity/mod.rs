@@ -7,7 +7,7 @@ pub mod tile;
 
 pub trait Entity {
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera);
-    fn moove(&mut self, change_pos: (f32, f32));
+    fn moove(&mut self, change_pos: GamePos);
     fn set_anim(&mut self, anim_name: &str) -> Result<(), AnimationSelectError>;
     fn intercept_anim(&mut self, anim_name: &str) -> Result<(), AnimationSelectError>;
     fn remove_anim(&mut self);

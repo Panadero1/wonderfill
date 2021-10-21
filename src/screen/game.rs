@@ -121,7 +121,10 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        self.world.camera.moove(move_pos);
+                        if let Some(tile) = self.world.regions.get_mut(0).unwrap().tile_at_pos(self.world.player.get_pos()) {
+                            tile.on_player_enter(&mut self.world.player, move_pos);
+                        }
+                        self.world.camera.moove(self.world.player.get_pos() - self.world.camera.pos);
                     }
                     self.current_input |= virtual_key_code.into();
                 }
@@ -171,24 +174,6 @@ impl GameScreen {
 
         let mut tiles = Vec::with_capacity(size * size);
 
-        let frames = HashMap::new();
-
-        let tile_anim_ground = Animation::new(
-            Img::new(String::from("assets\\img\\tiles.png")),
-            (7, 10),
-            frames.clone(),
-            (0, 0),
-            100,
-        );
-
-        let tile_anim_wall = Animation::new(
-            Img::new(String::from("assets\\img\\tiles.png")),
-            (7, 10),
-            frames,
-            (2, 0),
-            100,
-        );
-
         let mut r = rand::thread_rng();
 
         for y in 0..size {
@@ -228,27 +213,20 @@ impl GameScreen {
     }
 
     fn save_world(&self) {
-        let path = GameScreen::get_save_file_path();
+        let path = GameScreen::get_file_path();
         let file = fs::File::create(path).unwrap();
         let writer = io::LineWriter::new(file);
         serde_json::to_writer(writer, &self.world).unwrap();
     }
 
-    /// Gets a pathbuf to the save file path. Creates a file if one does not exist
-    fn get_save_file_path() -> PathBuf {
-        let path = GameScreen::get_file_path();
+    fn get_file_path() -> PathBuf {
+        let dir = env::current_dir().unwrap();
+        let path = Path::new(&dir).join("saves\\");
         if !path.exists() {
             fs::create_dir(&path).unwrap();
         }
-        path.join("out.json")
+        path.join("save.json")
     }
-
-    fn get_file_path() -> PathBuf {
-        let dir = env::current_dir().unwrap();
-        Path::new(&dir).join("saves\\out.json")
-    }
-
-
 
     fn load_world() -> io::Result<World> {
         let path = GameScreen::get_file_path();

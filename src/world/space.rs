@@ -1,9 +1,9 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 use serde::{Serialize, Deserialize};
 
 
 // GamePos
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GamePos {
     pub x: f32,
     pub y: f32,
@@ -68,6 +68,13 @@ impl From<(f32, f32)> for GamePos {
             x: pos.0,
             y: pos.1
         }
+    }
+}
+impl Neg for GamePos {
+    type Output = GamePos;
+
+    fn neg(self) -> Self::Output {
+        (-self.x, -self.y).into()
     }
 }
 
