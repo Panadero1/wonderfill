@@ -1,7 +1,6 @@
 // [TODO]
-// Proper loading/creation logic
-// Tile interactions
 // Clock struct
+// Track current region
 // Think up world regions
 
 // [Housekeeping]
