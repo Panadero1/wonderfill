@@ -1,5 +1,4 @@
 // [TODO]
-// Clock struct
 // Track current region
 // Think up world regions
 
