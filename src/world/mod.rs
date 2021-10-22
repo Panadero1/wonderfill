@@ -1,21 +1,29 @@
 use crate::{entity::{Entity, player::Player, tile::Tile}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}};
 
-use self::space::GamePos;
+use self::{space::GamePos, time::Clock};
 use serde::{Deserialize, Serialize};
 use speedy2d::{color::Color, Graphics2D};
 
 pub mod space;
+pub mod time;
 
 #[derive(Serialize, Deserialize)]
 pub struct World {
     pub regions: Vec<Region>,
     pub player: Player,
     pub camera: Camera,
+    pub clock: Clock,
 }
 
 impl World {
-    pub fn new(regions: Vec<Region>, player: Player, camera: Camera) -> World {
-        World { regions, player, camera }
+    pub fn new(regions: Vec<Region>, player: Player, camera: Camera, clock: Clock) -> World {
+        World { regions, player, camera, clock }
+    }
+    pub fn update(&mut self) {
+        self.clock.tick();
+        for r in &mut self.regions {
+            r.update(&self.clock);
+        }
     }
 }
 
@@ -61,5 +69,10 @@ impl Region {
     }
     pub fn tile_at_pos(&mut self, pos: GamePos) -> Option<&mut Box<dyn Tile>> {
         self.tiles.iter_mut().find(|t| t.get_pos() == pos)
+    }
+    pub fn update(&mut self, clock: &Clock) {
+        for t in &mut self.tiles {
+            t.update_anim(clock);
+        }
     }
 }

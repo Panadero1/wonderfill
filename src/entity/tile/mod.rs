@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, fmt::Debug};
 
 use speedy2d::{Graphics2D, color::Color};
 
-use crate::{screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
+use crate::{screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
 
 use super::{Entity, player::Player};
 
@@ -16,7 +16,14 @@ pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim(&mut self) -> &mut Animation;
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos);
-    fn update(&mut self);
+    fn update_anim(&mut self, clock: &Clock) {
+        match clock.get_hour() {
+            0 => self.get_anim().select("light").unwrap(),
+            6 => self.get_anim().select("dark").unwrap(),
+            _ => (),
+        }
+    }
+    fn on_update(&mut self, clock: &Clock);
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
         let pos = self.get_pos();
         self.get_anim().draw(

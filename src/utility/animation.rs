@@ -15,7 +15,6 @@ use super::time::NInstant;
 
 #[derive(Debug)]
 pub enum AnimationSelectError {
-    AlreadyPlaying,
     NotFound,
 }
 
@@ -50,9 +49,6 @@ impl Animation {
     pub fn select(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
         match self.frames.get(anim_name) {
             Some(frames) => {
-                if Some(frames) == self.frame_loop.as_ref() {
-                    return Err(AnimationSelectError::AlreadyPlaying)
-                }
                 self.start = NInstant::now();
                 self.frame_loop = Some(frames.clone());
                 Ok(())
@@ -63,9 +59,6 @@ impl Animation {
     pub fn intercept(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
         match self.frames.get(anim_name) {
             Some(frames) => {
-                if Some(frames) == self.frame_loop.as_ref() {
-                    return Err(AnimationSelectError::AlreadyPlaying)
-                }
                 self.frame_loop = Some(frames.clone());
                 Ok(())
             }

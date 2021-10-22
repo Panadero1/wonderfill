@@ -1,4 +1,11 @@
-use std::{collections::HashMap, env, fs::{self, File}, io::{self, BufReader}, ops::Not, path::{Path, PathBuf}};
+use std::{
+    collections::HashMap,
+    env,
+    fs::{self, File},
+    io::{self, BufReader},
+    ops::Not,
+    path::{Path, PathBuf},
+};
 
 use bitflags::bitflags;
 use rand::Rng;
@@ -10,7 +17,15 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{entity::{Entity, player::{Player, PlayerHat}, tile::{Tile, test_ground::{self, TestGround}, test_pillar::TestPillar}}, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, Region, World}};
+use crate::{entity::{
+        player::{Player, PlayerHat},
+        tile::{
+            test_ground::{self, TestGround},
+            test_pillar::TestPillar,
+            Tile,
+        },
+        Entity,
+    }, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, Region, World, time::Clock}};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
@@ -121,10 +136,19 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        if let Some(tile) = self.world.regions.get_mut(0).unwrap().tile_at_pos(self.world.player.get_pos()) {
+                        if let Some(tile) = self
+                            .world
+                            .regions
+                            .get_mut(0)
+                            .unwrap()
+                            .tile_at_pos(self.world.player.get_pos())
+                        {
                             tile.on_player_enter(&mut self.world.player, move_pos);
                         }
-                        self.world.camera.moove(self.world.player.get_pos() - self.world.camera.pos);
+                        self.world
+                            .camera
+                            .moove(self.world.player.get_pos() - self.world.camera.pos);
+                        self.world.update();
                     }
                     self.current_input |= virtual_key_code.into();
                 }
@@ -150,7 +174,11 @@ impl WindowHandler<String> for GameScreen {
         self.world.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
         self.world.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
     }
-    fn on_start(&mut self, helper: &mut WindowHelper<String>, info: speedy2d::window::WindowStartupInfo) {
+    fn on_start(
+        &mut self,
+        helper: &mut WindowHelper<String>,
+        info: speedy2d::window::WindowStartupInfo,
+    ) {
     }
 }
 
@@ -179,10 +207,13 @@ impl GameScreen {
         for y in 0..size {
             for x in 0..size {
                 let pos = (x as f32, y as f32).into();
-                let mut tile: Box<dyn Tile> = if r.gen_ratio(1, 10) { Box::new(TestPillar::new(pos)) } else { Box::new(TestGround::new(pos)) };
+                let mut tile: Box<dyn Tile> = if r.gen_ratio(1, 10) {
+                    Box::new(TestPillar::new(pos))
+                } else {
+                    Box::new(TestGround::new(pos))
+                };
 
                 tile.get_anim().select("light").unwrap();
-                
 
                 tiles.push(tile);
             }
@@ -196,6 +227,7 @@ impl GameScreen {
                 res.0 as f32 / CAMERA_SCALE,
                 res.1 as f32 / CAMERA_SCALE,
             ),
+            Clock::new(),
         ))
     }
 
@@ -232,7 +264,7 @@ impl GameScreen {
         let path = GameScreen::get_file_path();
         let file: File = File::open(path)?;
         let rdr = BufReader::new(file);
-        
-        Ok(serde_json::from_reader(rdr).unwrap())
+
+        Ok(serde_json::from_reader(rdr)?)
     }
 }
