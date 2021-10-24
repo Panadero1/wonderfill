@@ -25,12 +25,10 @@ use crate::{entity::{
             Tile,
         },
         Entity,
-    }, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, Region, World, time::Clock}};
+    }, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, TileManager, World, generation, time::Clock}};
 
 use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
 
-// Larger number -> smaller bounds
-const CAMERA_SCALE: f32 = 50.0;
 
 bitflags! {
     struct Input: u8 {
@@ -70,6 +68,9 @@ impl Into<Option<VirtualKeyCode>> for Input {
     }
 }
 
+// Larger number -> smaller bounds
+pub const CAMERA_SCALE: f32 = 50.0;
+
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     current_input: Input,
@@ -83,27 +84,23 @@ impl WindowHandler<String> for GameScreen {
 
         self.world.player.update();
 
-        for region in &mut self.world.regions {
-            region.draw_before_player(
-                graphics,
-                &mut self.img_manager,
-                &self.world.camera,
-                self.world.player.get_pos(),
-            );
-        }
+        self.world.tile_mgr.draw_before_player(
+            graphics,
+            &mut self.img_manager,
+            &self.world.camera,
+            self.world.player.get_pos(),
+        );
 
         self.world
             .player
             .draw(graphics, &mut self.img_manager, &self.world.camera);
 
-        for region in &mut self.world.regions {
-            region.draw_after_player(
-                graphics,
-                &mut self.img_manager,
-                &self.world.camera,
-                self.world.player.get_pos(),
-            );
-        }
+        self.world.tile_mgr.draw_after_player(
+            graphics,
+            &mut self.img_manager,
+            &self.world.camera,
+            self.world.player.get_pos(),
+        );
     }
     fn on_key_down(
         &mut self,
@@ -136,12 +133,8 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        if let Some(tile) = self
-                            .world
-                            .regions
-                            .get_mut(0)
-                            .unwrap()
-                            .tile_at_pos(self.world.player.get_pos())
+                        if let Some(tile) =
+                            self.world.tile_mgr.tile_at_pos(self.world.player.get_pos())
                         {
                             tile.on_player_enter(&mut self.world.player, move_pos);
                         }
@@ -196,39 +189,7 @@ impl<'a> Screen for GameScreen {
 
 impl GameScreen {
     pub fn new() -> GameScreen {
-        let res = get_resolution();
-
-        let size = 50;
-
-        let mut tiles = Vec::with_capacity(size * size);
-
-        let mut r = rand::thread_rng();
-
-        for y in 0..size {
-            for x in 0..size {
-                let pos = (x as f32, y as f32).into();
-                let mut tile: Box<dyn Tile> = if r.gen_ratio(1, 10) {
-                    Box::new(TestPillar::new(pos))
-                } else {
-                    Box::new(TestGround::new(pos))
-                };
-
-                tile.get_anim().select("light").unwrap();
-
-                tiles.push(tile);
-            }
-        }
-
-        GameScreen::with_world(World::new(
-            vec![Region::new(tiles)],
-            Player::new(),
-            Camera::new(
-                (0.0, 0.0).into(),
-                res.0 as f32 / CAMERA_SCALE,
-                res.1 as f32 / CAMERA_SCALE,
-            ),
-            Clock::new(),
-        ))
+        GameScreen::with_world(generation::make_new_world())
     }
 
     pub fn load() -> io::Result<GameScreen> {

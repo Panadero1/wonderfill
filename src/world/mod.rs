@@ -4,37 +4,38 @@ use self::{space::GamePos, time::Clock};
 use serde::{Deserialize, Serialize};
 use speedy2d::{color::Color, Graphics2D};
 
+pub mod generation;
 pub mod space;
 pub mod time;
 
 #[derive(Serialize, Deserialize)]
 pub struct World {
-    pub regions: Vec<Region>,
+    pub tile_mgr: TileManager,
     pub player: Player,
     pub camera: Camera,
     pub clock: Clock,
 }
 
+const VIEW_DIST: f32 = 40.0;
+
 impl World {
-    pub fn new(regions: Vec<Region>, player: Player, camera: Camera, clock: Clock) -> World {
-        World { regions, player, camera, clock }
+    pub fn new(tile_mgr: TileManager, player: Player, camera: Camera, clock: Clock) -> World {
+        World { tile_mgr, player, camera, clock }
     }
     pub fn update(&mut self) {
         self.clock.tick();
-        for r in &mut self.regions {
-            r.update(&self.clock);
-        }
+        self.tile_mgr.update(&self.clock);
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Region {
+pub struct TileManager {
     tiles: Vec<Box<dyn Tile>>,
 }
 
-impl Region {
-    pub fn new(tiles: Vec<Box<dyn Tile>>) -> Region {
-        Region { tiles }
+impl TileManager {
+    pub fn new(tiles: Vec<Box<dyn Tile>>) -> TileManager {
+        TileManager { tiles }
     }
 
     pub fn draw_before_player(
@@ -47,7 +48,7 @@ impl Region {
         for tile in self
             .tiles
             .iter_mut()
-            .filter(|t| t.get_pos().y <= player_pos.y)
+            .filter(|t| t.get_pos().y <= player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST)
         {
             tile.draw(graphics, manager, camera);
         }
@@ -62,7 +63,7 @@ impl Region {
         for tile in self
             .tiles
             .iter_mut()
-            .filter(|t| t.get_pos().y > player_pos.y)
+            .filter(|t| t.get_pos().y > player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST)
         {
             tile.draw(graphics, manager, camera);
         }

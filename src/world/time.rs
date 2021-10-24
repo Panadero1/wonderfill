@@ -40,7 +40,7 @@ impl Clock {
         if self.day >= DAYS_PER_YEAR {
             self.day -= DAYS_PER_YEAR;
         }
-        println!("{:?} | {}", self.get_season(), self.day);
+        // println!("{:?} | {}", self.get_season(), self.day);
         // Seasons should be functional
     }
 
