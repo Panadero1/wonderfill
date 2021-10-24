@@ -133,7 +133,7 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        if let Some(tile) =
+                        if let Some((_, tile)) =
                             self.world.tile_mgr.tile_at_pos(self.world.player.get_pos())
                         {
                             tile.on_player_enter(&mut self.world.player, move_pos);

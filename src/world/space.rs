@@ -1,6 +1,12 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign, Neg};
 use serde::{Serialize, Deserialize};
 
+pub enum Direction {
+    Up,
+    Down,
+    Left,
+    Right
+}
 
 // GamePos
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
@@ -67,6 +73,14 @@ impl From<(f32, f32)> for GamePos {
         GamePos {
             x: pos.0,
             y: pos.1
+        }
+    }
+}
+impl From<(i32, i32)> for GamePos {
+    fn from(pos: (i32, i32)) -> Self {
+        GamePos {
+            x: pos.0 as f32,
+            y: pos.1 as f32,
         }
     }
 }

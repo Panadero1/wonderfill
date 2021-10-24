@@ -1,6 +1,7 @@
 // [TODO]
 // Track current region
 // Think up world regions
+// Tile manager deletes tiles
 
 // [Housekeeping]
 // Fix options page

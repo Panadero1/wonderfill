@@ -1,12 +1,12 @@
 use speedy2d::shape::Rectangle;
 
-use crate::{entity::{player::{self, Player}, tile::{Tile, test_ground::TestGround, test_pillar::TestPillar}}, screen::{
+use crate::{entity::{player::{self, Player}, tile::{Tile, arrow::Arrow, test_ground::TestGround, test_pillar::TestPillar}}, screen::{
         self,
         camera::{self, Camera},
         game::CAMERA_SCALE,
     }, world::{time::Clock, TileManager}};
 
-use super::{space::GamePos, World};
+use super::{World, space::{Direction, GamePos}};
 
 /*
 
@@ -47,7 +47,7 @@ World::new(
 
 pub fn make_new_world() -> World {
     let res = screen::get_resolution();
-    let mut tiles = vec![];
+    let mut tile_mgr = TileManager::new(vec![]);
     let player = Player::new();
     let camera = Camera::new(
         (0.0, 0.0).into(),
@@ -55,8 +55,15 @@ pub fn make_new_world() -> World {
         res.1 as f32 / CAMERA_SCALE,
     );
 
-    generate_box(&mut tiles, Rectangle::from_tuples((-10, -10), (10, 10)), |edge, x, y| {
-        let pos = (x as f32, y as f32).into();
+    generate_starting_world(&mut tile_mgr);
+
+    World::new(tile_mgr, player, camera, Clock::new())
+}
+
+fn generate_starting_world(tile_mgr: &mut TileManager) {
+
+    generate_square(tile_mgr, (-4, -4), 9, |edge, x, y| {
+        let pos = (x, y).into();
         if edge {
             Box::new(TestPillar::new(pos))
         }
@@ -64,12 +71,15 @@ pub fn make_new_world() -> World {
             Box::new(TestGround::new(pos))
         }
     });
+    add_arrows(tile_mgr);
+}
 
-    World::new(TileManager::new(tiles), player, camera, Clock::new())
+fn generate_square<F: Fn(bool, i32, i32) -> Box<dyn Tile>>(tile_mgr: &mut TileManager, top_left: (i32, i32), size: i32, gen: F) {
+    generate_box(tile_mgr, Rectangle::from_tuples(top_left, (top_left.0 + size, top_left.1 + size)), gen);
 }
 
 fn generate_box<F: Fn(bool, i32, i32) -> Box<dyn Tile>> (
-    tiles: &mut Vec<Box<dyn Tile>>,
+    tile_mgr: &mut TileManager,
     bounds: Rectangle<i32>,
     gen: F
 ) {
@@ -79,11 +89,18 @@ fn generate_box<F: Fn(bool, i32, i32) -> Box<dyn Tile>> (
     for x in tl.x..br.y {
         for y in tl.y..br.y {
             if x == tl.x || x == br.x - 1 || y == tl.y || y == br.y - 1 {
-                tiles.push(gen(true, x, y));
+                tile_mgr.push_override(gen(true, x, y));
             }
             else {
-                tiles.push(gen(false, x, y));
+                tile_mgr.push_override(gen(false, x, y));
             }
         }
     }
+}
+
+fn add_arrows(tile_mgr: &mut TileManager) {
+    tile_mgr.push_override(Box::new(Arrow::new((0.0, 1.0).into(), Direction::Up)));
+    tile_mgr.push_override(Box::new(Arrow::new((0.0, -1.0).into(), Direction::Down)));
+    tile_mgr.push_override(Box::new(Arrow::new((1.0, 0.0).into(), Direction::Left)));
+    tile_mgr.push_override(Box::new(Arrow::new((-1.0, 0.0).into(), Direction::Right)));
 }
