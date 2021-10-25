@@ -23,10 +23,6 @@ impl Tile for TestPillar {
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
         player.moove(-move_pos);
     }
-    
-    fn on_update(&mut self, clock: &Clock) {
-        // do nothing
-    }
 }
 
 impl TestPillar {

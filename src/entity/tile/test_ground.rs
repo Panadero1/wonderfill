@@ -19,14 +19,6 @@ impl Tile for TestGround {
     fn get_anim(&mut self) -> &mut Animation {
         &mut self.anim
     }
-
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) {
-        // Doesn't need to do anything
-    }
-    
-    fn on_update(&mut self, clock: &Clock) {
-        // do nothing
-    }
 }
 
 impl TestGround {

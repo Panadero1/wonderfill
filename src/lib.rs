@@ -1,6 +1,3 @@
-use std::sync::atomic::Ordering;
-
-use screen::RESOLUTION;
 use speedy2d::{Window, dimen::Vector2, window::{WindowCreationOptions, WindowPosition, WindowSize}};
 
 mod entity;

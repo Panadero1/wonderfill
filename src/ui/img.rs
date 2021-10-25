@@ -1,9 +1,9 @@
-use std::{cell::RefCell, collections::{HashMap, HashSet}, rc::Rc};
+use std::{collections::HashMap, rc::Rc};
 
 use serde::{Deserialize, Serialize, de::Visitor};
 use speedy2d::{
     error::{BacktraceError, ErrorMessage},
-    image::{ImageDataType, ImageFileFormat, ImageHandle, ImageSmoothingMode},
+    image::{ImageFileFormat, ImageHandle, ImageSmoothingMode},
     Graphics2D,
 };
 
@@ -16,16 +16,6 @@ pub fn get_image_handle(
         ImageSmoothingMode::NearestNeighbor,
         path,
     )
-}
-
-pub enum ImgState {
-    Pending,
-    Image(ImageHandle),
-}
-impl ImgState {
-    fn init(&mut self, img: ImageHandle) {
-        *self = ImgState::Image(img);
-    }
 }
 
 #[derive(Debug)]

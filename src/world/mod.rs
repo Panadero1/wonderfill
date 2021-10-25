@@ -1,13 +1,13 @@
 use crate::{
-    entity::{player::Player, tile::Tile, Entity},
+    entity::{player::Player, tile::Tile},
     screen::camera::Camera,
-    ui::img::{Img, ImgManager},
-    utility::animation::{Animation, AnimationSelectError},
+    ui::img::ImgManager,
 };
+
 
 use self::{space::GamePos, time::Clock};
 use serde::{Deserialize, Serialize};
-use speedy2d::{color::Color, Graphics2D};
+use speedy2d::Graphics2D;
 
 pub mod generation;
 pub mod space;

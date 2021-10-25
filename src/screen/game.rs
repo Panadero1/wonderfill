@@ -1,33 +1,23 @@
 use std::{
-    collections::HashMap,
     env,
     fs::{self, File},
     io::{self, BufReader},
-    ops::Not,
     path::{Path, PathBuf},
 };
 
 use bitflags::bitflags;
-use rand::Rng;
-use serde::Serialize;
+
 use speedy2d::{
     color::Color,
-    image::{ImageFileFormat, ImageSmoothingMode},
     window::{VirtualKeyCode, WindowHandler, WindowHelper},
     Graphics2D,
 };
 
 use crate::{entity::{
-        player::{Player, PlayerHat},
-        tile::{
-            test_ground::{self, TestGround},
-            test_pillar::TestPillar,
-            Tile,
-        },
         Entity,
-    }, ui::img::{get_image_handle, Img, ImgManager}, utility::animation::Animation, world::{self, TileManager, World, generation, time::Clock}};
+    }, ui::img::{ImgManager}, world::{World, generation}};
 
-use super::{camera::Camera, get_resolution, title::TitleScreen, Screen};
+use super::{get_resolution, title::TitleScreen, Screen};
 
 
 bitflags! {

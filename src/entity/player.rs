@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use speedy2d::{color::Color, image::ImageHandle, shape::Rectangle};
+use speedy2d::{color::Color};
 
-use crate::{ui::img::{Img, ImgManager, ImgState}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
+use crate::{ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::space::GamePos};
 
 use serde::{Serialize, Deserialize};
 

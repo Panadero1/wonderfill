@@ -1,19 +1,14 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::atomic::Ordering,
-};
+use std::collections::HashMap;
 
 use speedy2d::{
     color::Color,
-    font::{Font, TextAlignment, TextLayout, TextOptions},
-    shape::Rectangle,
-    window::{MouseButton, UserEventSender, VirtualKeyCode, WindowHandler, WindowHelper},
+    window::{MouseButton, UserEventSender, WindowHandler, WindowHelper},
     Graphics2D,
 };
 
-use crate::{screen::RESOLUTION, ui::{button::Button, rect::rect_from_size, text}};
+use crate::{ui::{button::Button, rect::rect_from_size, text}};
 
-use super::{RedirectHandler, Screen, game::GameScreen, title::TitleScreen};
+use super::{Screen, title::TitleScreen};
 
 pub struct OptionsScreen<'a> {
     new_screen: Option<Box<dyn Screen>>,

@@ -17,7 +17,7 @@ const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim(&mut self) -> &mut Animation;
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos);
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {}
     fn update_anim(&mut self, clock: &Clock) {
         match clock.get_hour() {
             0 => self.get_anim().select("light").unwrap(),
@@ -25,7 +25,7 @@ pub trait Tile: Debug {
             _ => (),
         }
     }
-    fn on_update(&mut self, clock: &Clock);
+    fn on_update(&mut self, clock: &Clock) {}
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
         let pos = self.get_pos();
         self.get_anim().draw(

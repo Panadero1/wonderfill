@@ -2,7 +2,7 @@ use speedy2d::shape::Rectangle;
 
 use crate::{
     entity::{
-        player::{self, Player},
+        player::Player,
         tile::{
             arrow::Arrow,
             stair::{Stair, StairDirection},
@@ -13,14 +13,14 @@ use crate::{
     },
     screen::{
         self,
-        camera::{self, Camera},
+        camera::Camera,
         game::CAMERA_SCALE,
     },
     world::{time::Clock, TileManager},
 };
 
 use super::{
-    space::{Direction, GamePos},
+    space::Direction,
     World,
 };
 
