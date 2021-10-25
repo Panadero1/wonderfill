@@ -1,12 +1,28 @@
 use speedy2d::shape::Rectangle;
 
-use crate::{entity::{player::{self, Player}, tile::{Tile, arrow::Arrow, test_ground::TestGround, test_pillar::TestPillar}}, screen::{
+use crate::{
+    entity::{
+        player::{self, Player},
+        tile::{
+            arrow::Arrow,
+            stair::{Stair, StairDirection},
+            test_ground::TestGround,
+            test_pillar::TestPillar,
+            Tile,
+        },
+    },
+    screen::{
         self,
         camera::{self, Camera},
         game::CAMERA_SCALE,
-    }, world::{time::Clock, TileManager}};
+    },
+    world::{time::Clock, TileManager},
+};
 
-use super::{World, space::{Direction, GamePos}};
+use super::{
+    space::{Direction, GamePos},
+    World,
+};
 
 /*
 
@@ -61,46 +77,77 @@ pub fn make_new_world() -> World {
 }
 
 fn generate_starting_world(tile_mgr: &mut TileManager) {
-
-    generate_square(tile_mgr, (-4, -4), 9, |edge, x, y| {
+    generate_square(tile_mgr, (-5, -5), 11, |edge, x, y| {
         let pos = (x, y).into();
-        if edge {
+        Some(if edge {
             Box::new(TestPillar::new(pos))
-        }
-        else {
+        } else {
             Box::new(TestGround::new(pos))
-        }
+        })
     });
     add_arrows(tile_mgr);
+    add_stairs(tile_mgr);
 }
 
-fn generate_square<F: Fn(bool, i32, i32) -> Box<dyn Tile>>(tile_mgr: &mut TileManager, top_left: (i32, i32), size: i32, gen: F) {
-    generate_box(tile_mgr, Rectangle::from_tuples(top_left, (top_left.0 + size, top_left.1 + size)), gen);
+fn generate_square<F: Fn(bool, i32, i32) -> Option<Box<dyn Tile>>>(
+    tile_mgr: &mut TileManager,
+    top_left: (i32, i32),
+    size: i32,
+    gen: F,
+) {
+    generate_box(
+        tile_mgr,
+        Rectangle::from_tuples(top_left, (top_left.0 + size, top_left.1 + size)),
+        gen,
+    );
 }
 
-fn generate_box<F: Fn(bool, i32, i32) -> Box<dyn Tile>> (
+fn generate_box<F: Fn(bool, i32, i32) -> Option<Box<dyn Tile>>>(
     tile_mgr: &mut TileManager,
     bounds: Rectangle<i32>,
-    gen: F
+    gen: F,
 ) {
     let tl = bounds.top_left();
     let br = bounds.bottom_right();
 
     for x in tl.x..br.y {
         for y in tl.y..br.y {
-            if x == tl.x || x == br.x - 1 || y == tl.y || y == br.y - 1 {
-                tile_mgr.push_override(gen(true, x, y));
-            }
-            else {
-                tile_mgr.push_override(gen(false, x, y));
+            if let Some(tile) = gen(
+                x == tl.x || x == br.x - 1 || y == tl.y || y == br.y - 1,
+                x,
+                y,
+            ) {
+                tile_mgr.push_override(tile);
             }
         }
     }
 }
 
 fn add_arrows(tile_mgr: &mut TileManager) {
-    tile_mgr.push_override(Box::new(Arrow::new((0.0, 1.0).into(), Direction::Up)));
-    tile_mgr.push_override(Box::new(Arrow::new((0.0, -1.0).into(), Direction::Down)));
-    tile_mgr.push_override(Box::new(Arrow::new((1.0, 0.0).into(), Direction::Left)));
-    tile_mgr.push_override(Box::new(Arrow::new((-1.0, 0.0).into(), Direction::Right)));
+    let dist = 2;
+    tile_mgr.push_override(Box::new(Arrow::new((0, dist).into(), Direction::Up)));
+    tile_mgr.push_override(Box::new(Arrow::new((0, -dist).into(), Direction::Down)));
+    tile_mgr.push_override(Box::new(Arrow::new((dist, 0).into(), Direction::Left)));
+    tile_mgr.push_override(Box::new(Arrow::new((-dist, 0).into(), Direction::Right)));
+}
+
+fn add_stairs(tile_mgr: &mut TileManager) {
+    generate_square(tile_mgr, (-3, -3), 7, |edge, x, y| {
+        if edge {
+            Some(Box::new(Stair::new(
+                (x, y).into(),
+                match (x, y) {
+                    (-3, -3) => StairDirection::CornerTL,
+                    (-3, 3) => StairDirection::CornerBL,
+                    (3, -3) => StairDirection::CornerTR,
+                    (3, 3) => StairDirection::CornerBR,
+                    (a, _) if a == 3 || a == -3 => StairDirection::Vertical,
+                    (_, a) if a == 3 || a == -3 => StairDirection::Horizontal,
+                    e => panic!("Stair direction animation logic broken: {:?}", e),
+                },
+            )))
+        } else {
+            None
+        }
+    })
 }

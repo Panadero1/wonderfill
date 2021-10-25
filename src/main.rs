@@ -1,7 +1,7 @@
 // [TODO]
-// Track current region
 // Think up world regions
-// Tile manager deletes tiles
+// Finish starting tutorial area
+// BaseGround and BasePillar types that take sprite indexes
 
 // [Housekeeping]
 // Fix options page
