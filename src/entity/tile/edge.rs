@@ -5,13 +5,13 @@ use crate::{entity::player::Player, ui::img::Img, utility::animation::Animation,
 use super::{Tile, TileVariant, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Stair {
+pub struct Edge {
     pos: GamePos,
     anim: Animation
 }
 
 #[typetag::serde]
-impl Tile for Stair {
+impl Tile for Edge {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -21,19 +21,19 @@ impl Tile for Stair {
     }
 }
 
-impl Stair {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Stair {
-        Stair {
+impl Edge {
+    pub fn new(pos: GamePos, direction: TileVariant) -> Edge {
+        Edge {
             pos,
             anim: get_default_anim(match direction {
-                TileVariant::Left => (0, 3),
-                TileVariant::Right => (0, 3),
-                TileVariant::Top => (2, 3),
-                TileVariant::Bottom => (2, 3),
-                TileVariant::CornerBL => (0, 5),
-                TileVariant::CornerBR => (2, 5),
-                TileVariant::CornerTR => (2, 4),
-                TileVariant::CornerTL => (0, 4),
+                TileVariant::Top => (6, 1),
+                TileVariant::Bottom => (6, 3),
+                TileVariant::Left => (4, 2),
+                TileVariant::Right => (8, 2),
+                TileVariant::CornerBL => (4, 3),
+                TileVariant::CornerBR => (8, 3),
+                TileVariant::CornerTR => (8, 1),
+                TileVariant::CornerTL => (4, 1),
                 TileVariant::Center => (6, 2),
             })
         }

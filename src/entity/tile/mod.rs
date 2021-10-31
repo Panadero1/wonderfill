@@ -8,10 +8,23 @@ use super::{Entity, player::Player};
 
 pub mod test_ground;
 pub mod test_pillar;
+pub mod edge;
 pub mod arrow;
 pub mod stair;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
+
+pub enum TileVariant {
+    Left,
+    Right,
+    Top,
+    Bottom,
+    CornerBL,
+    CornerBR,
+    CornerTR,
+    CornerTL,
+    Center,
+}
 
 #[typetag::serde(tag = "type")]
 pub trait Tile: Debug {
