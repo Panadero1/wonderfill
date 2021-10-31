@@ -16,6 +16,8 @@ use crate::{
 
 use super::{space::Direction, World};
 
+mod area_1;
+
 pub fn make_new_world() -> World {
     let res = screen::get_resolution();
     let mut tile_mgr = TileManager::new(vec![]);
@@ -32,8 +34,7 @@ pub fn make_new_world() -> World {
 }
 
 fn generate_starting_world(tile_mgr: &mut TileManager) {
-    
-    add_area_1(tile_mgr);
+    add_areas(tile_mgr);
 }
 
 fn generate_square<F: Fn(TileVariant, i32, i32) -> Option<Box<dyn Tile>>>(
@@ -57,7 +58,7 @@ fn generate_box<F: Fn(TileVariant, i32, i32) -> Option<Box<dyn Tile>>>(
     let tl = bounds.top_left();
     let br = bounds.bottom_right();
 
-    for x in tl.x..br.y {
+    for x in tl.x..br.x {
         for y in tl.y..br.y {
             if let Some(tile) = gen(get_tile_variant(x, y, tl, br), x, y) {
                 tile_mgr.push_override(tile);
@@ -80,43 +81,6 @@ fn get_tile_variant(x: i32, y: i32, tl: &Vector2<i32>, br: &Vector2<i32>) -> Til
     }
 }
 
-fn add_arrows(tile_mgr: &mut TileManager) {
-    let dist = 2;
-    tile_mgr.push_override(Box::new(Arrow::new((0, dist).into(), Direction::Up)));
-    tile_mgr.push_override(Box::new(Arrow::new((0, -dist).into(), Direction::Down)));
-    tile_mgr.push_override(Box::new(Arrow::new((dist, 0).into(), Direction::Left)));
-    tile_mgr.push_override(Box::new(Arrow::new((-dist, 0).into(), Direction::Right)));
-}
-
-fn add_stairs(tile_mgr: &mut TileManager) {
-    generate_square(tile_mgr, (-3, -3), 7, |variant, x, y| {
-        Some(Box::new(Stair::new((x, y).into(), variant)))
-    })
-}
-
-fn add_pedestal(tile_mgr: &mut TileManager) {
-    generate_square(tile_mgr, (-2, -2), 5, |variant, x, y| {
-        Some(Box::new(Edge::new((x, y).into(), variant)))
-    })
-}
-
-fn add_room(tile_mgr: &mut TileManager) {
-    generate_square(tile_mgr, (-7, -7), 15, |v, x, y| {
-        Some(if let TileVariant::Center = v {
-            Box::new(TestGround::new((x, y).into()))
-        } else {
-            Box::new(TestPillar::new((x, y).into()))
-        })
-    });
-}
-
-fn add_area_1(tile_mgr: &mut TileManager) {
-    add_room_1(tile_mgr);
-}
-
-fn add_room_1(tile_mgr: &mut TileManager) {
-    add_room(tile_mgr);
-    add_stairs(tile_mgr);
-    add_pedestal(tile_mgr);
-    add_arrows(tile_mgr);
+fn add_areas(tile_mgr: &mut TileManager) {
+    area_1::add(tile_mgr);
 }

@@ -44,6 +44,10 @@ impl Clock {
         // Seasons should be functional
     }
 
+    pub fn is_day(&self) -> bool {
+        self.hour < HOURS_PER_DAY / 2
+    }
+
     pub fn get_hour(&self) -> u8 {
         self.hour
     }

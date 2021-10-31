@@ -1,5 +1,6 @@
 use std::{collections::{HashMap, HashSet}, fmt::Debug};
 
+use serde::{Deserialize, Serialize};
 use speedy2d::{Graphics2D, color::Color};
 
 use crate::{screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
@@ -11,9 +12,12 @@ pub mod test_pillar;
 pub mod edge;
 pub mod arrow;
 pub mod stair;
+pub mod sun;
+pub mod moon;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
+#[derive(PartialEq, Eq)]
 pub enum TileVariant {
     Left,
     Right,
@@ -24,6 +28,12 @@ pub enum TileVariant {
     CornerTR,
     CornerTL,
     Center,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum AlternatorState {
+    Up,
+    Down,
 }
 
 #[typetag::serde(tag = "type")]

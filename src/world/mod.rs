@@ -95,6 +95,7 @@ impl TileManager {
     pub fn update(&mut self, clock: &Clock) {
         for t in &mut self.tiles {
             t.update_anim(clock);
+            t.on_update(clock);
         }
     }
     pub fn push(&mut self, mut tile: Box<dyn Tile>) {
