@@ -31,16 +31,28 @@ impl Camera {
         let result = (a_pos.0 * (res.0 as f32), a_pos.1 * (res.1 as f32));
         result
     }
+    pub fn pix_to_game(&self, point: (u32, u32)) -> GamePos {
+        let res = get_resolution();
+        let rel_pos = (
+            (point.0 as f32) / (res.0 as f32),
+            (point.1 as f32) / (res.1 as f32),
+        );
+        let true_pos = (
+            ((rel_pos.0 - 0.5) * self.width) + self.pos.x,
+            ((rel_pos.1 - 0.5) * self.height) + self.pos.y,
+        );
+        true_pos.into()
+    }
     pub fn rect_from_center(&self, pos: GamePos, size: GamePos) -> Rectangle {
         Rectangle::from_tuples(
-        self.game_to_pix(pos - (size / 2.0)),
-        self.game_to_pix(pos + (size / 2.0)),
+            self.game_to_pix(pos - (size / 2.0)),
+            self.game_to_pix(pos + (size / 2.0)),
         )
     }
     pub fn rect_from_offset(&self, pos: GamePos, size: GamePos, offset: GamePos) -> Rectangle {
         Rectangle::from_tuples(
             self.game_to_pix(pos - (size / 2.0) + (offset / 2.0)),
-            self.game_to_pix(pos + (size / 2.0) + (offset / 2.0))
+            self.game_to_pix(pos + (size / 2.0) + (offset / 2.0)),
         )
     }
 }

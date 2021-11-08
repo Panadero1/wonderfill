@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{get_default_anim, Tile};
+use super::{Tile, TileVariant, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arrow {
@@ -29,14 +29,19 @@ impl Tile for Arrow {
 }
 
 impl Arrow {
-    pub fn new(pos: GamePos, direction: Direction) -> Arrow {
+    pub fn new(pos: GamePos, direction: TileVariant) -> Arrow {
         Arrow {
             pos,
             anim: get_default_anim(match direction {
-                Direction::Up => (2, 1),
-                Direction::Down => (0, 1),
-                Direction::Left => (2, 2),
-                Direction::Right => (0, 2),
+                TileVariant::Top => (2, 1),
+                TileVariant::Bottom => (0, 1),
+                TileVariant::Left => (2, 2),
+                TileVariant::CornerBL => (2, 2),
+                TileVariant::CornerTL => (2, 2),
+                TileVariant::Right => (0, 2),
+                TileVariant::CornerBR => (0, 2),
+                TileVariant::CornerTR => (0, 2),
+                TileVariant::Center => (0, 0),
             }),
         }
     }

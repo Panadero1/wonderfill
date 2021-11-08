@@ -7,19 +7,11 @@ use std::{
 
 use bitflags::bitflags;
 
-use speedy2d::{
-    color::Color,
-    window::{VirtualKeyCode, WindowHandler, WindowHelper},
-    Graphics2D,
-};
+use speedy2d::{Graphics2D, color::Color, window::{MouseButton, VirtualKeyCode, WindowHandler, WindowHelper}};
 
-use crate::{
-    entity::Entity,
-    ui::img::ImgManager,
-    world::{generation, World},
-};
+use crate::{entity::{Entity, tile::{Tile, TileEnum, TileVariant, base_ground::BaseGround}}, ui::img::ImgManager, world::{generation, World}};
 
-use super::{get_resolution, title::TitleScreen, Screen};
+use super::{Screen, get_mouse_pos, get_resolution, title::TitleScreen};
 
 bitflags! {
     struct Input: u8 {
@@ -28,7 +20,8 @@ bitflags! {
         const RIGHT  = 0b00000010;
         const UP     = 0b00000100;
         const DOWN   = 0b00001000;
-        const ATTACK = 0b00010000;
+        const ROTATE = 0b00010000;
+        const TILE   = 0b00100000;
     }
 }
 impl From<VirtualKeyCode> for Input {
@@ -38,7 +31,8 @@ impl From<VirtualKeyCode> for Input {
             VirtualKeyCode::Left => Input::LEFT,
             VirtualKeyCode::Down => Input::DOWN,
             VirtualKeyCode::Right => Input::RIGHT,
-            VirtualKeyCode::X => Input::ATTACK,
+            VirtualKeyCode::R => Input::ROTATE,
+            VirtualKeyCode::T => Input::TILE,
             _ => Input::NONE,
         }
     }
@@ -52,7 +46,8 @@ impl Into<Option<VirtualKeyCode>> for Input {
                 Input::LEFT => VirtualKeyCode::Left,
                 Input::DOWN => VirtualKeyCode::Down,
                 Input::RIGHT => VirtualKeyCode::Right,
-                Input::ATTACK => VirtualKeyCode::X,
+                Input::ROTATE => VirtualKeyCode::R,
+                Input::TILE => VirtualKeyCode::T,
                 _ => panic!("Forgot to implement keycode mappings"), // never occurs
             }),
         }
@@ -67,6 +62,9 @@ pub struct GameScreen {
     current_input: Input,
     world: World,
     img_manager: ImgManager,
+    // For editing
+    draw_tile: TileEnum,
+    tile_variant: TileVariant,
 }
 
 impl WindowHandler<String> for GameScreen {
@@ -125,6 +123,14 @@ impl WindowHandler<String> for GameScreen {
                             VirtualKeyCode::Left => (-1.0, 0.0),
                             VirtualKeyCode::Down => (0.0, 1.0),
                             VirtualKeyCode::Right => (1.0, 0.0),
+                            VirtualKeyCode::R => {
+                                self.tile_variant.rotate_cw();
+                                return;
+                            }
+                            VirtualKeyCode::T => {
+                                self.draw_tile.cycle();
+                                return;
+                            }
                             _ => (0.0, 0.0),
                         }
                         .into();
@@ -169,6 +175,16 @@ impl WindowHandler<String> for GameScreen {
         info: speedy2d::window::WindowStartupInfo,
     ) {
     }
+    fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
+        let pos = self.world.camera.pix_to_game(get_mouse_pos()).round();
+        if let MouseButton::Left = button {
+            let tile = self.draw_tile.create(pos, self.tile_variant);
+            self.world.tile_mgr.push_override(tile);
+        }
+        else if let MouseButton::Right = button {
+            self.world.tile_mgr.remove_at(pos);
+        }
+    }
 }
 
 impl<'a> Screen for GameScreen {
@@ -198,6 +214,8 @@ impl GameScreen {
             current_input: Input::NONE,
             world,
             img_manager: ImgManager::new(),
+            draw_tile: TileEnum::BaseGround,
+            tile_variant: TileVariant::Top,
         }
     }
 

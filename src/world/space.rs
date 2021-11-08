@@ -92,12 +92,21 @@ impl Neg for GamePos {
     }
 }
 
+
 impl GamePos {
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
     pub fn abs(&self) -> GamePos {
         (self.x.abs(), self.y.abs()).into()
+    }
+    pub fn floor(self) -> GamePos {
+        (self.x.floor(), self.y.floor()).into()
+    }
+    pub fn round(self) -> GamePos {
+        // Need this bc Rust can't infer type :((
+        let result: GamePos = (self.x + 0.5, self.y + 0.5).into();
+        result.floor()
     }
 }
 

@@ -3,7 +3,7 @@ use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use serde::{Deserialize, Serialize};
 use speedy2d::{Graphics2D, color::Color};
 
-use crate::{screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
+use crate::{entity::tile::{arrow::Arrow, base_ground::BaseGround, base_pillar::BasePillar, edge::Edge, moon::Moon, stair::Stair, sun::Sun}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
 
 use super::{Entity, player::Player};
 
@@ -17,7 +17,41 @@ pub mod moon;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
-#[derive(PartialEq, Eq)]
+pub enum TileEnum {
+    BaseGround,
+    BasePillar,
+    Edge,
+    Arrow,
+    Stair,
+    Sun,
+    Moon,
+}
+impl TileEnum {
+    pub fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        match *self {
+            TileEnum::BaseGround => Box::new(BaseGround::default(pos)),
+            TileEnum::BasePillar => Box::new(BasePillar::default(pos)),
+            TileEnum::Edge => Box::new(Edge::new(pos, variant)),
+            TileEnum::Arrow => Box::new(Arrow::new(pos, variant)),
+            TileEnum::Stair => Box::new(Stair::new(pos, variant)),
+            TileEnum::Sun => Box::new(Sun::new(pos)),
+            TileEnum::Moon => Box::new(Moon::new(pos)),
+        }
+    }
+    pub fn cycle(&mut self) {
+        *self = match self {
+            Self::BaseGround => Self::BasePillar,
+            Self::BasePillar => Self::Edge,
+            Self::Edge => Self::Arrow,
+            Self::Arrow => Self::Stair,
+            Self::Stair => Self::Sun,
+            Self::Sun => Self::Moon,
+            Self::Moon => Self::BaseGround,
+        };
+    }
+}
+
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum TileVariant {
     Left,
     Right,
@@ -28,6 +62,36 @@ pub enum TileVariant {
     CornerTR,
     CornerTL,
     Center,
+}
+impl TileVariant {
+    pub fn rotate_cw(&mut self) {
+        use TileVariant::*;
+        *self = match self {
+            Center => CornerTL,
+            CornerTL => Top,
+            Top => CornerTR,
+            CornerTR => Right,
+            Right => CornerBR,
+            CornerBR => Bottom,
+            Bottom => CornerBL,
+            CornerBL => Left,
+            Left => Center, 
+        };
+    }
+    pub fn rotate_ccw(&mut self) {
+        use TileVariant::*;
+        *self = match self {
+            Center => CornerBL,
+            CornerBL => Bottom,
+            Bottom => CornerBR,
+            CornerBR => Right,
+            Right => CornerTR,
+            CornerTR => Top,
+            Top => CornerTL,
+            CornerTL => Left,
+            Left => Center,
+        };
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -58,6 +122,7 @@ pub trait Tile: Debug {
 }
 
 fn get_default_anim(frame: (u16, u16)) -> Animation {
+    
     let mut frames: HashMap<String, (bool, Vec<(u16, u16)>)> = HashMap::new();
 
     frames.insert(String::from("base"), (true, vec![frame]));

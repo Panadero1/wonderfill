@@ -110,4 +110,18 @@ impl TileManager {
         }
         self.push(tile);
     }
+    pub fn remove_where<P: Fn(&Box<dyn Tile>) -> bool>(&mut self, predicate: P) {
+        let mut remove_indices = vec![];
+        for (i, tile) in self.tiles.iter().enumerate() {
+            if predicate(tile) {
+                remove_indices.push(i);
+            }
+        }
+        for i in remove_indices {
+            self.tiles.remove(i);
+        }
+    }
+    pub fn remove_at(&mut self, pos: GamePos) {
+        self.remove_where(|t| {t.get_pos() == pos});
+    }
 }

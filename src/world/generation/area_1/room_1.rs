@@ -15,10 +15,10 @@ pub fn add(t: &mut TileManager) {
 
 fn add_arrows(t: &mut TileManager) {
     let dist = 2;
-    t.push_override(Box::new(Arrow::new((0, dist).into(), Direction::Up)));
-    t.push_override(Box::new(Arrow::new((0, -dist).into(), Direction::Down)));
-    t.push_override(Box::new(Arrow::new((dist, 0).into(), Direction::Left)));
-    t.push_override(Box::new(Arrow::new((-dist, 0).into(), Direction::Right)));
+    t.push_override(Box::new(Arrow::new((0, dist).into(), TileVariant::Top)));
+    t.push_override(Box::new(Arrow::new((0, -dist).into(), TileVariant::Bottom)));
+    t.push_override(Box::new(Arrow::new((dist, 0).into(), TileVariant::Left)));
+    t.push_override(Box::new(Arrow::new((-dist, 0).into(), TileVariant::Right)));
 }
 
 fn add_stairs(t: &mut TileManager) {
