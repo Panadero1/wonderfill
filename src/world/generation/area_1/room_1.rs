@@ -1,6 +1,6 @@
 use crate::{
     entity::tile::{
-        arrow::Arrow, edge::Edge, stair::Stair, test_ground::TestGround, test_pillar::TestPillar,
+        arrow::Arrow, edge::Edge, stair::Stair, base_ground::BaseGround, base_pillar::BasePillar,
         TileVariant,
     },
     world::{generation, space::Direction, TileManager},
@@ -36,9 +36,9 @@ fn add_pedestal(t: &mut TileManager) {
 fn add_room(t: &mut TileManager) {
     generation::generate_square(t, (-7, -7), 15, |v, x, y| {
         Some(if let TileVariant::Center = v {
-            Box::new(TestGround::new((x, y).into()))
+            Box::new(BaseGround::default((x, y).into()))
         } else {
-            Box::new(TestPillar::new((x, y).into()))
+            Box::new(BasePillar::default((x, y).into()))
         })
     });
 }

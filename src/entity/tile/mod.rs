@@ -7,8 +7,8 @@ use crate::{screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animati
 
 use super::{Entity, player::Player};
 
-pub mod test_ground;
-pub mod test_pillar;
+pub mod base_ground;
+pub mod base_pillar;
 pub mod edge;
 pub mod arrow;
 pub mod stair;

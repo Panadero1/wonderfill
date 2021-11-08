@@ -1,6 +1,6 @@
 use speedy2d::shape::Rectangle;
 
-use crate::{entity::tile::{TileVariant, moon::Moon, sun::Sun, test_ground::TestGround, test_pillar::TestPillar}, world::{generation, TileManager}};
+use crate::{entity::tile::{TileVariant, moon::Moon, sun::Sun, base_ground::BaseGround, base_pillar::BasePillar}, world::{generation, TileManager}};
 
 pub fn add(t: &mut TileManager) {
     add_room(t);
@@ -12,14 +12,14 @@ fn add_walkway(t: &mut TileManager) {
     generation::generate_box(t, Rectangle::from_tuples((-1, -14), (2, -5)), |v, x, y| {
         let pos = (x, y).into();
         if v == TileVariant::Left || v == TileVariant::Right {
-            return Some(Box::new(TestPillar::new(pos)));
+            return Some(Box::new(BasePillar::default(pos)));
         }
-        return Some(Box::new(TestGround::new(pos)));
+        return Some(Box::new(BaseGround::default(pos)));
     })
 }
 
 fn add_door(t: &mut TileManager) {
-    t.push_override(Box::new(TestGround::new((0, -7).into())));
+    t.push_override(Box::new(BaseGround::default((0, -7).into())));
 }
 
 fn add_room(t: &mut TileManager) {
@@ -34,7 +34,7 @@ fn add_room(t: &mut TileManager) {
             }
         }
         else {
-            Box::new(TestPillar::new(pos))
+            Box::new(BasePillar::default(pos))
         })
     });
 }

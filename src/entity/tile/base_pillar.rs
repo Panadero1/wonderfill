@@ -5,13 +5,13 @@ use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::
 use super::{Tile, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TestPillar {
+pub struct BasePillar {
     pos: GamePos,
     anim: Animation
 }
 
 #[typetag::serde]
-impl Tile for TestPillar {
+impl Tile for BasePillar {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -25,11 +25,14 @@ impl Tile for TestPillar {
     }
 }
 
-impl TestPillar {
-    pub fn new(pos: GamePos) -> TestPillar {
-        TestPillar {
+impl BasePillar {
+    pub fn new(pos: GamePos, anim_frame: (u16, u16)) -> BasePillar {
+        BasePillar {
             pos,
-            anim: get_default_anim((2, 0))
+            anim: get_default_anim(anim_frame)
         }
+    }
+    pub fn default(pos: GamePos) -> BasePillar {
+        BasePillar::new(pos, (2, 0))
     }
 }

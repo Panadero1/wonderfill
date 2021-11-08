@@ -6,8 +6,8 @@ use crate::{
     entity::{
         player::Player,
         tile::{
-            arrow::Arrow, edge::Edge, stair::Stair, test_ground::TestGround,
-            test_pillar::TestPillar, Tile, TileVariant,
+            arrow::Arrow, edge::Edge, stair::Stair, base_ground::BaseGround,
+            base_pillar::BasePillar, Tile, TileVariant,
         },
     },
     screen::{self, camera::Camera, game::CAMERA_SCALE},
