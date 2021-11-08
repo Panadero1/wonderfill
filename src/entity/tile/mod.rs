@@ -42,18 +42,15 @@ pub trait Tile: Debug {
     fn get_anim(&mut self) -> &mut Animation;
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {}
     fn update_anim(&mut self, clock: &Clock) {
-        match clock.get_hour() {
-            0 => self.get_anim().select("light").unwrap(),
-            6 => self.get_anim().select("dark").unwrap(),
-            _ => (),
-        }
+        self.get_anim().select("base").unwrap();
     }
     fn on_update(&mut self, clock: &Clock) {}
-    fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera) {
+    fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, clock: &Clock, camera: &Camera) {
         let pos = self.get_pos();
         self.get_anim().draw(
             graphics,
             manager,
+            clock,
             camera.rect_from_offset(pos, (1.0, HEIGHT_GAMEPOS).into(), (0.0, 1.0 - HEIGHT_GAMEPOS).into()),
             Color::WHITE,
         );
@@ -63,9 +60,7 @@ pub trait Tile: Debug {
 fn get_default_anim(frame: (u16, u16)) -> Animation {
     let mut frames: HashMap<String, (bool, Vec<(u16, u16)>)> = HashMap::new();
 
-    frames.insert(String::from("light"), (true, vec![frame]));
-    // Dark frame is always one to the right from light frame
-    frames.insert(String::from("dark"), (true, vec![(frame.0 + 1, frame.1)]));
+    frames.insert(String::from("base"), (true, vec![frame]));
 
     Animation::new(Img::new(String::from("assets\\img\\tiles.png")), (7, 10), frames, (5, 0), 500)
 }

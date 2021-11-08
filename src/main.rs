@@ -2,6 +2,7 @@
 // Think up world regions
 // Finish starting tutorial area
 // BaseGround and BasePillar types that take sprite indexes
+// Consolidate drawing requirements into one struct
 
 // [Housekeeping]
 // Fix options page

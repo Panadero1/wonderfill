@@ -13,12 +13,13 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{entity::{
-        Entity,
-    }, ui::img::{ImgManager}, world::{World, generation}};
+use crate::{
+    entity::Entity,
+    ui::img::ImgManager,
+    world::{generation, World},
+};
 
 use super::{get_resolution, title::TitleScreen, Screen};
-
 
 bitflags! {
     struct Input: u8 {
@@ -77,17 +78,22 @@ impl WindowHandler<String> for GameScreen {
         self.world.tile_mgr.draw_before_player(
             graphics,
             &mut self.img_manager,
+            &self.world.clock,
             &self.world.camera,
             self.world.player.get_pos(),
         );
 
-        self.world
-            .player
-            .draw(graphics, &mut self.img_manager, &self.world.camera);
+        self.world.player.draw(
+            graphics,
+            &mut self.img_manager,
+            &self.world.clock,
+            &self.world.camera,
+        );
 
         self.world.tile_mgr.draw_after_player(
             graphics,
             &mut self.img_manager,
+            &self.world.clock,
             &self.world.camera,
             self.world.player.get_pos(),
         );

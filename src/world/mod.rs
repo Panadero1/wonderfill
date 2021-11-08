@@ -52,10 +52,11 @@ impl TileManager {
         &mut self,
         graphics: &mut Graphics2D,
         manager: &mut ImgManager,
+        clock: &Clock,
         camera: &Camera,
         player_pos: GamePos,
     ) {
-        self.draw_where(graphics, manager, camera, |t| {
+        self.draw_where(graphics, manager, clock, camera, |t| {
             t.get_pos().y <= player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
         });
     }
@@ -63,15 +64,16 @@ impl TileManager {
         &mut self,
         graphics: &mut Graphics2D,
         manager: &mut ImgManager,
+        clock: &Clock,
         camera: &Camera,
         player_pos: GamePos,
     ) {
-        self.draw_where(graphics, manager, camera, |t| {
+        self.draw_where(graphics, manager, clock, camera, |t| {
             t.get_pos().y > player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
         });
     }
 
-    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool> (&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera, predicate: P) {
+    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool> (&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, clock: &Clock, camera: &Camera, predicate: P) {
         
         let mut tiles = self
             .tiles
@@ -82,7 +84,7 @@ impl TileManager {
         tiles.sort_by(|t1, t2| t1.get_pos().y.partial_cmp(&t2.get_pos().y).unwrap());
 
         for tile in tiles {
-            tile.draw(graphics, manager, camera);
+            tile.draw(graphics, manager, clock, camera);
         }
     }
 
@@ -99,7 +101,7 @@ impl TileManager {
         }
     }
     pub fn push(&mut self, mut tile: Box<dyn Tile>) {
-        tile.get_anim().select("light").unwrap();
+        tile.get_anim().select("base").unwrap();
         self.tiles.push(tile);
     }
     pub fn push_override(&mut self, tile: Box<dyn Tile>) {

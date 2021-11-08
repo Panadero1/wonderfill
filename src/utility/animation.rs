@@ -1,14 +1,13 @@
 use std::collections::HashMap;
 
-use speedy2d::{
-    color::Color,
-    shape::Rectangle,
-    Graphics2D,
-};
+use speedy2d::{color::Color, shape::Rectangle, Graphics2D};
 
 use serde::{Deserialize, Serialize};
 
-use crate::ui::img::{Img, ImgManager};
+use crate::{
+    ui::img::{Img, ImgManager},
+    world::time::Clock,
+};
 
 use super::time::NInstant;
 
@@ -46,14 +45,8 @@ impl Animation {
         }
     }
     pub fn select(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
-        match self.frames.get(anim_name) {
-            Some(frames) => {
-                self.start = NInstant::now();
-                self.frame_loop = Some(frames.clone());
-                Ok(())
-            }
-            None => Err(AnimationSelectError::NotFound),
-        }
+        self.start = NInstant::now();
+        self.intercept(anim_name)
     }
     pub fn intercept(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
         match self.frames.get(anim_name) {
@@ -67,7 +60,14 @@ impl Animation {
     pub fn deselect(&mut self) {
         self.frame_loop = None;
     }
-    pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, window_rect: Rectangle<f32>, color: Color) {
+    pub fn draw(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        window_rect: Rectangle<f32>,
+        color: Color,
+    ) {
         if self.src.state.is_none() {
             self.src.init(graphics, manager);
         }
@@ -78,11 +78,14 @@ impl Animation {
                 if !do_loop && frame_count > frame_loop.len() as u128 {
                     self.deselect();
                     self.default
-                }
-                else {
+                } else {
                     let frame_offset = (frame_count % frame_loop.len() as u128) as usize;
 
-                    frame_loop[frame_offset]
+                    let mut result = frame_loop[frame_offset];
+                    if !clock.is_day() {
+                        result.0 += 1;
+                    }
+                    result
                 }
             }
             None => self.default,
@@ -96,10 +99,8 @@ impl Animation {
                 img,
             );
         }
-
     }
     fn get_bounds_rect_from_pos(&self, pos: (u16, u16)) -> Rectangle {
-        
         let img_bounds = self.src.state.as_ref().unwrap().size();
         let top_left = (
             ((pos.0 as f32) * (self.frame_size.0 as f32 + 2.0) + 1.0) / (img_bounds.x as f32),
