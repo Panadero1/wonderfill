@@ -7,7 +7,7 @@ use crate::{
     world::{space::GamePos, time::Clock},
 };
 
-use super::{get_default_anim, Tile};
+use super::{Tile, TileEnum, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BaseGround {
@@ -23,6 +23,10 @@ impl Tile for BaseGround {
 
     fn get_anim(&mut self) -> &mut Animation {
         &mut self.anim
+    }
+
+    fn get_tile_enum(&self) -> TileEnum {
+        TileEnum::BaseGround
     }
 }
 

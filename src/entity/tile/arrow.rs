@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{Tile, TileVariant, get_default_anim};
+use super::{Tile, TileEnum, TileVariant, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arrow {
@@ -25,6 +25,10 @@ impl Tile for Arrow {
 
     fn get_anim(&mut self) -> &mut Animation {
         &mut self.anim
+    }
+    
+    fn get_tile_enum(&self) -> TileEnum {
+        TileEnum::Arrow
     }
 }
 

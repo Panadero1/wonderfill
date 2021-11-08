@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{entity::player::Player, ui::img::Img, utility::animation::Animation, world::{space::{Direction, GamePos}, time::Clock}};
 
-use super::{Tile, TileVariant, get_default_anim};
+use super::{Tile, TileEnum, TileVariant, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Stair {
@@ -18,6 +18,10 @@ impl Tile for Stair {
 
     fn get_anim(&mut self) -> &mut Animation {
         &mut self.anim
+    }
+    
+    fn get_tile_enum(&self) -> TileEnum {
+        TileEnum::Stair
     }
 }
 

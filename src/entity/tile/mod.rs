@@ -119,6 +119,7 @@ pub trait Tile: Debug {
             Color::WHITE,
         );
     }
+    fn get_tile_enum(&self) -> TileEnum;
 }
 
 fn get_default_anim(frame: (u16, u16)) -> Animation {

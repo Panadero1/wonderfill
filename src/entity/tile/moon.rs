@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
 
-use super::{AlternatorState, Tile, get_default_anim};
+use super::{AlternatorState, Tile, TileEnum, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Moon {
@@ -32,6 +32,10 @@ impl Tile for Moon {
         else {
             AlternatorState::Up
         };
+    }
+    
+    fn get_tile_enum(&self) -> TileEnum {
+        TileEnum::Moon
     }
 }
 

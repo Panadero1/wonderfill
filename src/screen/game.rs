@@ -184,6 +184,11 @@ impl WindowHandler<String> for GameScreen {
         else if let MouseButton::Right = button {
             self.world.tile_mgr.remove_at(pos);
         }
+        else if let MouseButton::Middle = button {
+            if let Some(tile) = self.world.tile_mgr.tile_at_pos(pos) {
+                self.draw_tile = tile.1.get_tile_enum();
+            }
+        }
     }
 }
 

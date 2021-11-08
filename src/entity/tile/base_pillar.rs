@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
 
-use super::{Tile, get_default_anim};
+use super::{Tile, TileEnum, get_default_anim};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BasePillar {
@@ -22,6 +22,10 @@ impl Tile for BasePillar {
 
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
         player.moove(-move_pos);
+    }
+    
+    fn get_tile_enum(&self) -> TileEnum {
+        TileEnum::BasePillar
     }
 }
 
