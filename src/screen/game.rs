@@ -27,10 +27,10 @@ bitflags! {
 impl From<VirtualKeyCode> for Input {
     fn from(key_code: VirtualKeyCode) -> Self {
         match key_code {
-            VirtualKeyCode::Up => Input::UP,
-            VirtualKeyCode::Left => Input::LEFT,
-            VirtualKeyCode::Down => Input::DOWN,
-            VirtualKeyCode::Right => Input::RIGHT,
+            VirtualKeyCode::W => Input::UP,
+            VirtualKeyCode::A => Input::LEFT,
+            VirtualKeyCode::S => Input::DOWN,
+            VirtualKeyCode::D => Input::RIGHT,
             VirtualKeyCode::R => Input::ROTATE,
             VirtualKeyCode::T => Input::TILE,
             _ => Input::NONE,
@@ -42,10 +42,10 @@ impl Into<Option<VirtualKeyCode>> for Input {
         match self {
             Input::NONE => None,
             _ => Some(match self {
-                Input::UP => VirtualKeyCode::Up,
-                Input::LEFT => VirtualKeyCode::Left,
-                Input::DOWN => VirtualKeyCode::Down,
-                Input::RIGHT => VirtualKeyCode::Right,
+                Input::UP => VirtualKeyCode::W,
+                Input::LEFT => VirtualKeyCode::A,
+                Input::DOWN => VirtualKeyCode::S,
+                Input::RIGHT => VirtualKeyCode::D,
                 Input::ROTATE => VirtualKeyCode::R,
                 Input::TILE => VirtualKeyCode::T,
                 _ => panic!("Forgot to implement keycode mappings"), // never occurs
@@ -119,10 +119,10 @@ impl WindowHandler<String> for GameScreen {
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
                         let move_pos = match virtual_key_code {
-                            VirtualKeyCode::Up => (0.0, -1.0),
-                            VirtualKeyCode::Left => (-1.0, 0.0),
-                            VirtualKeyCode::Down => (0.0, 1.0),
-                            VirtualKeyCode::Right => (1.0, 0.0),
+                            VirtualKeyCode::W => (0.0, -1.0),
+                            VirtualKeyCode::A => (-1.0, 0.0),
+                            VirtualKeyCode::S => (0.0, 1.0),
+                            VirtualKeyCode::D => (1.0, 0.0),
                             VirtualKeyCode::R => {
                                 self.tile_variant.rotate_cw();
                                 return;
