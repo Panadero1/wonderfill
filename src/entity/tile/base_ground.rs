@@ -1,13 +1,18 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::player::Player, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
+use crate::{
+    entity::player::Player,
+    ui::img::Img,
+    utility::animation::Animation,
+    world::{space::GamePos, time::Clock},
+};
 
-use super::{Tile, get_default_anim};
+use super::{get_default_anim, Tile};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BaseGround {
     pos: GamePos,
-    anim: Animation
+    anim: Animation,
 }
 
 #[typetag::serde]
@@ -25,7 +30,7 @@ impl BaseGround {
     pub fn new(pos: GamePos, anim_frame: (u16, u16)) -> BaseGround {
         BaseGround {
             pos,
-            anim: get_default_anim(anim_frame)
+            anim: get_default_anim(anim_frame),
         }
     }
     pub fn default(pos: GamePos) -> BaseGround {

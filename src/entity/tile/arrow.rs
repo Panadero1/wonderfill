@@ -1,13 +1,20 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::player::Player, utility::animation::Animation, world::{space::{Direction, GamePos}, time::Clock}};
+use crate::{
+    entity::player::Player,
+    utility::animation::Animation,
+    world::{
+        space::{Direction, GamePos},
+        time::Clock,
+    },
+};
 
-use super::{Tile, get_default_anim};
+use super::{get_default_anim, Tile};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arrow {
     pos: GamePos,
-    anim: Animation
+    anim: Animation,
 }
 
 #[typetag::serde]
@@ -30,7 +37,7 @@ impl Arrow {
                 Direction::Down => (0, 1),
                 Direction::Left => (2, 2),
                 Direction::Right => (0, 2),
-            })
+            }),
         }
     }
 }
