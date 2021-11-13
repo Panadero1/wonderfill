@@ -1,13 +1,14 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    entity::player::Player,
-    ui::img::Img,
     utility::animation::Animation,
-    world::{space::GamePos, time::Clock},
+    world::{
+        space::GamePos,
+        tile::{get_default_anim, Tile, TileVariant},
+    },
 };
 
-use super::{Tile, TileEnum, get_default_anim};
+use super::base_pillar::BasePillar;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BaseGround {
@@ -25,8 +26,12 @@ impl Tile for BaseGround {
         &mut self.anim
     }
 
-    fn get_tile_enum(&self) -> TileEnum {
-        TileEnum::BaseGround
+    fn next(&self) -> Option<Box<dyn Tile>> {
+        Some(Box::new(BasePillar::default((0, 0).into())))
+    }
+
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(BaseGround::default(pos))
     }
 }
 

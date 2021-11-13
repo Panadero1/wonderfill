@@ -1,6 +1,6 @@
 use std::time::{self, Instant};
 
-use serde::{Deserialize, Serialize, de::Visitor};
+use serde::{de::Visitor, Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 pub struct NInstant(time::Instant);
@@ -8,7 +8,8 @@ pub struct NInstant(time::Instant);
 impl Serialize for NInstant {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer {
+        S: serde::Serializer,
+    {
         serializer.serialize_bool(true)
     }
 }
@@ -16,7 +17,8 @@ impl Serialize for NInstant {
 impl<'de> Deserialize<'de> for NInstant {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de> {
+        D: serde::Deserializer<'de>,
+    {
         deserializer.deserialize_bool(NInstantVisitor)?;
         Ok(NInstant(Instant::now()))
     }
@@ -48,7 +50,8 @@ impl<'de> Visitor<'de> for NInstantVisitor {
 
     fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E>
     where
-            E: serde::de::Error, {
+        E: serde::de::Error,
+    {
         Ok(NInstant::now())
     }
 }

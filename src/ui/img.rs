@@ -1,6 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
-use serde::{Deserialize, Serialize, de::Visitor};
+use serde::{de::Visitor, Deserialize, Serialize};
 use speedy2d::{
     error::{BacktraceError, ErrorMessage},
     image::{ImageFileFormat, ImageHandle, ImageSmoothingMode},
@@ -31,8 +31,7 @@ impl ImgManager {
     pub fn get_img(&mut self, path: &String, graphics: &mut Graphics2D) -> Rc<ImageHandle> {
         if let Some(val) = self.imgs.get(path) {
             return Rc::clone(&val);
-        }
-        else {
+        } else {
             let result = Rc::new(get_image_handle(graphics, path).unwrap());
             self.imgs.insert(path.clone(), Rc::clone(&result));
             return result;
@@ -49,7 +48,8 @@ pub struct Img {
 impl Serialize for Img {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer {
+        S: serde::Serializer,
+    {
         serializer.serialize_str(&self.path)
     }
 }
@@ -57,17 +57,15 @@ impl Serialize for Img {
 impl<'de> Deserialize<'de> for Img {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de> {
+        D: serde::Deserializer<'de>,
+    {
         deserializer.deserialize_str(ImgVisitor)
     }
 }
 
 impl Img {
     pub fn new(path: String) -> Img {
-        Img {
-            state: None,
-            path,
-        }
+        Img { state: None, path }
     }
     pub fn init(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
         self.state = Some(manager.get_img(&self.path, graphics));
@@ -85,11 +83,10 @@ impl<'de> Visitor<'de> for ImgVisitor {
 
     fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
     where
-            E: serde::de::Error, {
+        E: serde::de::Error,
+    {
         Ok(Img::new(String::from(v)))
     }
-
-    
 }
 
 #[derive(Debug)]

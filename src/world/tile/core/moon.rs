@@ -1,8 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
+use crate::{
+    utility::animation::Animation,
+    world::{
+        entity::{player::Player, Entity},
+        space::GamePos,
+        tile::{get_default_anim, AlternatorState, Tile, TileVariant},
+        time::Clock,
+    },
+};
 
-use super::{AlternatorState, Tile, TileEnum, get_default_anim};
+use super::stair::Stair;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Moon {
@@ -28,14 +36,17 @@ impl Tile for Moon {
     fn on_update(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
             AlternatorState::Down
-        }
-        else {
+        } else {
             AlternatorState::Up
         };
     }
-    
-    fn get_tile_enum(&self) -> TileEnum {
-        TileEnum::Moon
+
+    fn next(&self) -> Option<Box<dyn Tile>> {
+        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+    }
+
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(Moon::new(pos))
     }
 }
 
@@ -44,7 +55,7 @@ impl Moon {
         Moon {
             pos,
             anim: get_default_anim((6, 0)),
-            state: AlternatorState::Down
+            state: AlternatorState::Down,
         }
     }
 }

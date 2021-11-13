@@ -1,15 +1,14 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    entity::player::Player,
     utility::animation::Animation,
     world::{
-        space::{Direction, GamePos},
-        time::Clock,
+        space::GamePos,
+        tile::{get_default_anim, match_directions, Tile, TileVariant},
     },
 };
 
-use super::{Tile, TileEnum, TileVariant, get_default_anim, match_directions};
+use super::base_ground::BaseGround;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arrow {
@@ -26,9 +25,13 @@ impl Tile for Arrow {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    
-    fn get_tile_enum(&self) -> TileEnum {
-        TileEnum::Arrow
+
+    fn next(&self) -> Option<Box<dyn Tile>> {
+        Some(Box::new(BaseGround::default((0, 0).into())))
+    }
+
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(Arrow::new(pos, variant))
     }
 }
 

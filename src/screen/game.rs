@@ -7,11 +7,22 @@ use std::{
 
 use bitflags::bitflags;
 
-use speedy2d::{Graphics2D, color::Color, window::{MouseButton, VirtualKeyCode, WindowHandler, WindowHelper}};
+use speedy2d::{
+    color::Color,
+    window::{MouseButton, VirtualKeyCode, WindowHandler, WindowHelper},
+    Graphics2D,
+};
 
-use crate::{entity::{Entity, tile::{Tile, TileEnum, TileVariant, base_ground::BaseGround}}, ui::img::ImgManager, world::{generation, World}};
-
-use super::{Screen, get_mouse_pos, get_resolution, title::TitleScreen};
+use crate::{
+    screen::{title::TitleScreen, Screen},
+    ui::img::ImgManager,
+    world::{
+        entity::Entity,
+        generation,
+        tile::{core::base_ground::BaseGround, Tile, TileVariant},
+        World,
+    },
+};
 
 bitflags! {
     struct Input: u8 {
@@ -63,7 +74,7 @@ pub struct GameScreen {
     world: World,
     img_manager: ImgManager,
     // For editing
-    draw_tile: TileEnum,
+    draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
 }
 
@@ -128,7 +139,7 @@ impl WindowHandler<String> for GameScreen {
                                 return;
                             }
                             VirtualKeyCode::T => {
-                                self.draw_tile.cycle();
+                                self.draw_tile = self.draw_tile.cycle();
                                 return;
                             }
                             _ => (0.0, 0.0),
@@ -176,17 +187,19 @@ impl WindowHandler<String> for GameScreen {
     ) {
     }
     fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
-        let pos = self.world.camera.pix_to_game(get_mouse_pos()).round();
+        let pos = self
+            .world
+            .camera
+            .pix_to_game(super::get_mouse_pos())
+            .round();
         if let MouseButton::Left = button {
             let tile = self.draw_tile.create(pos, self.tile_variant);
             self.world.tile_mgr.push_override(tile);
-        }
-        else if let MouseButton::Right = button {
+        } else if let MouseButton::Right = button {
             self.world.tile_mgr.remove_at(pos);
-        }
-        else if let MouseButton::Middle = button {
+        } else if let MouseButton::Middle = button {
             if let Some(tile) = self.world.tile_mgr.tile_at_pos(pos) {
-                self.draw_tile = tile.1.get_tile_enum();
+                self.draw_tile = tile.1.create((0, 0).into(), TileVariant::Center);
             }
         }
     }
@@ -200,7 +213,7 @@ impl<'a> Screen for GameScreen {
         None
     }
     fn init(&mut self, helper: &mut WindowHelper<String>) {
-        self.on_resize(helper, get_resolution().into());
+        self.on_resize(helper, super::get_resolution().into());
     }
 }
 
@@ -219,7 +232,7 @@ impl GameScreen {
             current_input: Input::NONE,
             world,
             img_manager: ImgManager::new(),
-            draw_tile: TileEnum::BaseGround,
+            draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
         }
     }

@@ -1,8 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
-
-use super::{AlternatorState, Tile, TileEnum, get_default_anim};
+use crate::{
+    utility::animation::Animation,
+    world::{
+        entity::{player::Player, Entity},
+        space::GamePos,
+        tile::{get_default_anim, AlternatorState, Tile, TileVariant},
+        time::Clock,
+    },
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Sun {
@@ -28,14 +34,17 @@ impl Tile for Sun {
     fn on_update(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
             AlternatorState::Up
-        }
-        else {
+        } else {
             AlternatorState::Down
         };
     }
 
-    fn get_tile_enum(&self) -> TileEnum {
-        TileEnum::Sun
+    fn next(&self) -> Option<Box<dyn Tile>> {
+        None
+    }
+
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(Sun::new(pos))
     }
 }
 
@@ -44,7 +53,7 @@ impl Sun {
         Sun {
             pos,
             anim: get_default_anim((8, 0)),
-            state: AlternatorState::Up
+            state: AlternatorState::Up,
         }
     }
 }

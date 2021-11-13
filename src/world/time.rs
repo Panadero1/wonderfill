@@ -23,7 +23,7 @@ impl Clock {
         Clock {
             hour: 0,
             day: 0,
-            year: 0
+            year: 0,
         }
     }
 
@@ -67,17 +67,13 @@ impl Clock {
         let q4 = DAYS_PER_YEAR;
         if (0..q1).contains(&self.day) {
             Season::Spring
-        }
-        else if (q1..q2).contains(&self.day) {
+        } else if (q1..q2).contains(&self.day) {
             Season::Summer
-        }
-        else if (q2..q3).contains(&self.day) {
+        } else if (q2..q3).contains(&self.day) {
             Season::Autumn
-        }
-        else if (q3..q4).contains(&self.day) {
+        } else if (q3..q4).contains(&self.day) {
             Season::Winter
-        }
-        else {
+        } else {
             panic!("Days system is wrong: day = {}", &self.day);
         }
     }

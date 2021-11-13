@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
+use crate::{utility::animation::Animation, world::{entity::{Entity, player::Player}, space::GamePos, tile::{get_default_anim, Tile, TileVariant}}};
 
-use super::{Tile, TileEnum, get_default_anim};
+use super::edge::Edge;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BasePillar {
     pos: GamePos,
-    anim: Animation
+    anim: Animation,
 }
 
 #[typetag::serde]
@@ -23,9 +23,13 @@ impl Tile for BasePillar {
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
         player.moove(-move_pos);
     }
-    
-    fn get_tile_enum(&self) -> TileEnum {
-        TileEnum::BasePillar
+
+    fn next(&self) -> Option<Box<dyn Tile>> {
+        Some(Box::new(Edge::new((0, 0).into(), TileVariant::Center)))
+    }
+
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(BasePillar::default(pos))
     }
 }
 
@@ -33,7 +37,7 @@ impl BasePillar {
     pub fn new(pos: GamePos, anim_frame: (u16, u16)) -> BasePillar {
         BasePillar {
             pos,
-            anim: get_default_anim(anim_frame)
+            anim: get_default_anim(anim_frame),
         }
     }
     pub fn default(pos: GamePos) -> BasePillar {

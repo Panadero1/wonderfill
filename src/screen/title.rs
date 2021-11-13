@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
-
-use speedy2d::{Graphics2D, color::Color, window::{MouseButton, UserEventSender, WindowHandler, WindowHelper}};
-
+use speedy2d::{
+    color::Color,
+    window::{MouseButton, UserEventSender, WindowHandler, WindowHelper},
+    Graphics2D,
+};
 
 use crate::ui::{button::Button, rect::rect_from_size, text};
 
@@ -86,8 +88,7 @@ impl<'a> WindowHandler<String> for TitleScreen<'a> {
             "start" => {
                 if let Ok(screen) = GameScreen::load() {
                     self.new_screen = Some(Box::new(screen));
-                }
-                else {
+                } else {
                     self.new_screen = Some(Box::new(GameScreen::new()));
                 }
             }
@@ -109,9 +110,7 @@ impl<'a> Screen for TitleScreen<'a> {
         }
         None
     }
-    fn init(&mut self, helper: &mut WindowHelper<String>) {
-
-    }
+    fn init(&mut self, helper: &mut WindowHelper<String>) {}
 }
 
 impl<'a> TitleScreen<'a> {
@@ -166,7 +165,7 @@ impl<'a> TitleScreen<'a> {
                 Box::new(move || {
                     let res = super::get_resolution();
                     (res.0 / 2, (res.1 / 2) + (button_padding + button_size.1))
-                })
+                }),
             ),
         );
         buttons.insert(
@@ -182,10 +181,13 @@ impl<'a> TitleScreen<'a> {
                 button_background,
                 button_foreground,
                 font,
-                Box::new(move ||{
+                Box::new(move || {
                     let res = super::get_resolution();
-                    (res.0 / 2, (res.1 / 2) + 2 * (button_padding + button_size.1))
-                })
+                    (
+                        res.0 / 2,
+                        (res.1 / 2) + 2 * (button_padding + button_size.1),
+                    )
+                }),
             ),
         );
 

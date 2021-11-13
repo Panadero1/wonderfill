@@ -1,11 +1,11 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign, Neg};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 pub enum Direction {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 // GamePos
@@ -70,10 +70,7 @@ impl Into<(f32, f32)> for GamePos {
 }
 impl From<(f32, f32)> for GamePos {
     fn from(pos: (f32, f32)) -> Self {
-        GamePos {
-            x: pos.0,
-            y: pos.1
-        }
+        GamePos { x: pos.0, y: pos.1 }
     }
 }
 impl From<(i32, i32)> for GamePos {
@@ -92,7 +89,6 @@ impl Neg for GamePos {
     }
 }
 
-
 impl GamePos {
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
@@ -109,4 +105,3 @@ impl GamePos {
         result.floor()
     }
 }
-

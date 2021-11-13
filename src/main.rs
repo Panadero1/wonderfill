@@ -5,7 +5,6 @@
 
 // [Housekeeping]
 // Fix options page
-// Consolidate drawing structs together
 
 // [Backlog]
 // Figure out an answer to MM's questions

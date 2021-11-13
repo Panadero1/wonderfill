@@ -1,3 +1,4 @@
+// Deprecated
 use crate::world::TileManager;
 
 pub fn add(t: &mut TileManager) {

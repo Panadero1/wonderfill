@@ -1,20 +1,11 @@
-use std::collections::HashMap;
-
 use speedy2d::{dimen::Vector2, shape::Rectangle};
 
 use crate::{
-    entity::{
-        player::Player,
-        tile::{
-            arrow::Arrow, edge::Edge, stair::Stair, base_ground::BaseGround,
-            base_pillar::BasePillar, Tile, TileVariant,
-        },
-    },
     screen::{self, camera::Camera, game::CAMERA_SCALE},
-    world::{time::Clock, TileManager},
+    world::{entity::player::Player, tile::Tile, time::Clock, TileManager},
 };
 
-use super::{space::Direction, World};
+use super::{tile::TileVariant, World};
 
 mod area_1;
 

@@ -6,9 +6,9 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::{ui::{button::Button, rect::rect_from_size, text}};
+use crate::ui::{button::Button, rect::rect_from_size, text};
 
-use super::{Screen, title::TitleScreen};
+use super::{title::TitleScreen, Screen};
 
 pub struct OptionsScreen<'a> {
     new_screen: Option<Box<dyn Screen>>,
@@ -75,7 +75,7 @@ impl<'a> WindowHandler<String> for OptionsScreen<'a> {
             button.set_bounds(rect_from_size(
                 button.width(),
                 button.height(),
-                button.get_pos()
+                button.get_pos(),
             ));
         }
     }
@@ -89,7 +89,7 @@ impl<'a> WindowHandler<String> for OptionsScreen<'a> {
         match &user_event[..] {
             "back" => {
                 self.new_screen = Some(Box::new(TitleScreen::new()));
-            },
+            }
             _ => (),
         }
     }
@@ -102,9 +102,7 @@ impl<'a> Screen for OptionsScreen<'a> {
         }
         None
     }
-    fn init(&mut self, helper: &mut WindowHelper<String>) {
-
-    }
+    fn init(&mut self, helper: &mut WindowHelper<String>) {}
 }
 
 impl<'a> OptionsScreen<'a> {
@@ -129,10 +127,10 @@ impl<'a> OptionsScreen<'a> {
                 Color::WHITE,
                 Color::BLACK,
                 font,
-                Box::new(||{
+                Box::new(|| {
                     let res = super::get_resolution();
                     (res.0 / 2, (res.1 / 2) + 160)
-                })
+                }),
             ),
         );
 

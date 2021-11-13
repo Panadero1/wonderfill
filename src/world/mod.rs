@@ -1,16 +1,16 @@
 use crate::{
-    entity::{player::Player, tile::Tile},
     screen::camera::Camera,
     ui::img::ImgManager,
+    world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
-
-use self::{space::GamePos, time::Clock};
 use serde::{Deserialize, Serialize};
 use speedy2d::Graphics2D;
 
+pub mod entity;
 pub mod generation;
 pub mod space;
+pub mod tile;
 pub mod time;
 
 #[derive(Serialize, Deserialize)]
@@ -73,13 +73,15 @@ impl TileManager {
         });
     }
 
-    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool> (&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, clock: &Clock, camera: &Camera, predicate: P) {
-        
-        let mut tiles = self
-            .tiles
-            .iter_mut()
-            .filter(predicate)
-            .collect::<Vec<_>>();
+    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool>(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        camera: &Camera,
+        predicate: P,
+    ) {
+        let mut tiles = self.tiles.iter_mut().filter(predicate).collect::<Vec<_>>();
 
         tiles.sort_by(|t1, t2| t1.get_pos().y.partial_cmp(&t2.get_pos().y).unwrap());
 
@@ -122,6 +124,6 @@ impl TileManager {
         }
     }
     pub fn remove_at(&mut self, pos: GamePos) {
-        self.remove_where(|t| {t.get_pos() == pos});
+        self.remove_where(|t| t.get_pos() == pos);
     }
 }

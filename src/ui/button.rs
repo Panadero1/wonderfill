@@ -1,6 +1,10 @@
-use std::borrow::BorrowMut;
-
-use speedy2d::{Graphics2D, color::Color, font::{Font, TextAlignment, TextLayout, TextOptions}, shape::Rectangle, window::UserEventSender};
+use speedy2d::{
+    color::Color,
+    font::{Font, TextAlignment, TextLayout, TextOptions},
+    shape::Rectangle,
+    window::UserEventSender,
+    Graphics2D,
+};
 
 use super::rect::rect_from_size;
 
@@ -35,7 +39,7 @@ impl<'a> Button<'a> {
             background,
             foreground,
             font,
-            get_pos
+            get_pos,
         }
     }
     pub fn draw(&self, graphics: &mut Graphics2D) {
@@ -69,7 +73,10 @@ impl<'a> Button<'a> {
     pub fn in_bounds(&self, pos: (f32, f32)) -> bool {
         let top_left = self.bounds.top_left();
         let bottom_right = self.bounds.bottom_right();
-        pos.0 >= top_left.x && pos.1 >= top_left.y && pos.0 <= bottom_right.x && pos.1 <= bottom_right.y
+        pos.0 >= top_left.x
+            && pos.1 >= top_left.y
+            && pos.0 <= bottom_right.x
+            && pos.1 <= bottom_right.y
     }
     pub fn eval_click(&self, pos: (f32, f32), sender: &UserEventSender<String>) {
         if self.in_bounds(pos) {

@@ -1,9 +1,13 @@
-use crate::{
-    entity::tile::{
-        arrow::Arrow, edge::Edge, stair::Stair, base_ground::BaseGround, base_pillar::BasePillar,
+use crate::world::{
+    generation,
+    tile::{
+        core::{
+            arrow::Arrow, base_ground::BaseGround, base_pillar::BasePillar, edge::Edge,
+            stair::Stair,
+        },
         TileVariant,
     },
-    world::{generation, space::Direction, TileManager},
+    TileManager,
 };
 
 pub fn add(t: &mut TileManager) {

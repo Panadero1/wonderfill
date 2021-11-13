@@ -1,10 +1,14 @@
 use std::collections::HashMap;
 
-use speedy2d::{color::Color};
+use speedy2d::color::Color;
 
-use crate::{ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
+use crate::{
+    ui::img::{Img, ImgManager},
+    utility::animation::{Animation, AnimationSelectError},
+    world::{space::GamePos, time::Clock},
+};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use super::Entity;
 
@@ -21,7 +25,7 @@ pub struct Player {
     pos: GamePos,
     anim: Animation,
     size: GamePos,
-    hat: PlayerHat
+    hat: PlayerHat,
 }
 impl Entity for Player {
     fn draw(
@@ -67,7 +71,10 @@ impl Entity for Player {
     }
 
     fn update(&mut self) {
-        if let Err(AnimationSelectError::NotFound) = self.anim.select(&(format!("{:?}", self.hat).to_lowercase())[..]) {
+        if let Err(AnimationSelectError::NotFound) = self
+            .anim
+            .select(&(format!("{:?}", self.hat).to_lowercase())[..])
+        {
             panic!("Animation not found");
         }
     }
@@ -87,7 +94,13 @@ impl Player {
 
         Player {
             pos: (0.0, 0.0).into(),
-            anim: Animation::new(Img::new(String::from("assets/img/player.png")), (7, 7), frames, (9, 0), 100),
+            anim: Animation::new(
+                Img::new(String::from("assets/img/player.png")),
+                (7, 7),
+                frames,
+                (9, 0),
+                100,
+            ),
             size: (1.0, 1.0).into(),
             hat: PlayerHat::None,
         }

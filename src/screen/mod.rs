@@ -1,4 +1,6 @@
-use std::{rc::Weak, sync::atomic::{AtomicU32, Ordering}};
+use std::{
+    sync::atomic::{AtomicU32, Ordering},
+};
 
 use speedy2d::{
     dimen::Vector2,
@@ -6,20 +8,26 @@ use speedy2d::{
     Graphics2D,
 };
 
-pub mod game;
-pub mod title;
 pub mod camera;
+pub mod game;
 pub mod options;
+pub mod title;
 
 pub static MOUSE_POS: (AtomicU32, AtomicU32) = (AtomicU32::new(0), AtomicU32::new(0));
 pub static RESOLUTION: (AtomicU32, AtomicU32) = (AtomicU32::new(400), AtomicU32::new(500));
 
 pub fn get_mouse_pos() -> (u32, u32) {
-    (MOUSE_POS.0.load(Ordering::Relaxed), MOUSE_POS.1.load(Ordering::Relaxed))
+    (
+        MOUSE_POS.0.load(Ordering::Relaxed),
+        MOUSE_POS.1.load(Ordering::Relaxed),
+    )
 }
 
 pub fn get_resolution() -> (u32, u32) {
-    (RESOLUTION.0.load(Ordering::Relaxed), RESOLUTION.1.load(Ordering::Relaxed))
+    (
+        RESOLUTION.0.load(Ordering::Relaxed),
+        RESOLUTION.1.load(Ordering::Relaxed),
+    )
 }
 
 pub fn set_resolution(new_width: u32, new_height: u32) {
