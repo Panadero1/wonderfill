@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{Tile, TileEnum, TileVariant, get_default_anim};
+use super::{Tile, TileEnum, TileVariant, get_default_anim, match_directions};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Arrow {
@@ -23,7 +23,7 @@ impl Tile for Arrow {
         self.pos
     }
 
-    fn get_anim(&mut self) -> &mut Animation {
+    fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
     
@@ -36,17 +36,7 @@ impl Arrow {
     pub fn new(pos: GamePos, direction: TileVariant) -> Arrow {
         Arrow {
             pos,
-            anim: get_default_anim(match direction {
-                TileVariant::Top => (2, 1),
-                TileVariant::Bottom => (0, 1),
-                TileVariant::Left => (2, 2),
-                TileVariant::CornerBL => (2, 2),
-                TileVariant::CornerTL => (2, 2),
-                TileVariant::Right => (0, 2),
-                TileVariant::CornerBR => (0, 2),
-                TileVariant::CornerTR => (0, 2),
-                TileVariant::Center => (0, 0),
-            }),
+            anim: get_default_anim(match_directions(direction, (4, 7))),
         }
     }
 }

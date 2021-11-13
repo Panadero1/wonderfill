@@ -101,7 +101,7 @@ impl TileManager {
         }
     }
     pub fn push(&mut self, mut tile: Box<dyn Tile>) {
-        tile.get_anim().select("base").unwrap();
+        tile.get_anim_mut().select("base").unwrap();
         self.tiles.push(tile);
     }
     pub fn push_override(&mut self, tile: Box<dyn Tile>) {

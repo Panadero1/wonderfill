@@ -2,16 +2,16 @@ use serde::{Deserialize, Serialize};
 
 use crate::{entity::{Entity, player::Player}, ui::img::Img, utility::animation::Animation, world::{space::GamePos, time::Clock}};
 
-use super::{Tile, TileEnum, get_default_anim};
+use super::{Tile, TileEnum, TileVariant, get_default_anim, match_directions};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BasePillar {
+pub struct Rock {
     pos: GamePos,
     anim: Animation
 }
 
 #[typetag::serde]
-impl Tile for BasePillar {
+impl Tile for Rock {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -29,14 +29,11 @@ impl Tile for BasePillar {
     }
 }
 
-impl BasePillar {
-    pub fn new(pos: GamePos, anim_frame: (u16, u16)) -> BasePillar {
-        BasePillar {
+impl Rock {
+    pub fn new(pos: GamePos, direction: TileVariant) -> Rock {
+        Rock {
             pos,
-            anim: get_default_anim(anim_frame)
+            anim: get_default_anim(match_directions(direction, (4, 10)))
         }
-    }
-    pub fn default(pos: GamePos) -> BasePillar {
-        BasePillar::new(pos, (2, 0))
     }
 }

@@ -3,7 +3,9 @@ use std::{collections::{HashMap, HashSet}, fmt::Debug};
 use serde::{Deserialize, Serialize};
 use speedy2d::{Graphics2D, color::Color};
 
-use crate::{entity::tile::{arrow::Arrow, base_ground::BaseGround, base_pillar::BasePillar, edge::Edge, moon::Moon, stair::Stair, sun::Sun}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
+use crate::{entity::tile::{arrow::Arrow, base_ground::BaseGround, base_pillar::BasePillar, edge::Edge, honeycomb::HoneyComb, moon::Moon, stair::Stair, sun::Sun}, screen::camera::Camera, ui::img::{Img, ImgManager}, utility::animation::{Animation, AnimationSelectError}, world::{space::GamePos, time::Clock}};
+
+use self::rock::Rock;
 
 use super::{Entity, player::Player};
 
@@ -14,6 +16,8 @@ pub mod arrow;
 pub mod stair;
 pub mod sun;
 pub mod moon;
+pub mod honeycomb;
+pub mod rock;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
@@ -25,6 +29,8 @@ pub enum TileEnum {
     Stair,
     Sun,
     Moon,
+    HoneyComb,
+    Rock,
 }
 impl TileEnum {
     pub fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -36,6 +42,8 @@ impl TileEnum {
             TileEnum::Stair => Box::new(Stair::new(pos, variant)),
             TileEnum::Sun => Box::new(Sun::new(pos)),
             TileEnum::Moon => Box::new(Moon::new(pos)),
+            TileEnum::HoneyComb => Box::new(HoneyComb::new(pos, variant)),
+            TileEnum::Rock => Box::new(Rock::new(pos, variant)),
         }
     }
     pub fn cycle(&mut self) {
@@ -46,7 +54,9 @@ impl TileEnum {
             Self::Arrow => Self::Stair,
             Self::Stair => Self::Sun,
             Self::Sun => Self::Moon,
-            Self::Moon => Self::BaseGround,
+            Self::Moon => Self::HoneyComb,
+            Self::HoneyComb => Self::Rock,
+            Self::Rock => Self::BaseGround,
         };
     }
 }
@@ -103,15 +113,15 @@ pub enum AlternatorState {
 #[typetag::serde(tag = "type")]
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
-    fn get_anim(&mut self) -> &mut Animation;
+    fn get_anim_mut(&mut self) -> &mut Animation;
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {}
     fn update_anim(&mut self, clock: &Clock) {
-        self.get_anim().select("base").unwrap();
+        self.get_anim_mut().select("base").unwrap();
     }
     fn on_update(&mut self, clock: &Clock) {}
     fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, clock: &Clock, camera: &Camera) {
         let pos = self.get_pos();
-        self.get_anim().draw(
+        self.get_anim_mut().draw(
             graphics,
             manager,
             clock,
@@ -129,4 +139,18 @@ fn get_default_anim(frame: (u16, u16)) -> Animation {
     frames.insert(String::from("base"), (true, vec![frame]));
 
     Animation::new(Img::new(String::from("assets\\img\\tiles.png")), (7, 10), frames, (5, 0), 500)
+}
+
+fn match_directions(direction: TileVariant, top_left: (u16, u16)) -> (u16, u16) {
+    match direction {
+        TileVariant::Top => (top_left.0 + 2, top_left.1),
+        TileVariant::Bottom => (top_left.0 + 2, top_left.1 + 2),
+        TileVariant::Left => (top_left.0, top_left.1 + 1),
+        TileVariant::Right => (top_left.0 + 4, top_left.1 + 1),
+        TileVariant::CornerBL => (top_left.0, top_left.1 + 2),
+        TileVariant::CornerBR => (top_left.0 + 4, top_left.1 + 2),
+        TileVariant::CornerTR => (top_left.0 + 4, top_left.1),
+        TileVariant::CornerTL => top_left,
+        TileVariant::Center => (top_left.0 + 2, top_left.1 + 1),
+    }
 }

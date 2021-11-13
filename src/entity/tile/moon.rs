@@ -17,7 +17,7 @@ impl Tile for Moon {
         self.pos
     }
 
-    fn get_anim(&mut self) -> &mut Animation {
+    fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {

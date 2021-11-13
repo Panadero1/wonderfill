@@ -16,7 +16,7 @@ impl Tile for Stair {
         self.pos
     }
 
-    fn get_anim(&mut self) -> &mut Animation {
+    fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
     
@@ -30,15 +30,15 @@ impl Stair {
         Stair {
             pos,
             anim: get_default_anim(match direction {
-                TileVariant::Left => (0, 3),
-                TileVariant::Right => (0, 3),
-                TileVariant::Top => (2, 3),
-                TileVariant::Bottom => (2, 3),
-                TileVariant::CornerBL => (0, 5),
-                TileVariant::CornerBR => (2, 5),
-                TileVariant::CornerTR => (2, 4),
-                TileVariant::CornerTL => (0, 4),
-                TileVariant::Center => (6, 2),
+                TileVariant::Left => (0, 1),
+                TileVariant::Right => (0, 1),
+                TileVariant::Top => (2, 1),
+                TileVariant::Bottom => (2, 1),
+                TileVariant::CornerBL => (0, 3),
+                TileVariant::CornerBR => (2, 3),
+                TileVariant::CornerTR => (2, 2),
+                TileVariant::CornerTL => (0, 2),
+                TileVariant::Center => (0, 0),
             })
         }
     }
