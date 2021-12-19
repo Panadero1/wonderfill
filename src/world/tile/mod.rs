@@ -11,7 +11,7 @@ use crate::{
 
 use self::core::arrow::Arrow;
 
-use super::{entity::player::Player, space::GamePos, time::Clock};
+use super::{entity::player::Player, space::GamePos, time::Clock, TileManager, World};
 
 pub mod beehive;
 pub mod core;
@@ -68,11 +68,19 @@ pub enum AlternatorState {
     Down,
 }
 
+pub enum PostOperation {
+    None,
+    Move(GamePos),
+    Load(String),
+}
+
 #[typetag::serde(tag = "type")]
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {}
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
+        PostOperation::None
+    }
     fn update_anim(&mut self, clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();
     }
@@ -101,6 +109,7 @@ pub trait Tile: Debug {
     fn next(&self) -> Option<Box<dyn Tile>>;
     fn cycle(&self) -> Box<dyn Tile> {
         if let Some(next_tile) = self.next() {
+            println!("{}", format!("{:?}", next_tile).split_once(' ').unwrap().0);
             return next_tile;
         }
         return Box::new(Arrow::new((0, 0).into(), TileVariant::Center));

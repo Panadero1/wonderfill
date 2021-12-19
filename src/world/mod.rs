@@ -1,3 +1,5 @@
+use std::{path::{PathBuf, Path}, env, fs::{self, File}, io::{BufReader, self}};
+
 use crate::{
     screen::camera::Camera,
     ui::img::ImgManager,
@@ -6,6 +8,8 @@ use crate::{
 
 use serde::{Deserialize, Serialize};
 use speedy2d::Graphics2D;
+
+use self::{tile::PostOperation, entity::Entity};
 
 pub mod entity;
 pub mod generation;
@@ -36,16 +40,89 @@ impl World {
         self.clock.tick();
         self.tile_mgr.update(&self.clock);
     }
+
+    /*
+
+    fn save_world(&self) {
+        let path = GameScreen::get_file_path();
+        let file = fs::File::create(path).unwrap();
+        let writer = io::LineWriter::new(file);
+        serde_json::to_writer(writer, &self.world).unwrap();
+    }
+
+    fn get_file_path() -> PathBuf {
+        let dir = env::current_dir().unwrap();
+        let path = Path::new(&dir).join("saves\\");
+        if !path.exists() {
+            fs::create_dir(&path).unwrap();
+        }
+        path.join("save.json")
+    }
+
+    fn load_world() -> io::Result<World> {
+        let path = GameScreen::get_file_path();
+        let file: File = File::open(path)?;
+        let rdr = BufReader::new(file);
+
+        Ok(serde_json::from_reader(rdr)?)
+    }
+    */
+
+    pub fn load_region(&mut self, name: &String) -> io::Result<()> {
+        self.save_region();
+
+        let path = get_file_path(name);
+        let file = File::open(path)?;
+        let rdr = BufReader::new(file);
+
+        self.tile_mgr = serde_json::from_reader(rdr).unwrap();
+
+        Ok(())
+    }
+
+    pub fn new_region(&mut self, name: String) {
+        self.save_region();
+
+        self.tile_mgr = TileManager::new(name, vec![]);
+    }
+
+    pub fn save_region(&self) {
+        let path = get_file_path(&self.tile_mgr.name);
+        let file = fs::File::create(path).unwrap();
+        let writer = io::LineWriter::new(file);
+
+        serde_json::to_writer(writer, &self.tile_mgr).unwrap();
+    }
+
+    pub fn process_operation(&mut self, op: PostOperation) {
+        match op {
+            PostOperation::None => (),
+            PostOperation::Move(change_pos) => self.player.moove(change_pos),
+            PostOperation::Load(name) => self.load_region(&name).unwrap(),
+        }
+    }
+}
+
+fn get_file_path(file_name: &String) -> PathBuf {
+    assert!(*file_name != "save");
+    let dir = env::current_dir().unwrap();
+    let path = Path::new(&dir).join("saves\\");
+    if !path.exists() {
+        fs::create_dir(&path).unwrap();
+    }
+    let file_name = format!("{}.json", file_name);
+    path.join(file_name)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TileManager {
+    name: String,
     tiles: Vec<Box<dyn Tile>>,
 }
 
 impl TileManager {
-    pub fn new(tiles: Vec<Box<dyn Tile>>) -> TileManager {
-        TileManager { tiles }
+    pub fn new(name: String, tiles: Vec<Box<dyn Tile>>) -> TileManager {
+        TileManager { name, tiles }
     }
 
     pub fn draw_before_player(

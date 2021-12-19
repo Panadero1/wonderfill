@@ -5,7 +5,7 @@ use crate::{
     world::{
         entity::{player::Player, Entity},
         space::GamePos,
-        tile::{core::stair::Stair, get_default_anim, Tile, TileVariant},
+        tile::{core::stair::Stair, get_default_anim, Tile, TileVariant, PostOperation, beehive::honeycomb::HoneyComb}, World, TileManager,
     },
 };
 
@@ -25,12 +25,12 @@ impl Tile for Rock {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
-        player.moove(-move_pos);
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
+        PostOperation::Move(-move_pos)
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(HoneyComb::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {

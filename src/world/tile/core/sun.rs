@@ -5,10 +5,12 @@ use crate::{
     world::{
         entity::{player::Player, Entity},
         space::GamePos,
-        tile::{get_default_anim, AlternatorState, Tile, TileVariant},
-        time::Clock,
+        tile::{get_default_anim, AlternatorState, Tile, TileVariant, PostOperation},
+        time::Clock, World, TileManager,
     },
 };
+
+use super::warp::Warp;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Sun {
@@ -26,9 +28,13 @@ impl Tile for Sun {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
+
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
         if let AlternatorState::Up = self.state {
-            player.moove(-move_pos);
+            PostOperation::Move(-move_pos)
+        }
+        else {
+            PostOperation::None
         }
     }
     fn on_update(&mut self, clock: &Clock) {
@@ -40,7 +46,7 @@ impl Tile for Sun {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        None
+        Some(Box::new(Warp::default()))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {

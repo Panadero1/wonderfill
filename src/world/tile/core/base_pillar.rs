@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{utility::animation::Animation, world::{entity::{Entity, player::Player}, space::GamePos, tile::{get_default_anim, Tile, TileVariant}}};
+use crate::{utility::animation::Animation, world::{entity::{Entity, player::Player}, space::GamePos, tile::{get_default_anim, Tile, TileVariant, PostOperation}, World, TileManager}};
 
 use super::edge::Edge;
 
@@ -20,8 +20,8 @@ impl Tile for BasePillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
-        player.moove(-move_pos);
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
+        PostOperation::Move(-move_pos)
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {

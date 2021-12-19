@@ -5,9 +5,11 @@ use crate::{
     world::{
         entity::{player::Player, Entity},
         space::GamePos,
-        tile::{core::edge::Edge, get_default_anim, match_directions, Tile, TileVariant},
+        tile::{core::edge::Edge, get_default_anim, match_directions, Tile, TileVariant, PostOperation}, World, TileManager,
     },
 };
+
+use super::rock::Rock;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Boulder {
@@ -25,12 +27,12 @@ impl Tile for Boulder {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
-        player.moove(-move_pos);
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
+        PostOperation::Move(-move_pos)
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Edge::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(Rock::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {

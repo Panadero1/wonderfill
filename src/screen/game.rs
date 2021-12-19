@@ -19,7 +19,7 @@ use crate::{
     world::{
         entity::Entity,
         generation,
-        tile::{core::base_ground::BaseGround, Tile, TileVariant},
+        tile::{core::base_ground::BaseGround, Tile, TileVariant, PostOperation},
         World,
     },
 };
@@ -119,6 +119,22 @@ impl WindowHandler<String> for GameScreen {
                     self.save_world();
                     self.new_screen = Some(Box::new(TitleScreen::new()));
                 }
+                VirtualKeyCode::R => {
+                    self.tile_variant.rotate_cw();
+                }
+                VirtualKeyCode::T => {
+                    self.draw_tile = self.draw_tile.cycle();
+                }
+                VirtualKeyCode::N => {
+
+                    println!("Please enter name of new region: ");
+
+                    let mut line = String::new();
+
+                    std::io::stdin().read_line(&mut line).unwrap();
+
+                    self.world.new_region(line.trim().to_string());
+                }
                 // _ => {
                 //     self.world.player.set_hat(match virtual_key_code {
                 //         VirtualKeyCode::A => PlayerHat::Acid,
@@ -134,23 +150,21 @@ impl WindowHandler<String> for GameScreen {
                             VirtualKeyCode::A => (-1.0, 0.0),
                             VirtualKeyCode::S => (0.0, 1.0),
                             VirtualKeyCode::D => (1.0, 0.0),
-                            VirtualKeyCode::R => {
-                                self.tile_variant.rotate_cw();
-                                return;
-                            }
-                            VirtualKeyCode::T => {
-                                self.draw_tile = self.draw_tile.cycle();
-                                return;
-                            }
                             _ => (0.0, 0.0),
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        if let Some((_, tile)) =
+                        let post_op = if let Some((_, tile)) =
                             self.world.tile_mgr.tile_at_pos(self.world.player.get_pos())
                         {
-                            tile.on_player_enter(&mut self.world.player, move_pos);
+                            tile.on_player_enter(&mut self.world.player, move_pos)
                         }
+                        else {
+                            PostOperation::None
+                        };
+
+                        self.world.process_operation(post_op);
+
                         self.world
                             .camera
                             .moove(self.world.player.get_pos() - self.world.camera.pos);

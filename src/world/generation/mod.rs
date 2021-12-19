@@ -11,7 +11,7 @@ mod area_1;
 
 pub fn make_new_world() -> World {
     let res = screen::get_resolution();
-    let mut tile_mgr = TileManager::new(vec![]);
+    let mut tile_mgr = TileManager::new(String::from("start"), vec![]);
     let player = Player::new();
     let camera = Camera::new(
         (0.0, 0.0).into(),

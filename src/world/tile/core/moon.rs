@@ -5,8 +5,8 @@ use crate::{
     world::{
         entity::{player::Player, Entity},
         space::GamePos,
-        tile::{get_default_anim, AlternatorState, Tile, TileVariant},
-        time::Clock,
+        tile::{get_default_anim, AlternatorState, Tile, TileVariant, PostOperation},
+        time::Clock, World, TileManager,
     },
 };
 
@@ -28,9 +28,12 @@ impl Tile for Moon {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) {
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
         if let AlternatorState::Up = self.state {
-            player.moove(-move_pos);
+            PostOperation::Move(-move_pos)
+        }
+        else {
+            PostOperation::None
         }
     }
     fn on_update(&mut self, clock: &Clock) {
