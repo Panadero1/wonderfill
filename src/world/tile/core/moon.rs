@@ -28,13 +28,12 @@ impl Tile for Moon {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+        let mut result = Vec::new();
         if let AlternatorState::Up = self.state {
-            PostOperation::Move(-move_pos)
+            result.push(PostOperation::MovePlayer(-move_pos));
         }
-        else {
-            PostOperation::None
-        }
+        result
     }
     fn on_update(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {

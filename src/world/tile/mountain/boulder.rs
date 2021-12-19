@@ -27,8 +27,8 @@ impl Tile for Boulder {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
-        PostOperation::Move(-move_pos)
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+        vec![PostOperation::MovePlayer(-move_pos)]
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {

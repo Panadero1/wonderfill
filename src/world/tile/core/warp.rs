@@ -39,8 +39,8 @@ impl Tile for Warp {
         Box::new(Warp::new(pos))
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
-        PostOperation::Load(self.load_name.to_string())
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+        vec![PostOperation::LoadRegion(self.load_name.to_string())]
     }
 }
 

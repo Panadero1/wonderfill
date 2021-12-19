@@ -41,33 +41,6 @@ impl World {
         self.tile_mgr.update(&self.clock);
     }
 
-    /*
-
-    fn save_world(&self) {
-        let path = GameScreen::get_file_path();
-        let file = fs::File::create(path).unwrap();
-        let writer = io::LineWriter::new(file);
-        serde_json::to_writer(writer, &self.world).unwrap();
-    }
-
-    fn get_file_path() -> PathBuf {
-        let dir = env::current_dir().unwrap();
-        let path = Path::new(&dir).join("saves\\");
-        if !path.exists() {
-            fs::create_dir(&path).unwrap();
-        }
-        path.join("save.json")
-    }
-
-    fn load_world() -> io::Result<World> {
-        let path = GameScreen::get_file_path();
-        let file: File = File::open(path)?;
-        let rdr = BufReader::new(file);
-
-        Ok(serde_json::from_reader(rdr)?)
-    }
-    */
-
     pub fn load_region(&mut self, name: &String) -> io::Result<()> {
         self.save_region();
 
@@ -96,9 +69,13 @@ impl World {
 
     pub fn process_operation(&mut self, op: PostOperation) {
         match op {
-            PostOperation::None => (),
-            PostOperation::Move(change_pos) => self.player.moove(change_pos),
-            PostOperation::Load(name) => self.load_region(&name).unwrap(),
+            PostOperation::MovePlayer(change_pos) => self.player.moove(change_pos),
+            PostOperation::LoadRegion(name) => self.load_region(&name).unwrap(),
+            PostOperation::UpdateTile(pos) => {
+                if let Some((_, tile)) = self.tile_mgr.tile_at_pos(pos) {
+                    tile.update_self();
+                }
+            }
         }
     }
 }

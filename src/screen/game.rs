@@ -68,6 +68,13 @@ impl Into<Option<VirtualKeyCode>> for Input {
 // Larger number -> smaller bounds
 pub const CAMERA_SCALE: f32 = 50.0;
 
+enum State {
+    Play,
+    Dialogue,
+    // For editing
+    Build,
+}
+
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     current_input: Input,
@@ -76,6 +83,7 @@ pub struct GameScreen {
     // For editing
     draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
+    state: State,
 }
 
 impl WindowHandler<String> for GameScreen {
@@ -135,14 +143,9 @@ impl WindowHandler<String> for GameScreen {
 
                     self.world.new_region(line.trim().to_string());
                 }
-                // _ => {
-                //     self.world.player.set_hat(match virtual_key_code {
-                //         VirtualKeyCode::A => PlayerHat::Acid,
-                //         VirtualKeyCode::B => PlayerHat::Helmet,
-                //         VirtualKeyCode::C => PlayerHat::Teardrop,
-                //         _ => PlayerHat::None,
-                //     });
-                // },
+                VirtualKeyCode::B => {
+                    println!("({},{})", self.world.player.get_pos().x, self.world.player.get_pos().y);
+                }
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
                         let move_pos = match virtual_key_code {
@@ -154,16 +157,18 @@ impl WindowHandler<String> for GameScreen {
                         }
                         .into();
                         self.world.player.moove(move_pos);
-                        let post_op = if let Some((_, tile)) =
+                        let post_ops = if let Some((_, tile)) =
                             self.world.tile_mgr.tile_at_pos(self.world.player.get_pos())
                         {
                             tile.on_player_enter(&mut self.world.player, move_pos)
                         }
                         else {
-                            PostOperation::None
+                            Vec::new()
                         };
 
-                        self.world.process_operation(post_op);
+                        for post_op in post_ops {
+                            self.world.process_operation(post_op);
+                        }
 
                         self.world
                             .camera
@@ -193,12 +198,6 @@ impl WindowHandler<String> for GameScreen {
     ) {
         self.world.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
         self.world.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
-    }
-    fn on_start(
-        &mut self,
-        helper: &mut WindowHelper<String>,
-        info: speedy2d::window::WindowStartupInfo,
-    ) {
     }
     fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
         let pos = self
@@ -248,6 +247,7 @@ impl GameScreen {
             img_manager: ImgManager::new(),
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
+            state: State::Build,
         }
     }
 

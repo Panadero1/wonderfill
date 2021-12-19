@@ -1,6 +1,9 @@
 // [TODO]
-// Think up world regions
+// GameScreen state
 // Finish starting tutorial area
+// Button linking
+
+// [Maybe]
 // Consolidate drawing requirements into one struct
 
 // [Housekeeping]

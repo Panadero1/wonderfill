@@ -67,19 +67,27 @@ pub enum AlternatorState {
     Up,
     Down,
 }
+impl AlternatorState {
+    pub fn toggle(&mut self) {
+        *self = match *self {
+            AlternatorState::Down => AlternatorState::Up,
+            AlternatorState::Up => AlternatorState::Down,
+        }
+    }
+}
 
 pub enum PostOperation {
-    None,
-    Move(GamePos),
-    Load(String),
+    MovePlayer(GamePos),
+    LoadRegion(String),
+    UpdateTile(GamePos)
 }
 
 #[typetag::serde(tag = "type")]
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> PostOperation {
-        PostOperation::None
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+        Vec::new()
     }
     fn update_anim(&mut self, clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();
@@ -114,13 +122,19 @@ pub trait Tile: Debug {
         }
         return Box::new(Arrow::new((0, 0).into(), TileVariant::Center));
     }
+    fn update_self(&mut self) {}
 }
 
 fn get_default_anim(frame: (u16, u16)) -> Animation {
     let mut frames: HashMap<String, (bool, Vec<(u16, u16)>)> = HashMap::new();
 
     frames.insert(String::from("base"), (true, vec![frame]));
+    
+    anim_with_frames(frames)
+}
 
+fn anim_with_frames(frames: HashMap<String, (bool, Vec<(u16, u16)>)>) -> Animation {
+    
     Animation::new(
         Img::new(String::from("assets\\img\\tiles.png")),
         (7, 10),

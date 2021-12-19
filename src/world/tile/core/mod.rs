@@ -1,6 +1,8 @@
 pub mod arrow;
 pub mod base_ground;
 pub mod base_pillar;
+pub mod button;
+pub mod door;
 pub mod edge;
 pub mod moon;
 pub mod stair;
