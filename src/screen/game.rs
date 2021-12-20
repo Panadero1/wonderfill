@@ -144,7 +144,12 @@ impl WindowHandler<String> for GameScreen {
                     self.world.new_region(line.trim().to_string());
                 }
                 VirtualKeyCode::B => {
-                    println!("({},{})", self.world.player.get_pos().x, self.world.player.get_pos().y);
+                    let pos = self
+                        .world
+                        .camera
+                        .pix_to_game(super::get_mouse_pos())
+                        .round();
+                    println!("({},{})", pos.x, pos.y);
                 }
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
