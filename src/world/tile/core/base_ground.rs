@@ -30,8 +30,15 @@ impl Tile for BaseGround {
         Some(Box::new(BasePillar::default((0, 0).into())))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
         Box::new(BaseGround::default(pos))
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
     }
 }
 

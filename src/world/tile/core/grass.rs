@@ -3,20 +3,21 @@ use serde::{Deserialize, Serialize};
 use crate::{
     utility::animation::Animation,
     world::{
-        entity::player::Player,
         space::GamePos,
-        tile::{beehive::honeycomb::HoneyComb, get_default_anim, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, match_directions, Tile, TileVariant},
     },
 };
 
+use super::moon::Moon;
+
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Rock {
+pub struct Grass {
     pos: GamePos,
     anim: Animation,
 }
 
 #[typetag::serde]
-impl Tile for Rock {
+impl Tile for Grass {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -25,16 +26,12 @@ impl Tile for Rock {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        vec![PostOperation::MovePlayer(-move_pos)]
-    }
-
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(HoneyComb::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(Moon::new((0, 0).into())))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Rock::new(pos))
+    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(Grass::new(pos, variant))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -45,11 +42,11 @@ impl Tile for Rock {
     }
 }
 
-impl Rock {
-    pub fn new(pos: GamePos) -> Rock {
-        Rock {
+impl Grass {
+    pub fn new(pos: GamePos, direction: TileVariant) -> Grass {
+        Grass {
             pos,
-            anim: get_default_anim((0, 4)),
+            anim: get_default_anim(match_directions(direction, (10, 1))),
         }
     }
 }

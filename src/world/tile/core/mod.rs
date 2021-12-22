@@ -4,6 +4,7 @@ pub mod base_pillar;
 pub mod button;
 pub mod door;
 pub mod edge;
+pub mod grass;
 pub mod moon;
 pub mod stair;
 pub mod sun;

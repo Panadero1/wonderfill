@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::{
     utility::animation::Animation,
     world::{
-        entity::{player::Player, Entity},
+        entity::player::Player,
         space::GamePos,
-        tile::{core::edge::Edge, get_default_anim, match_directions, Tile, TileVariant, PostOperation}, World, TileManager,
+        tile::{get_default_anim, match_directions, PostOperation, Tile, TileVariant},
     },
 };
 
@@ -27,7 +27,7 @@ impl Tile for Boulder {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         vec![PostOperation::MovePlayer(-move_pos)]
     }
 
@@ -37,6 +37,13 @@ impl Tile for Boulder {
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Boulder::new(pos, variant))
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
     }
 }
 

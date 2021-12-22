@@ -1,13 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-pub enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
-
 // GamePos
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GamePos {

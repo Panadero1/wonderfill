@@ -11,7 +11,7 @@ use crate::{
 
 use self::core::arrow::Arrow;
 
-use super::{entity::player::Player, space::GamePos, time::Clock, TileManager, World};
+use super::{entity::player::Player, space::GamePos, time::Clock};
 
 pub mod beehive;
 pub mod core;
@@ -79,20 +79,24 @@ impl AlternatorState {
 pub enum PostOperation {
     MovePlayer(GamePos),
     LoadRegion(String),
-    UpdateTile(GamePos)
+    UpdateTile(GamePos),
 }
 
 #[typetag::serde(tag = "type")]
 pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
+
     fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         Vec::new()
     }
+    fn on_update(&mut self, clock: &Clock) {}
+    fn update_self(&mut self) {}
+
     fn update_anim(&mut self, clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();
     }
-    fn on_update(&mut self, clock: &Clock) {}
+
     fn draw(
         &mut self,
         graphics: &mut Graphics2D,
@@ -113,7 +117,10 @@ pub trait Tile: Debug {
             Color::WHITE,
         );
     }
+
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile>;
+    fn pick_tile(&self) -> Box<dyn Tile>;
+
     fn next(&self) -> Option<Box<dyn Tile>>;
     fn cycle(&self) -> Box<dyn Tile> {
         if let Some(next_tile) = self.next() {
@@ -122,19 +129,17 @@ pub trait Tile: Debug {
         }
         return Box::new(Arrow::new((0, 0).into(), TileVariant::Center));
     }
-    fn update_self(&mut self) {}
 }
 
 fn get_default_anim(frame: (u16, u16)) -> Animation {
     let mut frames: HashMap<String, (bool, Vec<(u16, u16)>)> = HashMap::new();
 
     frames.insert(String::from("base"), (true, vec![frame]));
-    
+
     anim_with_frames(frames)
 }
 
 fn anim_with_frames(frames: HashMap<String, (bool, Vec<(u16, u16)>)>) -> Animation {
-    
     Animation::new(
         Img::new(String::from("assets\\img\\tiles.png")),
         (7, 10),

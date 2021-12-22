@@ -8,7 +8,7 @@ use crate::{
     },
 };
 
-use super::moon::Moon;
+use super::grass::Grass;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Edge {
@@ -27,11 +27,18 @@ impl Tile for Edge {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Moon::new((0, 0).into())))
+        Some(Box::new(Grass::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Edge::new(pos, variant))
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
     }
 }
 

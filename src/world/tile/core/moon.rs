@@ -3,10 +3,10 @@ use serde::{Deserialize, Serialize};
 use crate::{
     utility::animation::Animation,
     world::{
-        entity::{player::Player, Entity},
+        entity::player::Player,
         space::GamePos,
-        tile::{get_default_anim, AlternatorState, Tile, TileVariant, PostOperation},
-        time::Clock, World, TileManager,
+        tile::{get_default_anim, AlternatorState, PostOperation, Tile, TileVariant},
+        time::Clock,
     },
 };
 
@@ -28,7 +28,7 @@ impl Tile for Moon {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         let mut result = Vec::new();
         if let AlternatorState::Up = self.state {
             result.push(PostOperation::MovePlayer(-move_pos));
@@ -47,8 +47,16 @@ impl Tile for Moon {
         Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Moon::new(pos))
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+            state: AlternatorState::Down,
+        })
     }
 }
 

@@ -1,8 +1,15 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{utility::animation::Animation, world::{entity::{Entity, player::Player}, space::GamePos, tile::{get_default_anim, Tile, TileVariant, PostOperation}, World, TileManager}};
+use crate::{
+    utility::animation::Animation,
+    world::{
+        entity::player::Player,
+        space::GamePos,
+        tile::{get_default_anim, PostOperation, Tile, TileVariant},
+    },
+};
 
-use super::{edge::Edge, button::Button};
+use super::button::Button;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BasePillar {
@@ -20,7 +27,7 @@ impl Tile for BasePillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         vec![PostOperation::MovePlayer(-move_pos)]
     }
 
@@ -28,8 +35,15 @@ impl Tile for BasePillar {
         Some(Box::new(Button::default()))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
         Box::new(BasePillar::default(pos))
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
     }
 }
 

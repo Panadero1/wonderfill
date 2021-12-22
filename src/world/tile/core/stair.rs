@@ -13,7 +13,7 @@ use super::sun::Sun;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Stair {
     pos: GamePos,
-    anim: Animation
+    anim: Animation,
 }
 
 #[typetag::serde]
@@ -33,6 +33,13 @@ impl Tile for Stair {
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Stair::new(pos, variant))
     }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
+    }
 }
 
 impl Stair {
@@ -49,7 +56,7 @@ impl Stair {
                 TileVariant::CornerTR => (2, 2),
                 TileVariant::CornerTL => (0, 2),
                 TileVariant::Center => (0, 0),
-            })
+            }),
         }
     }
 }

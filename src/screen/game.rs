@@ -151,6 +151,17 @@ impl WindowHandler<String> for GameScreen {
                         .round();
                     println!("({},{})", pos.x, pos.y);
                 }
+                VirtualKeyCode::Q => {
+                    let pos = self
+                        .world
+                        .camera
+                        .pix_to_game(super::get_mouse_pos())
+                        .round();
+                    self.world.player.moove(pos - self.world.player.get_pos());
+                    self.world
+                        .camera
+                        .moove(self.world.player.get_pos() - self.world.camera.pos);
+                }
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
                         let move_pos = match virtual_key_code {
@@ -216,8 +227,8 @@ impl WindowHandler<String> for GameScreen {
         } else if let MouseButton::Right = button {
             self.world.tile_mgr.remove_at(pos);
         } else if let MouseButton::Middle = button {
-            if let Some(tile) = self.world.tile_mgr.tile_at_pos(pos) {
-                self.draw_tile = tile.1.create((0, 0).into(), TileVariant::Center);
+            if let Some((_, tile)) = self.world.tile_mgr.tile_at_pos(pos) {
+                self.draw_tile = tile.pick_tile();
             }
         }
     }

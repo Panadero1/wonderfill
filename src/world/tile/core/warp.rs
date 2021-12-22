@@ -5,14 +5,9 @@ use crate::{
     world::{
         entity::player::Player,
         space::GamePos,
-        tile::{
-            get_default_anim, match_directions, mountain::boulder::Boulder, PostOperation, Tile,
-            TileVariant,
-        },
+        tile::{get_default_anim, mountain::boulder::Boulder, PostOperation, Tile, TileVariant},
     },
 };
-
-use super::base_ground::BaseGround;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Warp {
@@ -35,12 +30,20 @@ impl Tile for Warp {
         Some(Box::new(Boulder::new((0, 0).into(), TileVariant::Center)))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Warp::new(pos))
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, _player: &mut Player, _move_pos: GamePos) -> Vec<PostOperation> {
         vec![PostOperation::LoadRegion(self.load_name.to_string())]
+    }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+            load_name: String::from("a"),
+        })
     }
 }
 
