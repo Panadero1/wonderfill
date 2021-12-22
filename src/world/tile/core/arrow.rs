@@ -33,6 +33,13 @@ impl Tile for Arrow {
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
         Box::new(Arrow::new(pos, variant))
     }
+
+    fn pick_tile(&self) -> Box<dyn Tile> {
+        Box::new(Self {
+            pos: (0, 0).into(),
+            anim: get_default_anim((0, 0)),
+        })
+    }
 }
 
 impl Arrow {
