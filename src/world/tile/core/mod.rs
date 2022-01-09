@@ -2,7 +2,7 @@ pub mod arrow;
 pub mod base_ground;
 pub mod base_pillar;
 pub mod button;
-pub mod cliff_edge;
+pub mod one_way;
 pub mod door;
 pub mod edge;
 pub mod grass;

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::cliff_edge::CliffEdge;
+use super::door::Door;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Button {
@@ -29,7 +29,7 @@ impl Tile for Button {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(CliffEdge::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(Door::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {

@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::rock::Rock;
+use super::{rock::Rock, cliff_face::CliffFace};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Boulder {
@@ -32,7 +32,7 @@ impl Tile for Boulder {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Rock::new((0, 0).into())))
+        Some(Box::new(CliffFace::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {

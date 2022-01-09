@@ -9,17 +9,17 @@ use crate::{
     },
 };
 
-use super::door::Door;
+use super::{base_ground::BaseGround, stair::Stair};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CliffEdge {
+pub struct OneWay {
     pos: GamePos,
     anim: Animation,
     direction: TileVariant,
 }
 
 #[typetag::serde]
-impl Tile for CliffEdge {
+impl Tile for OneWay {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -29,11 +29,11 @@ impl Tile for CliffEdge {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Door::new((0, 0).into())))
+        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(CliffEdge::new(pos, variant))
+        Box::new(OneWay::new(pos, variant))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -44,7 +44,7 @@ impl Tile for CliffEdge {
         })
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         let mut result = Vec::new();
 
         let dir_vec = self.direction.direction_vector();
@@ -59,9 +59,9 @@ impl Tile for CliffEdge {
     }
 }
 
-impl CliffEdge {
-    pub fn new(pos: GamePos, direction: TileVariant) -> CliffEdge {
-        CliffEdge {
+impl OneWay {
+    pub fn new(pos: GamePos, direction: TileVariant) -> OneWay {
+        OneWay {
             pos,
             anim: get_default_anim(match_directions(direction, (10, 4))),
             direction,

@@ -10,7 +10,7 @@ use crate::{
     },
 };
 
-use super::stair::Stair;
+use super::{stair::Stair, one_way::OneWay};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Moon {
@@ -44,7 +44,7 @@ impl Tile for Moon {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(OneWay::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {

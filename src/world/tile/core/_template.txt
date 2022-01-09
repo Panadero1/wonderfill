@@ -45,7 +45,7 @@ impl !TileName {
     pub fn new(pos: GamePos, direction: TileVariant) -> !TileName {
         !TileName {
             pos,
-            anim: get_default_anim(match_directions(direction, !spritesheet_coordinates)),
+            anim: get_default_anim((!match_directions or not???)match_directions(direction, !spritesheet_coordinates)),
         }
     }
 }

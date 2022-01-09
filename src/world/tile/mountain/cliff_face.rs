@@ -8,16 +8,16 @@ use crate::{
     },
 };
 
-use super::moon::Moon;
+use super::rock::Rock;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct InvisWall {
+pub struct CliffFace {
     pos: GamePos,
     anim: Animation,
 }
 
 #[typetag::serde]
-impl Tile for InvisWall {
+impl Tile for CliffFace {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -27,11 +27,11 @@ impl Tile for InvisWall {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Moon::new((0, 0).into())))
+        Some(Box::new(Rock::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(InvisWall::new(pos))
+        Box::new(CliffFace::new(pos))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -41,16 +41,16 @@ impl Tile for InvisWall {
         })
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
         vec![PostOperation::MovePlayer(-move_pos)]
     }
 }
 
-impl InvisWall {
-    pub fn new(pos: GamePos) -> InvisWall {
-        InvisWall {
+impl CliffFace {
+    pub fn new(pos: GamePos) -> CliffFace {
+        CliffFace {
             pos,
-            anim: get_default_anim((17, 0)),
+            anim: get_default_anim((0, 6)),
         }
     }
 }
