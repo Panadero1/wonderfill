@@ -13,6 +13,9 @@
 // Hat properties
 // Comment your code lol
 
+// [Before release]
+// Remove invisible wall texture
+
 fn main() {
     sonar::run();
 }

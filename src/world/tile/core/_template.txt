@@ -8,16 +8,15 @@ use crate::{
     },
 };
 
-use super::invis_wall::InvisWall;
-
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Grass {
+pub struct !TileName {
     pos: GamePos,
     anim: Animation,
+    !anything else?
 }
 
 #[typetag::serde]
-impl Tile for Grass {
+impl Tile for !TileName {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -27,11 +26,11 @@ impl Tile for Grass {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(InvisWall::new((0, 0).into())))
+        Some(Box::new(!NextTile::new(!params)))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Grass::new(pos, variant))
+        Box::new(!TileName::new(pos, variant))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -42,11 +41,11 @@ impl Tile for Grass {
     }
 }
 
-impl Grass {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Grass {
-        Grass {
+impl !TileName {
+    pub fn new(pos: GamePos, direction: TileVariant) -> !TileName {
+        !TileName {
             pos,
-            anim: get_default_anim(match_directions(direction, (10, 1))),
+            anim: get_default_anim(match_directions(direction, !spritesheet_coordinates)),
         }
     }
 }

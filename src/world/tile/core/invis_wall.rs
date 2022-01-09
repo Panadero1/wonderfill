@@ -4,20 +4,20 @@ use crate::{
     utility::animation::Animation,
     world::{
         space::GamePos,
-        tile::{get_default_anim, match_directions, Tile, TileVariant},
+        tile::{get_default_anim, Tile, TileVariant, PostOperation}, entity::player::Player,
     },
 };
 
-use super::invis_wall::InvisWall;
+use super::moon::Moon;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Grass {
+pub struct InvisWall {
     pos: GamePos,
     anim: Animation,
 }
 
 #[typetag::serde]
-impl Tile for Grass {
+impl Tile for InvisWall {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -27,11 +27,11 @@ impl Tile for Grass {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(InvisWall::new((0, 0).into())))
+        Some(Box::new(Moon::new((0, 0).into())))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Grass::new(pos, variant))
+    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+        Box::new(InvisWall::new(pos))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -40,13 +40,17 @@ impl Tile for Grass {
             anim: get_default_anim((0, 0)),
         })
     }
+
+    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
+        vec![PostOperation::MovePlayer(-move_pos)]
+    }
 }
 
-impl Grass {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Grass {
-        Grass {
+impl InvisWall {
+    pub fn new(pos: GamePos) -> InvisWall {
+        InvisWall {
             pos,
-            anim: get_default_anim(match_directions(direction, (10, 1))),
+            anim: get_default_anim((17, 0)),
         }
     }
 }

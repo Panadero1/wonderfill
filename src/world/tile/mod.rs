@@ -19,7 +19,7 @@ pub mod mountain;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum TileVariant {
     Left,
     Right,
@@ -59,6 +59,20 @@ impl TileVariant {
             CornerTL => Left,
             Left => Center,
         };
+    }
+    pub fn direction_vector(&self) -> GamePos {
+        use TileVariant::*;
+        match self {
+            Left => (-1, 0),
+            Right => (1, 0),
+            Top => (0, -1),
+            Bottom => (0, 1),
+            CornerBL => (-1, 1),
+            CornerBR => (1, 1),
+            CornerTR => (1, -1),
+            CornerTL => (-1, -1),
+            Center => (0, 0),
+        }.into()
     }
 }
 
