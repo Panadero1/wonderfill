@@ -10,9 +10,9 @@ pub struct Camera {
     pub height: f32,
 }
 impl Camera {
-    pub fn new(pos: (f32, f32), width: f32, height: f32) -> Camera {
+    pub fn new(pos: GamePos, width: f32, height: f32) -> Camera {
         Camera {
-            pos: pos.into(),
+            pos: pos,
             width,
             height,
         }

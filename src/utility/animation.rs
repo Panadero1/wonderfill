@@ -60,12 +60,13 @@ impl Animation {
     pub fn deselect(&mut self) {
         self.frame_loop = None;
     }
-    pub fn draw(
+
+    fn draw_helper(
         &mut self,
         graphics: &mut Graphics2D,
         manager: &mut ImgManager,
-        clock: &Clock,
         window_rect: Rectangle<f32>,
+        do_offset: bool,
         color: Color,
     ) {
         if self.src.state.is_none() {
@@ -82,7 +83,7 @@ impl Animation {
                     let frame_offset = (frame_count % frame_loop.len() as u128) as usize;
 
                     let mut result = frame_loop[frame_offset];
-                    if !clock.is_day() {
+                    if do_offset {
                         result.0 += 1;
                     }
                     result
@@ -100,6 +101,27 @@ impl Animation {
             );
         }
     }
+
+    pub fn draw_overworld(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        window_rect: Rectangle<f32>,
+        color: Color,
+    ) {
+        self.draw_helper(graphics, manager, window_rect, !clock.is_day(), color);
+    }
+
+    pub fn draw(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        window_rect: Rectangle<f32>,
+    ) {
+        self.draw_helper(graphics, manager, window_rect, false, Color::WHITE);
+    }
+
     fn get_bounds_rect_from_pos(&self, pos: (u16, u16)) -> Rectangle {
         let img_bounds = self.src.state.as_ref().unwrap().size();
         let top_left = (

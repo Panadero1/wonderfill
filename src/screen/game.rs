@@ -92,28 +92,7 @@ impl WindowHandler<String> for GameScreen {
 
         self.world.player.update();
 
-        self.world.tile_mgr.draw_before_player(
-            graphics,
-            &mut self.img_manager,
-            &self.world.clock,
-            &self.world.camera,
-            self.world.player.get_pos(),
-        );
-
-        self.world.player.draw(
-            graphics,
-            &mut self.img_manager,
-            &self.world.clock,
-            &self.world.camera,
-        );
-
-        self.world.tile_mgr.draw_after_player(
-            graphics,
-            &mut self.img_manager,
-            &self.world.clock,
-            &self.world.camera,
-            self.world.player.get_pos(),
-        );
+        self.world.draw(graphics, &mut self.img_manager);
     }
     fn on_key_down(
         &mut self,
@@ -133,63 +112,9 @@ impl WindowHandler<String> for GameScreen {
                 VirtualKeyCode::T => {
                     self.draw_tile = self.draw_tile.cycle();
                 }
-                VirtualKeyCode::N => {
-
-                    println!("Please enter name of new region: ");
-
-                    let mut line = String::new();
-
-                    std::io::stdin().read_line(&mut line).unwrap();
-
-                    self.world.new_region(line.trim().to_string());
-                }
-                VirtualKeyCode::B => {
-                    let pos = self
-                        .world
-                        .camera
-                        .pix_to_game(super::get_mouse_pos())
-                        .round();
-                    println!("({},{})", pos.x, pos.y);
-                }
-                VirtualKeyCode::Q => {
-                    let pos = self
-                        .world
-                        .camera
-                        .pix_to_game(super::get_mouse_pos())
-                        .round();
-                    self.world.player.moove(pos - self.world.player.get_pos());
-                    self.world
-                        .camera
-                        .moove(self.world.player.get_pos() - self.world.camera.pos);
-                }
                 _ => {
                     if !self.current_input.contains(virtual_key_code.into()) {
-                        let move_pos = match virtual_key_code {
-                            VirtualKeyCode::W => (0.0, -1.0),
-                            VirtualKeyCode::A => (-1.0, 0.0),
-                            VirtualKeyCode::S => (0.0, 1.0),
-                            VirtualKeyCode::D => (1.0, 0.0),
-                            _ => (0.0, 0.0),
-                        }
-                        .into();
-                        self.world.player.moove(move_pos);
-                        let post_ops = if let Some((_, tile)) =
-                            self.world.tile_mgr.tile_at_pos(self.world.player.get_pos())
-                        {
-                            tile.on_player_enter(&mut self.world.player, move_pos)
-                        }
-                        else {
-                            Vec::new()
-                        };
-
-                        for post_op in post_ops {
-                            self.world.process_operation(post_op);
-                        }
-
-                        self.world
-                            .camera
-                            .moove(self.world.player.get_pos() - self.world.camera.pos);
-                        self.world.update();
+                        self.world.send_input_down(&virtual_key_code);
                     }
                     self.current_input |= virtual_key_code.into();
                 }
@@ -203,6 +128,7 @@ impl WindowHandler<String> for GameScreen {
         _scancode: speedy2d::window::KeyScancode,
     ) {
         if let Some(virtual_key_code) = virtual_key_code {
+            self.world.send_input_up(&virtual_key_code);
             let result: Input = virtual_key_code.into();
             self.current_input &= !result;
         }
@@ -248,11 +174,12 @@ impl<'a> Screen for GameScreen {
 
 impl GameScreen {
     pub fn new() -> GameScreen {
-        GameScreen::with_world(generation::make_new_world())
+        GameScreen::with_world(generation::make_new_empty_world())
     }
 
     pub fn load() -> io::Result<GameScreen> {
-        Ok(GameScreen::with_world(GameScreen::load_world()?))
+        let result = GameScreen::load_world().unwrap();
+        Ok(GameScreen::with_world(result))
     }
 
     fn with_world(world: World) -> GameScreen {

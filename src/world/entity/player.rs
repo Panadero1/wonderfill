@@ -35,7 +35,7 @@ impl Entity for Player {
         clock: &Clock,
         camera: &crate::screen::camera::Camera,
     ) {
-        self.anim.draw(
+        self.anim.draw_overworld(
             graphics,
             manager,
             clock,

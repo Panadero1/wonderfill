@@ -11,7 +11,7 @@ use crate::{
 
 use self::core::arrow::Arrow;
 
-use super::{entity::player::Player, space::GamePos, time::Clock};
+use super::{entity::player::Player, space::GamePos, time::Clock, minigame::Minigame};
 
 pub mod beehive;
 pub mod core;
@@ -94,6 +94,7 @@ pub enum PostOperation {
     MovePlayer(GamePos),
     LoadRegion(String),
     UpdateTile(GamePos),
+    Minigame(Box<dyn Minigame>)
 }
 
 #[typetag::serde(tag = "type")]
@@ -119,7 +120,7 @@ pub trait Tile: Debug {
         camera: &Camera,
     ) {
         let pos = self.get_pos();
-        self.get_anim_mut().draw(
+        self.get_anim_mut().draw_overworld(
             graphics,
             manager,
             clock,

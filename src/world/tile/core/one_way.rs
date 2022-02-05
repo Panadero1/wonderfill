@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{base_ground::BaseGround, stair::Stair};
+use super::{base_ground::BaseGround, stair::Stair, smiley_man::SmileyMan};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OneWay {
@@ -29,7 +29,7 @@ impl Tile for OneWay {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(SmileyMan::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {

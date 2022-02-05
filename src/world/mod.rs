@@ -1,18 +1,28 @@
-use std::{path::{PathBuf, Path}, env, fs::{self, File}, io::{BufReader, self}};
+use std::{
+    env,
+    fs::{self, File},
+    io::{self, BufReader},
+    path::{Path, PathBuf},
+};
 
 use crate::{
-    screen::camera::Camera,
+    screen::{camera::Camera, get_mouse_pos},
     ui::img::ImgManager,
     world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
-use speedy2d::Graphics2D;
+use speedy2d::{window::VirtualKeyCode, Graphics2D};
 
-use self::{tile::PostOperation, entity::Entity};
+use self::{
+    entity::Entity,
+    minigame::{GameResult, Minigame},
+    tile::PostOperation,
+};
 
 pub mod entity;
 pub mod generation;
+pub mod minigame;
 pub mod space;
 pub mod tile;
 pub mod time;
@@ -23,6 +33,7 @@ pub struct World {
     pub player: Player,
     pub camera: Camera,
     pub clock: Clock,
+    pub minigame: Option<Box<dyn Minigame>>,
 }
 
 const VIEW_DIST: f32 = 40.0;
@@ -34,11 +45,46 @@ impl World {
             player,
             camera,
             clock,
+            minigame: None,
         }
     }
-    pub fn update(&mut self) {
+
+    pub fn update_overworld(&mut self) {
         self.clock.tick();
         self.tile_mgr.update(&self.clock);
+    }
+
+    pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
+        if let Some(minigame) = &mut self.minigame {
+            let result = minigame.update();
+            if let GameResult::Processing = result {
+                minigame.draw(graphics, manager, &self.camera);
+            } else {
+                // TODO: do something with result
+                self.minigame = None;
+            }
+        } else {
+            self.draw_world(graphics, manager);
+        }
+    }
+
+    fn draw_world(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
+        self.tile_mgr.draw_before_player(
+            graphics,
+            manager,
+            &self.clock,
+            &self.camera,
+            self.player.get_pos(),
+        );
+        self.player
+            .draw(graphics, manager, &self.clock, &self.camera);
+        self.tile_mgr.draw_after_player(
+            graphics,
+            manager,
+            &self.clock,
+            &self.camera,
+            self.player.get_pos(),
+        );
     }
 
     pub fn load_region(&mut self, name: &String) -> io::Result<()> {
@@ -75,6 +121,70 @@ impl World {
                 if let Some((_, tile)) = self.tile_mgr.tile_at_pos(pos) {
                     tile.update_self();
                 }
+            }
+            PostOperation::Minigame(game) => self.minigame = Some(game),
+        }
+    }
+
+    pub fn send_input_down(&mut self, key: &VirtualKeyCode) {
+        match &mut self.minigame {
+            Some(minigame) => {
+                minigame.key_down(key);
+            }
+            None => match key {
+                VirtualKeyCode::N => {
+                    println!("Please enter name of new region: ");
+
+                    let mut line = String::new();
+
+                    std::io::stdin().read_line(&mut line).unwrap();
+
+                    self.new_region(line.trim().to_string());
+                }
+                VirtualKeyCode::B => {
+                    let pos = self.camera.pix_to_game(get_mouse_pos()).round();
+                    println!("({},{})", pos.x, pos.y);
+                }
+                VirtualKeyCode::Q => {
+                    let pos = self.camera.pix_to_game(get_mouse_pos()).round();
+                    self.player.moove(pos - self.player.get_pos());
+                    self.camera.moove(self.player.get_pos() - self.camera.pos);
+                }
+                _ => {
+                    let move_pos = match key {
+                        VirtualKeyCode::W => (0.0, -1.0),
+                        VirtualKeyCode::A => (-1.0, 0.0),
+                        VirtualKeyCode::S => (0.0, 1.0),
+                        VirtualKeyCode::D => (1.0, 0.0),
+                        _ => (0.0, 0.0),
+                    }
+                    .into();
+                    self.player.moove(move_pos);
+                    let post_ops =
+                        if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos()) {
+                            tile.on_player_enter(&mut self.player, move_pos)
+                        } else {
+                            Vec::new()
+                        };
+
+                    for post_op in post_ops {
+                        self.process_operation(post_op);
+                    }
+
+                    self.camera.moove(self.player.get_pos() - self.camera.pos);
+                    self.update_overworld();
+                }
+            },
+        }
+    }
+
+    pub fn send_input_up(&mut self, key: &VirtualKeyCode) {
+        match &mut self.minigame {
+            Some(minigame) => {
+                minigame.key_up(key);
+            }
+            None => {
+                // Put overworld key-up handling here if needed
             }
         }
     }
