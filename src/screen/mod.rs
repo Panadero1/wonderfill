@@ -14,7 +14,9 @@ pub mod options;
 pub mod title;
 
 pub static MOUSE_POS: (AtomicU32, AtomicU32) = (AtomicU32::new(0), AtomicU32::new(0));
-pub static RESOLUTION: (AtomicU32, AtomicU32) = (AtomicU32::new(400), AtomicU32::new(500));
+pub static RESOLUTION: (AtomicU32, AtomicU32) = (AtomicU32::new(400), AtomicU32::new(400));
+
+pub const MIN_WINDOW_SIZE: u32 = 400;
 
 pub fn get_mouse_pos() -> (u32, u32) {
     (
@@ -43,6 +45,7 @@ pub trait Screen: WindowHandler<String> {
 pub struct RedirectHandler {
     my_handler: Box<dyn Screen>,
 }
+
 impl WindowHandler<String> for RedirectHandler {
     fn on_start(
         &mut self,
@@ -57,6 +60,19 @@ impl WindowHandler<String> for RedirectHandler {
     }
 
     fn on_resize(&mut self, helper: &mut WindowHelper<String>, size_pixels: Vector2<u32>) {
+        let mut size_pixels = size_pixels;
+        let mut change_size = false;
+        if size_pixels.x < MIN_WINDOW_SIZE {
+            change_size = true;
+            size_pixels.x = MIN_WINDOW_SIZE;
+        }
+        if size_pixels.y < MIN_WINDOW_SIZE {
+            change_size = true;
+            size_pixels.y = MIN_WINDOW_SIZE;
+        }
+        if change_size {
+            helper.set_size_pixels(size_pixels);
+        }
         set_resolution(size_pixels.x, size_pixels.y);
         self.my_handler.on_resize(helper, size_pixels);
     }
