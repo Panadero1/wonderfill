@@ -21,5 +21,5 @@
 // Remove invisible wall texture
 
 fn main() {
-    sonar::run();
+    wonderfill::run();
 }
