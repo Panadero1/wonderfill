@@ -56,4 +56,8 @@ impl Minigame for SmileyWin {
     fn key_up(&mut self, key: &VirtualKeyCode) {
         
     }
+
+    fn reset(&mut self) {
+        self.start = NInstant::now();
+    }
 }
