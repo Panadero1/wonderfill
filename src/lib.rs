@@ -4,11 +4,13 @@ use speedy2d::{
     Window,
 };
 
-mod screen;
-mod ui;
-mod utility;
-mod world;
+/// for dealing with anything related to the screen or window
+pub mod screen;
+pub mod ui;
+pub mod utility;
+pub mod world;
 
+/// point of entry for the program
 pub fn run() {
     let res = screen::get_resolution();
 

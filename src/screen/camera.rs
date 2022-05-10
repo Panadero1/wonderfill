@@ -3,6 +3,7 @@ use speedy2d::shape::Rectangle;
 
 use crate::{screen::get_resolution, world::space::GamePos};
 
+/// the in-game camera that follows the player
 #[derive(Serialize, Deserialize)]
 pub struct Camera {
     pub pos: GamePos,

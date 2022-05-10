@@ -1,3 +1,6 @@
+//! wonderfill is a game about exploring a world and enjoying your time
+//! that's about it! :))
+
 // [TODO]
 // Finish starting tutorial area
 // Migrate level editor controls to World
