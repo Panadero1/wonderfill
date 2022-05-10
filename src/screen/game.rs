@@ -2,7 +2,7 @@ use std::{
     env,
     fs::{self, File},
     io::{self, BufReader},
-    path::{Path, PathBuf},
+    path::{Path, PathBuf}, collections::HashMap,
 };
 
 use bitflags::bitflags;
@@ -24,47 +24,6 @@ use crate::{
     },
 };
 
-bitflags! {
-    struct Input: u8 {
-        const NONE   = 0b00000000;
-        const LEFT   = 0b00000001;
-        const RIGHT  = 0b00000010;
-        const UP     = 0b00000100;
-        const DOWN   = 0b00001000;
-        const ROTATE = 0b00010000;
-        const TILE   = 0b00100000;
-    }
-}
-impl From<VirtualKeyCode> for Input {
-    fn from(key_code: VirtualKeyCode) -> Self {
-        match key_code {
-            VirtualKeyCode::W => Input::UP,
-            VirtualKeyCode::A => Input::LEFT,
-            VirtualKeyCode::S => Input::DOWN,
-            VirtualKeyCode::D => Input::RIGHT,
-            VirtualKeyCode::R => Input::ROTATE,
-            VirtualKeyCode::T => Input::TILE,
-            _ => Input::NONE,
-        }
-    }
-}
-impl Into<Option<VirtualKeyCode>> for Input {
-    fn into(self) -> Option<VirtualKeyCode> {
-        match self {
-            Input::NONE => None,
-            _ => Some(match self {
-                Input::UP => VirtualKeyCode::W,
-                Input::LEFT => VirtualKeyCode::A,
-                Input::DOWN => VirtualKeyCode::S,
-                Input::RIGHT => VirtualKeyCode::D,
-                Input::ROTATE => VirtualKeyCode::R,
-                Input::TILE => VirtualKeyCode::T,
-                _ => panic!("Forgot to implement keycode mappings"), // never occurs
-            }),
-        }
-    }
-}
-
 // Larger number -> smaller bounds
 pub const CAMERA_SCALE: f32 = 50.0;
 
@@ -77,7 +36,7 @@ enum State {
 
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
-    current_input: Input,
+    current_input: HashMap<VirtualKeyCode, bool>,
     world: World,
     img_manager: ImgManager,
     // For editing
@@ -113,12 +72,12 @@ impl WindowHandler<String> for GameScreen {
                     self.draw_tile = self.draw_tile.cycle();
                 }
                 _ => {
-                    if !self.current_input.contains(virtual_key_code.into()) {
+                    if !self.current_input.get(&virtual_key_code).unwrap_or(&false) {
                         self.world.send_input_down(&virtual_key_code);
                     }
-                    self.current_input |= virtual_key_code.into();
                 }
             }
+            self.current_input.insert(virtual_key_code, true);
         }
     }
     fn on_key_up(
@@ -129,8 +88,7 @@ impl WindowHandler<String> for GameScreen {
     ) {
         if let Some(virtual_key_code) = virtual_key_code {
             self.world.send_input_up(&virtual_key_code);
-            let result: Input = virtual_key_code.into();
-            self.current_input &= !result;
+            self.current_input.insert(virtual_key_code, false);
         }
     }
     fn on_resize(
@@ -178,14 +136,17 @@ impl GameScreen {
     }
 
     pub fn load() -> io::Result<GameScreen> {
-        let result = GameScreen::load_world().unwrap();
+        let mut result = GameScreen::load_world().unwrap();
+        if let Some(minigame) = &mut result.minigame {
+            minigame.reset();
+        }
         Ok(GameScreen::with_world(result))
     }
 
     fn with_world(world: World) -> GameScreen {
         GameScreen {
             new_screen: None,
-            current_input: Input::NONE,
+            current_input: HashMap::new(),
             world,
             img_manager: ImgManager::new(),
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
