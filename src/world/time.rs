@@ -9,7 +9,7 @@ pub enum Season {
 }
 
 pub const DAYS_PER_YEAR: u16 = 100;
-pub const HOURS_PER_DAY: u8 = 12;
+pub const HOURS_PER_DAY: u8 = 96;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Clock {
