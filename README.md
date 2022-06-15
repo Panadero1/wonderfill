@@ -1,4 +1,4 @@
-# sonar
+# wonderfill
 WIP game. Might abandon
 
-See [here](plan/sonar.md) for more details
+See the brainstorm [here](plan/wonderfill.txt) or the plan for the map [here](plan/flow.txt) for more details
