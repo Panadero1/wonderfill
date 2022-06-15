@@ -7,16 +7,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in library 'sonar'",
+            "name": "Debug unit tests in library 'wonderfill'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
                     "--lib",
-                    "--package=sonar"
+                    "--package=wonderfill"
                 ],
                 "filter": {
-                    "name": "sonar",
+                    "name": "wonderfill",
                     "kind": "lib"
                 }
             },
@@ -26,15 +26,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'sonar'",
+            "name": "Debug executable 'wonderfill'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=sonar",
-                    "--package=sonar"
+                    "--bin=wonderfill",
+                    "--package=wonderfill"
                 ],
                 "filter": {
-                    "name": "sonar",
+                    "name": "wonderfill",
                     "kind": "bin"
                 }
             },
@@ -44,16 +44,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'sonar'",
+            "name": "Debug unit tests in executable 'wonderfill'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=sonar",
-                    "--package=sonar"
+                    "--bin=wonderfill",
+                    "--package=wonderfill"
                 ],
                 "filter": {
-                    "name": "sonar",
+                    "name": "wonderfill",
                     "kind": "bin"
                 }
             },

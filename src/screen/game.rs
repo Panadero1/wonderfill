@@ -136,7 +136,7 @@ impl GameScreen {
     }
 
     pub fn load() -> io::Result<GameScreen> {
-        let mut result = GameScreen::load_world().unwrap();
+        let mut result = GameScreen::load_world()?;
         if let Some(minigame) = &mut result.minigame {
             minigame.reset();
         }
@@ -164,7 +164,7 @@ impl GameScreen {
 
     fn get_file_path() -> PathBuf {
         let dir = env::current_dir().unwrap();
-        let path = Path::new(&dir).join("saves\\");
+        let path = Path::new(&dir).join("saves/");
         if !path.exists() {
             fs::create_dir(&path).unwrap();
         }

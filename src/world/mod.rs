@@ -193,7 +193,7 @@ impl World {
 fn get_file_path(file_name: &String) -> PathBuf {
     assert!(*file_name != "save");
     let dir = env::current_dir().unwrap();
-    let path = Path::new(&dir).join("saves\\");
+    let path = Path::new(&dir).join("saves/");
     if !path.exists() {
         fs::create_dir(&path).unwrap();
     }

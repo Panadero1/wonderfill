@@ -25,7 +25,7 @@ impl SmileyWin {
         SmileyWin {
             start: NInstant::now(),
             anim: Animation::new(
-                Img::new(String::from("assets\\img\\smile.png")),
+                Img::new(String::from("assets/img/smile.png")),
                 (400, 400),
                 HashMap::new(),
                 (0, 0),

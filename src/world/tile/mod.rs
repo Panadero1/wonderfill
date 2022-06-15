@@ -156,7 +156,7 @@ fn get_default_anim(frame: (u16, u16)) -> Animation {
 
 fn anim_with_frames(frames: HashMap<String, (bool, Vec<(u16, u16)>)>) -> Animation {
     Animation::new(
-        Img::new(String::from("assets\\img\\tiles.png")),
+        Img::new(String::from("assets/img/tiles.png")),
         (7, 10),
         frames,
         (5, 0),
