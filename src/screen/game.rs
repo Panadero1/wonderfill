@@ -5,8 +5,6 @@ use std::{
     path::{Path, PathBuf}, collections::HashMap,
 };
 
-use bitflags::bitflags;
-
 use speedy2d::{
     color::Color,
     window::{MouseButton, VirtualKeyCode, WindowHandler, WindowHelper},
@@ -19,7 +17,6 @@ use crate::{
     world::{
         entity::Entity,
         generation,
-        tile::{core::base_ground::BaseGround, Tile, TileVariant, PostOperation},
         World,
     },
 };
@@ -27,22 +24,11 @@ use crate::{
 // Larger number -> smaller bounds
 pub const CAMERA_SCALE: f32 = 50.0;
 
-enum State {
-    Play,
-    Dialogue,
-    // For editing
-    Build,
-}
-
 pub struct GameScreen {
     new_screen: Option<Box<dyn Screen>>,
     current_input: HashMap<VirtualKeyCode, bool>,
     world: World,
     img_manager: ImgManager,
-    // For editing
-    draw_tile: Box<dyn Tile>,
-    tile_variant: TileVariant,
-    state: State,
 }
 
 impl WindowHandler<String> for GameScreen {
@@ -64,12 +50,6 @@ impl WindowHandler<String> for GameScreen {
                 VirtualKeyCode::Escape => {
                     self.save_world();
                     self.new_screen = Some(Box::new(TitleScreen::new()));
-                }
-                VirtualKeyCode::R => {
-                    self.tile_variant.rotate_cw();
-                }
-                VirtualKeyCode::T => {
-                    self.draw_tile = self.draw_tile.cycle();
                 }
                 _ => {
                     if !self.current_input.get(&virtual_key_code).unwrap_or(&false) {
@@ -99,22 +79,9 @@ impl WindowHandler<String> for GameScreen {
         self.world.camera.width = size_pixels.x as f32 / CAMERA_SCALE;
         self.world.camera.height = size_pixels.y as f32 / CAMERA_SCALE;
     }
+
     fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
-        let pos = self
-            .world
-            .camera
-            .pix_to_game(super::get_mouse_pos())
-            .round();
-        if let MouseButton::Left = button {
-            let tile = self.draw_tile.create(pos, self.tile_variant);
-            self.world.tile_mgr.push_override(tile);
-        } else if let MouseButton::Right = button {
-            self.world.tile_mgr.remove_at(pos);
-        } else if let MouseButton::Middle = button {
-            if let Some((_, tile)) = self.world.tile_mgr.tile_at_pos(pos) {
-                self.draw_tile = tile.pick_tile();
-            }
-        }
+        self.world.on_mouse_button_down(helper, button);
     }
 }
 
@@ -149,9 +116,6 @@ impl GameScreen {
             current_input: HashMap::new(),
             world,
             img_manager: ImgManager::new(),
-            draw_tile: Box::new(BaseGround::default((0, 0).into())),
-            tile_variant: TileVariant::Top,
-            state: State::Build,
         }
     }
 

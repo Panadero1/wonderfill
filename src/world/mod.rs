@@ -6,18 +6,18 @@ use std::{
 };
 
 use crate::{
-    screen::{camera::Camera, get_mouse_pos},
+    screen::{camera::Camera, self},
     ui::img::ImgManager,
     world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
-use speedy2d::{window::VirtualKeyCode, Graphics2D};
+use speedy2d::{window::{VirtualKeyCode, MouseButton, WindowHelper}, Graphics2D};
 
 use self::{
     entity::Entity,
     minigame::{GameResult, Minigame},
-    tile::PostOperation,
+    tile::{PostOperation, TileVariant, core::base_ground::BaseGround},
 };
 
 pub mod entity;
@@ -34,6 +34,9 @@ pub struct World {
     pub camera: Camera,
     pub clock: Clock,
     pub minigame: Option<Box<dyn Minigame>>,
+    // For editing
+    draw_tile: Box<dyn Tile>,
+    tile_variant: TileVariant,
 }
 
 const VIEW_DIST: f32 = 40.0;
@@ -46,6 +49,8 @@ impl World {
             camera,
             clock,
             minigame: None,
+            draw_tile: Box::new(BaseGround::default((0, 0).into())),
+            tile_variant: TileVariant::Top,
         }
     }
 
@@ -142,13 +147,19 @@ impl World {
                     self.new_region(line.trim().to_string());
                 }
                 VirtualKeyCode::B => {
-                    let pos = self.camera.pix_to_game(get_mouse_pos()).round();
+                    let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
                     println!("({},{})", pos.x, pos.y);
                 }
                 VirtualKeyCode::Q => {
-                    let pos = self.camera.pix_to_game(get_mouse_pos()).round();
+                    let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
                     self.player.moove(pos - self.player.get_pos());
                     self.camera.moove(self.player.get_pos() - self.camera.pos);
+                }
+                VirtualKeyCode::R => {
+                    self.tile_variant.rotate_cw();
+                }
+                VirtualKeyCode::T => {
+                    self.draw_tile = self.draw_tile.cycle();
                 }
                 _ => {
                     let move_pos = match key {
@@ -185,6 +196,23 @@ impl World {
             }
             None => {
                 // Put overworld key-up handling here if needed
+            }
+        }
+    }
+
+    pub fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
+        let pos = self
+            .camera
+            .pix_to_game(screen::get_mouse_pos())
+            .round();
+        if let MouseButton::Left = button {
+            let tile = self.draw_tile.create(pos, self.tile_variant);
+            self.tile_mgr.push_override(tile);
+        } else if let MouseButton::Right = button {
+            self.tile_mgr.remove_at(pos);
+        } else if let MouseButton::Middle = button {
+            if let Some((_, tile)) = self.tile_mgr.tile_at_pos(pos) {
+                self.draw_tile = tile.pick_tile();
             }
         }
     }
