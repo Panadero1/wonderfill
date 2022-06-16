@@ -44,10 +44,16 @@ impl Animation {
             iter_speed_ms,
         }
     }
+
+    pub fn still(src: Img, frame_size: (u16, u16), frame_pos: (u16, u16)) -> Animation {
+        Self::new(src, frame_size, HashMap::new(), frame_pos, 0)
+    }
+
     pub fn select(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
         self.start = NInstant::now();
         self.intercept(anim_name)
     }
+    
     pub fn intercept(&mut self, anim_name: &str) -> Result<(), AnimationSelectError> {
         match self.frames.get(anim_name) {
             Some(frames) => {

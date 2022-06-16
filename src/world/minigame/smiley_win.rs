@@ -12,8 +12,6 @@ use crate::{
 
 use super::{GameResult, Minigame};
 
-const size: (u16, u16) = (400, 400);
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SmileyWin {
     start: NInstant,
@@ -24,13 +22,7 @@ impl SmileyWin {
     pub fn new() -> SmileyWin {
         SmileyWin {
             start: NInstant::now(),
-            anim: Animation::new(
-                Img::new(String::from("assets/img/smile.png")),
-                (400, 400),
-                HashMap::new(),
-                (0, 0),
-                1
-            ),
+            anim: Animation::still(Img::new(String::from("assets/img/smile.png")), (400, 400), (0, 0))
         }
     }
 }

@@ -160,7 +160,7 @@ fn anim_with_frames(frames: HashMap<String, (bool, Vec<(u16, u16)>)>) -> Animati
         (7, 10),
         frames,
         (5, 0),
-        500,
+        100,
     )
 }
 

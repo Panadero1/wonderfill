@@ -3,7 +3,6 @@
 
 // [TODO]
 // Finish starting tutorial area
-// Migrate level editor controls to World
 // Have response to GameResult::Success or GameResult::Failure
 // Minimum screen size (200, 200)
 
