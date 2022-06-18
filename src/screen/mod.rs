@@ -1,6 +1,4 @@
-use std::{
-    sync::atomic::{AtomicU32, Ordering},
-};
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use speedy2d::{
     dimen::Vector2,
@@ -8,17 +6,28 @@ use speedy2d::{
     Graphics2D,
 };
 
-/// 
+/// movable camera object
 pub mod camera;
+
+/// the game screen. Where the game takes place
 pub mod game;
+
+/// the options screen
 pub mod options;
+
+/// the title screen
 pub mod title;
 
-pub static MOUSE_POS: (AtomicU32, AtomicU32) = (AtomicU32::new(0), AtomicU32::new(0));
-pub static RESOLUTION: (AtomicU32, AtomicU32) = (AtomicU32::new(400), AtomicU32::new(400));
+/// current position of the mouse
+static MOUSE_POS: (AtomicU32, AtomicU32) = (AtomicU32::new(0), AtomicU32::new(0));
 
+/// current resolution of the window
+static RESOLUTION: (AtomicU32, AtomicU32) = (AtomicU32::new(400), AtomicU32::new(400));
+
+/// minimum size the window can be shrunk to in any dimension
 pub const MIN_WINDOW_SIZE: u32 = 400;
 
+/// returns the current position of the mouse on the screen
 pub fn get_mouse_pos() -> (u32, u32) {
     (
         MOUSE_POS.0.load(Ordering::Relaxed),
@@ -26,6 +35,7 @@ pub fn get_mouse_pos() -> (u32, u32) {
     )
 }
 
+/// returns the current resolution of the screen
 pub fn get_resolution() -> (u32, u32) {
     (
         RESOLUTION.0.load(Ordering::Relaxed),
@@ -33,6 +43,7 @@ pub fn get_resolution() -> (u32, u32) {
     )
 }
 
+/// changes the resolution value of the screen.
 pub fn set_resolution(new_width: u32, new_height: u32) {
     RESOLUTION.0.store(new_width, Ordering::Relaxed);
     RESOLUTION.1.store(new_height, Ordering::Relaxed);
@@ -61,19 +72,6 @@ impl WindowHandler<String> for RedirectHandler {
     }
 
     fn on_resize(&mut self, helper: &mut WindowHelper<String>, size_pixels: Vector2<u32>) {
-        let mut size_pixels = size_pixels;
-        let mut change_size = false;
-        if size_pixels.x < MIN_WINDOW_SIZE {
-            change_size = true;
-            size_pixels.x = MIN_WINDOW_SIZE;
-        }
-        if size_pixels.y < MIN_WINDOW_SIZE {
-            change_size = true;
-            size_pixels.y = MIN_WINDOW_SIZE;
-        }
-        if change_size {
-            helper.set_size_pixels(size_pixels);
-        }
         set_resolution(size_pixels.x, size_pixels.y);
         self.my_handler.on_resize(helper, size_pixels);
     }
@@ -84,6 +82,11 @@ impl WindowHandler<String> for RedirectHandler {
     }
 
     fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
+        {
+            let size = get_resolution();
+            self.ensure_min_size(helper, Vector2::new(size.0, size.1));
+        }
+
         if let Some(mut new_screen) = self.my_handler.change_screen() {
             new_screen.init(helper);
             self.my_handler = new_screen;
@@ -150,6 +153,27 @@ impl WindowHandler<String> for RedirectHandler {
 
 impl RedirectHandler {
     pub fn new(my_handler: Box<dyn Screen>) -> RedirectHandler {
-        RedirectHandler { my_handler }
+        RedirectHandler {
+            my_handler,
+        }
+    }
+
+    fn ensure_min_size(
+        &mut self,
+        helper: &mut WindowHelper<String>,
+        mut size_pixels: Vector2<u32>,
+    ) {
+        let mut change_size = false;
+        if size_pixels.x < MIN_WINDOW_SIZE {
+            change_size = true;
+            size_pixels.x = MIN_WINDOW_SIZE;
+        }
+        if size_pixels.y < MIN_WINDOW_SIZE {
+            change_size = true;
+            size_pixels.y = MIN_WINDOW_SIZE;
+        }
+        if change_size {
+            helper.set_size_pixels(size_pixels);
+        }
     }
 }

@@ -4,7 +4,6 @@
 // [TODO]
 // Finish starting tutorial area
 // Have response to GameResult::Success or GameResult::Failure
-// Minimum screen size (200, 200)
 
 // [Maybe]
 // Consolidate drawing requirements into one struct
