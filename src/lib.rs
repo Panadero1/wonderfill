@@ -4,8 +4,8 @@ use speedy2d::{
     Window,
 };
 
-/// anything related to the screen or window
-pub mod screen;
+use draw::screen;
+
 /// all drawing functionality
 pub mod draw;
 /// useful misc things

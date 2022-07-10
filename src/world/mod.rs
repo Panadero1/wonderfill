@@ -6,18 +6,23 @@ use std::{
 };
 
 use crate::{
-    screen::{camera::Camera, self},
-    draw::ui::img::ImgManager,
+    draw::{
+        screen::{self, camera::Camera},
+        ui::img::ImgManager,
+    },
     world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
-use speedy2d::{window::{VirtualKeyCode, MouseButton, WindowHelper}, Graphics2D};
+use speedy2d::{
+    window::{MouseButton, VirtualKeyCode, WindowHelper},
+    Graphics2D,
+};
 
 use self::{
     entity::Entity,
     minigame::{GameResult, Minigame},
-    tile::{PostOperation, TileVariant, core::base_ground::BaseGround},
+    tile::{core::base_ground::BaseGround, PostOperation, TileVariant},
 };
 
 pub mod entity;
@@ -61,15 +66,13 @@ impl World {
 
     pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
         match &mut self.minigame {
-            Some(minigame) => {
-                match minigame.update() {
-                    GameResult::Processing => minigame.draw(graphics, manager, &self.camera),
-                    GameResult::Success => {
-                        self.minigame = None;
-                    },
-                    GameResult::Failure => {
-                        self.minigame = None;
-                    },
+            Some(minigame) => match minigame.update() {
+                GameResult::Processing => minigame.draw(graphics, manager, &self.camera),
+                GameResult::Success => {
+                    self.minigame = None;
+                }
+                GameResult::Failure => {
+                    self.minigame = None;
                 }
             },
             None => self.draw_world(graphics, manager),
@@ -204,10 +207,7 @@ impl World {
     }
 
     pub fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
-        let pos = self
-            .camera
-            .pix_to_game(screen::get_mouse_pos())
-            .round();
+        let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
         if let MouseButton::Left = button {
             let tile = self.draw_tile.create(pos, self.tile_variant);
             self.tile_mgr.push_override(tile);

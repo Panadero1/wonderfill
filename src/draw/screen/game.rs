@@ -138,6 +138,7 @@ impl GameScreen {
     fn get_file_path() -> PathBuf {
         let dir = env::current_dir().unwrap();
         let path = Path::new(&dir).join("saves/");
+        println!("{:?}", path.to_str());
         if !path.exists() {
             fs::create_dir(&path).unwrap();
         }
