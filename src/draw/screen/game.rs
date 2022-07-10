@@ -112,8 +112,7 @@ impl GameScreen {
     }
 
     pub fn load() -> io::Result<GameScreen> {
-        let mut result = GameScreen::load_world().unwrap();
-        println!("BB");
+        let mut result = GameScreen::load_world()?;
         if let Some(minigame) = &mut result.minigame {
             minigame.reset();
         }
@@ -143,14 +142,12 @@ impl GameScreen {
             fs::create_dir(&path).unwrap();
         }
         let path = path.join("save.json");
-        println!("{:?}", path.to_str());
         path
     }
 
     fn load_world() -> io::Result<World> {
         let path = GameScreen::get_file_path();
         let file: File = File::open(path)?;
-        println!("AA");
         let rdr = BufReader::new(file);
 
         Ok(serde_json::from_reader(rdr)?)
