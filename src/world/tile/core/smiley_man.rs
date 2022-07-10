@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::Animation,
+    draw::animation::Animation,
     world::{
         space::GamePos,
-        tile::{get_default_anim, match_directions, Tile, TileVariant, self, PostOperation}, entity::player::Player, minigame::smiley_win::SmileyWin,
+        tile::{get_default_anim, Tile, TileVariant, PostOperation}, entity::player::Player, minigame::smiley_win::SmileyWin,
     },
 };
 

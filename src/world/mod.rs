@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
     screen::{camera::Camera, self},
-    ui::img::ImgManager,
+    draw::ui::img::ImgManager,
     world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
@@ -60,16 +60,19 @@ impl World {
     }
 
     pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
-        if let Some(minigame) = &mut self.minigame {
-            let result = minigame.update();
-            if let GameResult::Processing = result {
-                minigame.draw(graphics, manager, &self.camera);
-            } else {
-                // TODO: do something with result
-                self.minigame = None;
-            }
-        } else {
-            self.draw_world(graphics, manager);
+        match &mut self.minigame {
+            Some(minigame) => {
+                match minigame.update() {
+                    GameResult::Processing => minigame.draw(graphics, manager, &self.camera),
+                    GameResult::Success => {
+                        self.minigame = None;
+                    },
+                    GameResult::Failure => {
+                        self.minigame = None;
+                    },
+                }
+            },
+            None => self.draw_world(graphics, manager),
         }
     }
 

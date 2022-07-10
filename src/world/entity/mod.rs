@@ -1,9 +1,8 @@
 use speedy2d::Graphics2D;
 
 use crate::{
+    draw::{animation::AnimationSelectError, ui::img::ImgManager},
     screen::camera::Camera,
-    ui::img::ImgManager,
-    utility::animation::AnimationSelectError,
     world::{space::GamePos, time::Clock},
 };
 

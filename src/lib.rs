@@ -4,10 +4,13 @@ use speedy2d::{
     Window,
 };
 
-/// for dealing with anything related to the screen or window
+/// anything related to the screen or window
 pub mod screen;
-pub mod ui;
+/// all drawing functionality
+pub mod draw;
+/// useful misc things
 pub mod utility;
+/// everything to do with the game itself
 pub mod world;
 
 /// point of entry for the program

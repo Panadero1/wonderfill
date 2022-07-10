@@ -6,7 +6,7 @@ use speedy2d::{
     Graphics2D,
 };
 
-use crate::ui::{button::Button, rect::rect_from_size, text};
+use crate::draw::ui::{button::Button, rect::rect_from_size, text};
 
 use super::{game::GameScreen, options::OptionsScreen, Screen};
 

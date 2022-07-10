@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::Animation,
+    draw::animation::Animation,
     world::{
         space::GamePos,
         tile::{core::arrow::Arrow, get_default_anim, match_directions, Tile, TileVariant},

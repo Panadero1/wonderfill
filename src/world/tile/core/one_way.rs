@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::Animation,
+    draw::animation::Animation,
     world::{
         entity::player::Player,
         space::GamePos,
@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{base_ground::BaseGround, stair::Stair, smiley_man::SmileyMan};
+use super::smiley_man::SmileyMan;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OneWay {

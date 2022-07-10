@@ -13,7 +13,7 @@ use speedy2d::{
 
 use crate::{
     screen::{title::TitleScreen, Screen},
-    ui::img::ImgManager,
+    draw::ui::img::ImgManager,
     world::{
         entity::Entity,
         generation,
@@ -21,18 +21,26 @@ use crate::{
     },
 };
 
-// Larger number -> smaller bounds
+/// Scale factor for the camera. Larger number -> smaller bounds
 pub const CAMERA_SCALE: f32 = 50.0;
 
+/// The screen that handles all drawing for the game
 pub struct GameScreen {
+    /// for switching to another screen
     new_screen: Option<Box<dyn Screen>>,
+
+    /// map that maintains the state of all input keys
     current_input: HashMap<VirtualKeyCode, bool>,
+
+    /// World struct for managing game logic
     world: World,
+
+    /// for managing sprites
     img_manager: ImgManager,
 }
 
 impl WindowHandler<String> for GameScreen {
-    fn on_draw(&mut self, helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
+    fn on_draw(&mut self, _helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
         graphics.clear_screen(Color::GRAY);
 
         self.world.player.update();
@@ -48,6 +56,7 @@ impl WindowHandler<String> for GameScreen {
         if let Some(virtual_key_code) = virtual_key_code {
             match virtual_key_code {
                 VirtualKeyCode::Escape => {
+                    // on escape, save game and return to title screen
                     self.save_world();
                     self.new_screen = Some(Box::new(TitleScreen::new()));
                 }

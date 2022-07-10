@@ -1,8 +1,6 @@
-use speedy2d::{Graphics2D, window::VirtualKeyCode};
+use speedy2d::{window::VirtualKeyCode, Graphics2D};
 
-use crate::{ui::img::ImgManager, screen::camera::Camera};
-
-use super::{time::Clock, space::GamePos};
+use crate::{draw::ui::img::ImgManager, screen::camera::Camera};
 
 pub mod smiley_win;
 
@@ -14,15 +12,9 @@ pub enum GameResult {
 
 #[typetag::serde(tag = "type")]
 pub trait Minigame {
-
     fn update(&mut self) -> GameResult;
 
-    fn draw(
-        &mut self,
-        graphics: &mut Graphics2D,
-        manager: &mut ImgManager,
-        camera: &Camera,
-    );
+    fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager, camera: &Camera);
 
     fn key_down(&mut self, key: &VirtualKeyCode);
 

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::Animation,
+    draw::animation::Animation,
     world::{
         entity::player::Player,
         space::GamePos,
@@ -9,7 +9,7 @@ use crate::{
     },
 };
 
-use super::{rock::Rock, cliff_face::CliffFace};
+use super::cliff_face::CliffFace;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Boulder {

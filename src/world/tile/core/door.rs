@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::{Animation, AnimationSelectError},
+    draw::animation::{Animation, AnimationSelectError},
     world::{
         entity::player::Player,
         space::GamePos,

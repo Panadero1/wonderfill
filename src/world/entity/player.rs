@@ -3,8 +3,11 @@ use std::collections::HashMap;
 use speedy2d::color::Color;
 
 use crate::{
-    ui::img::{Img, ImgManager},
-    utility::animation::{Animation, AnimationSelectError},
+    draw::{
+        animation::{Animation, AnimationSelectError},
+        ui::img::{Img, ImgManager},
+    },
+    screen::camera::Camera,
     world::{space::GamePos, time::Clock},
 };
 
@@ -33,7 +36,7 @@ impl Entity for Player {
         graphics: &mut speedy2d::Graphics2D,
         manager: &mut ImgManager,
         clock: &Clock,
-        camera: &crate::screen::camera::Camera,
+        camera: &Camera,
     ) {
         self.anim.draw_overworld(
             graphics,
@@ -51,14 +54,14 @@ impl Entity for Player {
     fn set_anim(
         &mut self,
         anim_name: &str,
-    ) -> Result<(), crate::utility::animation::AnimationSelectError> {
+    ) -> Result<(), AnimationSelectError> {
         self.anim.select(anim_name)
     }
 
     fn intercept_anim(
         &mut self,
         anim_name: &str,
-    ) -> Result<(), crate::utility::animation::AnimationSelectError> {
+    ) -> Result<(), AnimationSelectError> {
         self.anim.intercept(anim_name)
     }
 

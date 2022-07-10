@@ -4,14 +4,16 @@ use serde::{Deserialize, Serialize};
 use speedy2d::{color::Color, Graphics2D};
 
 use crate::{
+    draw::{
+        animation::Animation,
+        ui::img::{Img, ImgManager},
+    },
     screen::camera::Camera,
-    ui::img::{Img, ImgManager},
-    utility::animation::Animation,
 };
 
 use self::core::arrow::Arrow;
 
-use super::{entity::player::Player, space::GamePos, time::Clock, minigame::Minigame};
+use super::{entity::player::Player, minigame::Minigame, space::GamePos, time::Clock};
 
 pub mod beehive;
 pub mod core;
@@ -72,7 +74,8 @@ impl TileVariant {
             CornerTR => (1, -1),
             CornerTL => (-1, -1),
             Center => (0, 0),
-        }.into()
+        }
+        .into()
     }
 }
 
@@ -94,7 +97,7 @@ pub enum PostOperation {
     MovePlayer(GamePos),
     LoadRegion(String),
     UpdateTile(GamePos),
-    Minigame(Box<dyn Minigame>)
+    Minigame(Box<dyn Minigame>),
 }
 
 #[typetag::serde(tag = "type")]

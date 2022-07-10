@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    utility::animation::Animation,
+    draw::animation::Animation,
     world::{
         entity::player::Player,
         space::GamePos,
