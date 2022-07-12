@@ -31,3 +31,12 @@ gameplay:
 - puzzles:  interesting puzzles to find secrets or unlock special hats. lots of optional content to explore
 - story: make decisions that guide the course of the story. multiple endings I guess
 - detective: investigate secrets of this world and find your way to the true ending? :O
+
+vessel, the ship to slay the host
+- player collects parts like that Kirby game, but to construct instead of repair it
+- need to travel to different villages to find different materials
+- mast, engine, frame, aeronautics, flight computer
+- not realistic because this is a figuratice world
+- locations of parts are scattered across the world
+? don't know exactly where but the scientist knows the name of the towns where they all are
+
