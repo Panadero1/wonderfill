@@ -1,7 +1,10 @@
 //! wonderfill is a game about exploring a world and enjoying your time
 //! that's about it! :))
 
-// [TODO]
+// [Emergency]
+// player sprite not loading
+
+// [Todo]
 // Finish starting tutorial area
 // Have response to GameResult::Success or GameResult::Failure
 
@@ -12,7 +15,6 @@
 // Fix options page
 
 // [Backlog]
-// Figure out an answer to MM's questions
 // New list of sprites
 // Hat properties
 // Comment your code lol
