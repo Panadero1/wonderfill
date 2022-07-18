@@ -1,11 +1,42 @@
-Player is detective
+world resides inside a human's figurative heart
 
-Arrives to new world: broken heart
+Chaos over the world from broken heart. Rift in center spilling chaos
 
-Chaos over the world
+Player fights creatures who come from the rift
 
-Interact with people who have their own minigames (styled by the type of creature they are)
+Step based combat. Creatures select an attack square every turn that defeats the player the next turn
+- need lots of save points through the map
+- defeated player respawn at previous save point
+- base combat happens by player moving into creatures
+- strategic combat with planning
+- different creatures have different attack and shapes
+- player obtains hats that can modify combat or movement
 
-Chaos leaks from rift in heart (entire world is a heart)
+west heart and east heart separated by rift, grown distaste for each other
+- blame each other for the rift
 
-Eventually seal the rift somehow ?? :)
+player accompanies some scientist person who wishes to kill the host human to stop the rift
+ scientist doesn't realize that this would end all  life on the heart as well
+- scientist slowly goes crazy
+- obsessed with his plan
+- player is ultimately given a choice to either follow through or to oppose
+
+player helps scientist collect parts needed to construct vessel
+- this involves a journey the player and scientist take across the two halves of the heart
+- journey encompasses a majority of the gameplay: fighting creatures, talking to people, doing minigames, exploring the world
+
+gameplay:
+- combat: step based strategic fighting with creatures from the rift. hats can modify player combat abilities
+- exploration: explore large world with people to talk with and secrets to find. collect new hats, play minigames, find parts for the vessel
+- puzzles:  interesting puzzles to find secrets or unlock special hats. lots of optional content to explore
+- story: make decisions that guide the course of the story. multiple endings I guess
+- detective: investigate secrets of this world and find your way to the true ending? :O
+
+vessel, the ship to slay the host
+- player collects parts like that Kirby game, but to construct instead of repair it
+- need to travel to different villages to find different materials
+- mast, engine, frame, aeronautics, flight computer
+- not realistic because this is a figuratice world
+- locations of parts are scattered across the world
+? don't know exactly where but the scientist knows the name of the towns where they all are
+
