@@ -21,6 +21,8 @@ pub trait Minigame {
     fn key_up(&mut self, key: &VirtualKeyCode);
 
     /// minigame resets upon reloading the game from file if the minigame was in progress
-    /// this has to be done because NInstant is not serializable
+    /// this has to be done because NInstant is not serializable (I don't want to try to make that work)
     fn reset(&mut self);
+
+    fn create(&self) -> Box<dyn Minigame>;
 }

@@ -5,7 +5,7 @@ use crate::{
     world::{
         entity::player::Player,
         space::GamePos,
-        tile::{get_default_anim, match_directions, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, match_directions, operation::*, Tile, TileVariant},
     },
 };
 
@@ -44,18 +44,14 @@ impl Tile for OneWay {
         })
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        let mut result = Vec::new();
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
 
-        let dir_vec = self.direction.direction_vector();
-
-        if (dir_vec.x != 0. && dir_vec.x == -(move_pos.x))
-            || (dir_vec.y != 0. && dir_vec.y == -(move_pos.y))
+        PostOperation::new_empty().with_block_when(move |p|
         {
-            result.push(PostOperation::MovePlayer(-move_pos));
+            let dir_vec = p.tile_variant.unwrap().direction_vector();
+            ((dir_vec.x * move_pos.x) < 0.) || ((dir_vec.y * move_pos.y) < 0.)
         }
-
-        result
+        , move_pos).params(Params::new_empty().with_tile_variant(self.direction))
     }
 }
 

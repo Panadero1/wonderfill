@@ -5,7 +5,7 @@ use crate::{
     world::{
         entity::player::Player,
         space::GamePos,
-        tile::{get_default_anim, AlternatorState, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, Obstruction, PostOperation, Tile, TileVariant},
         time::Clock,
     },
 };
@@ -16,7 +16,7 @@ use super::warp::Warp;
 pub struct Sun {
     pos: GamePos,
     anim: Animation,
-    state: AlternatorState,
+    state: Obstruction,
 }
 
 #[typetag::serde]
@@ -29,18 +29,15 @@ impl Tile for Sun {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        let mut result = Vec::new();
-        if let AlternatorState::Up = self.state {
-            result.push(PostOperation::MovePlayer(-move_pos));
-        }
-        result
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
     }
+
     fn on_update(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
-            AlternatorState::Up
+            Obstruction::Blocking
         } else {
-            AlternatorState::Down
+            Obstruction::Free
         };
     }
 
@@ -56,7 +53,7 @@ impl Tile for Sun {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
-            state: AlternatorState::Down,
+            state: Obstruction::Free,
         })
     }
 }
@@ -66,7 +63,7 @@ impl Sun {
         Sun {
             pos,
             anim: get_default_anim((8, 0)),
-            state: AlternatorState::Up,
+            state: Obstruction::Blocking,
         }
     }
 }

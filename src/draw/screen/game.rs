@@ -43,8 +43,6 @@ impl WindowHandler<String> for GameScreen {
     fn on_draw(&mut self, _helper: &mut WindowHelper<String>, graphics: &mut Graphics2D) {
         graphics.clear_screen(Color::GRAY);
 
-        self.world.player.update();
-
         self.world.draw(graphics, &mut self.img_manager);
     }
     fn on_key_down(

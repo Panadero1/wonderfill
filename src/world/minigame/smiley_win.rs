@@ -58,4 +58,7 @@ impl Minigame for SmileyWin {
     fn reset(&mut self) {
         self.start = NInstant::now();
     }
+    fn create(&self) -> Box<dyn Minigame> {
+        Box::new(SmileyWin::new())
+    }
 }

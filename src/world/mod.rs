@@ -22,7 +22,7 @@ use speedy2d::{
 use self::{
     entity::Entity,
     minigame::{GameResult, Minigame},
-    tile::{core::base_ground::BaseGround, PostOperation, TileVariant},
+    tile::{core::base_ground::BaseGround, operation::*, TileVariant},
 };
 
 pub mod entity;
@@ -42,6 +42,7 @@ pub struct World {
     // For editing
     draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
+    post_ops: Vec<PostOperation>,
 }
 
 const VIEW_DIST: f32 = 40.0;
@@ -56,11 +57,19 @@ impl World {
             minigame: None,
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
+            post_ops: Vec::new(),
         }
     }
 
     pub fn update_overworld(&mut self) {
+
+        for i in 0..self.post_ops.len() {
+            let op = self.post_ops[i].clone();
+            op.execute(self);
+        }
+
         self.clock.tick();
+        self.player.update();
         self.tile_mgr.update(&self.clock);
     }
 
@@ -75,7 +84,9 @@ impl World {
                     self.minigame = None;
                 }
             },
-            None => self.draw_world(graphics, manager),
+            None => {
+                self.draw_world(graphics, manager);
+            },
         }
     }
 
@@ -124,19 +135,6 @@ impl World {
         serde_json::to_writer(writer, &self.tile_mgr).unwrap();
     }
 
-    pub fn process_operation(&mut self, op: PostOperation) {
-        match op {
-            PostOperation::MovePlayer(change_pos) => self.player.moove(change_pos),
-            PostOperation::LoadRegion(name) => self.load_region(&name).unwrap(),
-            PostOperation::UpdateTile(pos) => {
-                if let Some((_, tile)) = self.tile_mgr.tile_at_pos(pos) {
-                    tile.update_self();
-                }
-            }
-            PostOperation::Minigame(game) => self.minigame = Some(game),
-        }
-    }
-
     pub fn send_input_down(&mut self, key: &VirtualKeyCode) {
         match &mut self.minigame {
             Some(minigame) => {
@@ -177,15 +175,9 @@ impl World {
                     }
                     .into();
                     self.player.moove(move_pos);
-                    let post_ops =
-                        if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos()) {
-                            tile.on_player_enter(&mut self.player, move_pos)
-                        } else {
-                            Vec::new()
-                        };
 
-                    for post_op in post_ops {
-                        self.process_operation(post_op);
+                    if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos()) {
+                       self.post_ops.push(tile.on_player_enter(move_pos));
                     }
 
                     self.camera.moove(self.player.get_pos() - self.camera.pos);

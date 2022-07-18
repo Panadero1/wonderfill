@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::{
     draw::animation::Animation,
     world::{
-        entity::player::Player,
+        entity::Entity,
         space::GamePos,
-        tile::{get_default_anim, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, operation::*, Tile, TileVariant},
     },
 };
 
@@ -36,11 +36,16 @@ impl Tile for Button {
         Box::new(Button::new(pos))
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        vec![
-            PostOperation::MovePlayer(-move_pos),
-            PostOperation::UpdateTile(self.effect_pos),
-        ]
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty()
+            .with_block_player(move_pos)
+            .with_custom(Box::new(move |w, p| {
+                if let Some((_, effect_tile)) = w.tile_mgr.tile_at_pos(p.pos[0]) {
+                    effect_tile.update_self();
+                }
+                w.player.moove(-move_pos);
+            }))
+            .params(Params::new_empty().add_pos(self.effect_pos))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {

@@ -3,9 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::{
     draw::animation::Animation,
     world::{
-        entity::player::Player,
+        entity::Entity,
         space::GamePos,
-        tile::{get_default_anim, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, operation::*, Tile, TileVariant},
     },
 };
 
@@ -27,8 +27,8 @@ impl Tile for BasePillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        vec![PostOperation::MovePlayer(-move_pos)]
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_block_player(move_pos)
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {

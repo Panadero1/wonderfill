@@ -41,8 +41,8 @@ impl Tile for CliffFace {
         })
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        vec![PostOperation::MovePlayer(-move_pos)]
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_block_player(move_pos)
     }
 }
 

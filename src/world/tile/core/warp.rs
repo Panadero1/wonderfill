@@ -3,9 +3,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     draw::animation::Animation,
     world::{
-        entity::player::Player,
         space::GamePos,
-        tile::{get_default_anim, mountain::boulder::Boulder, PostOperation, Tile, TileVariant},
+        tile::{get_default_anim, mountain::boulder::Boulder, operation::*, Tile, TileVariant},
     },
 };
 
@@ -34,8 +33,12 @@ impl Tile for Warp {
         Box::new(Warp::new(pos))
     }
 
-    fn on_player_enter(&mut self, _player: &mut Player, _move_pos: GamePos) -> Vec<PostOperation> {
-        vec![PostOperation::LoadRegion(self.load_name.to_string())]
+    fn on_player_enter(&self, _move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_custom(Box::new(|w, p|
+        {
+            w.load_region(p.text.as_ref().unwrap()).expect("load region wrong");
+        }
+        )).params(Params::new_empty().with_text(self.load_name.clone()))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {

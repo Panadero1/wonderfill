@@ -41,8 +41,8 @@ impl Tile for SmileyMan {
         })
     }
 
-    fn on_player_enter(&mut self, player: &mut Player, move_pos: GamePos) -> Vec<PostOperation> {
-        vec![PostOperation::MovePlayer(-move_pos), PostOperation::Minigame(Box::new(SmileyWin::new()))]
+    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_minigame(Box::new(SmileyWin::new()))
     }
 }
 
