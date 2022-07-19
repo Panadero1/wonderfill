@@ -90,6 +90,14 @@ impl WindowHandler<String> for GameScreen {
     fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
         self.world.on_mouse_button_down(helper, button);
     }
+
+    fn on_mouse_button_up(
+        &mut self,
+        helper: &mut WindowHelper<String>,
+        button: MouseButton
+    ) {
+        self.world.on_mouse_button_up(helper, button);
+    }
 }
 
 impl<'a> Screen for GameScreen {

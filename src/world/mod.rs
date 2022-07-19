@@ -43,9 +43,15 @@ pub struct World {
     draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
     post_ops: Vec<PostOperation>,
+    mouse_buttons: u8,
 }
 
 const VIEW_DIST: f32 = 40.0;
+
+const MOUSE_LEFT: u8 = 0b10000000;
+const MOUSE_RIGHT: u8 = 0b01000000;
+const MOUSE_MID: u8 = 0b00100000;
+const MOUSE_OTHER: u8 = 0b00000000;
 
 impl World {
     pub fn new(tile_mgr: TileManager, player: Player, camera: Camera, clock: Clock) -> World {
@@ -58,11 +64,11 @@ impl World {
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
             post_ops: Vec::new(),
+            mouse_buttons: 0,
         }
     }
 
     pub fn update_overworld(&mut self) {
-
         while let Some(op) = self.post_ops.pop() {
             op.execute(self);
         }
@@ -87,11 +93,24 @@ impl World {
             None => {
                 self.player.update();
                 self.draw_world(graphics, manager);
-            },
+            }
+        }
+    }
+
+    fn create_tiles(&mut self) {
+        let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
+
+        if self.mouse_buttons & MOUSE_LEFT > 0 {
+            let tile = self.draw_tile.create(pos, self.tile_variant);
+            self.tile_mgr.push_override(tile);
+        } else if self.mouse_buttons & MOUSE_RIGHT > 0 {
+            self.tile_mgr.remove_at(pos);
         }
     }
 
     fn draw_world(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
+        self.create_tiles();
+
         self.tile_mgr.draw_before_player(
             graphics,
             manager,
@@ -178,7 +197,7 @@ impl World {
                     self.player.moove(move_pos);
 
                     if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos()) {
-                       self.post_ops.push(tile.on_player_enter(move_pos));
+                        self.post_ops.push(tile.on_player_enter(move_pos));
                     }
 
                     self.update_overworld();
@@ -198,18 +217,32 @@ impl World {
         }
     }
 
-    pub fn on_mouse_button_down(&mut self, helper: &mut WindowHelper<String>, button: MouseButton) {
+    pub fn on_mouse_button_down(&mut self, _helper: &mut WindowHelper<String>, button: MouseButton) {
         let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
-        if let MouseButton::Left = button {
-            let tile = self.draw_tile.create(pos, self.tile_variant);
-            self.tile_mgr.push_override(tile);
-        } else if let MouseButton::Right = button {
-            self.tile_mgr.remove_at(pos);
-        } else if let MouseButton::Middle = button {
+
+        // No line-dragging for this action. Keep it here
+        if let MouseButton::Middle = button {
             if let Some((_, tile)) = self.tile_mgr.tile_at_pos(pos) {
                 self.draw_tile = tile.pick_tile();
             }
         }
+
+        self.mouse_buttons |= match button {
+            MouseButton::Left => MOUSE_LEFT,
+            MouseButton::Right => MOUSE_RIGHT,
+            MouseButton::Middle => MOUSE_MID,
+            MouseButton::Other(_) => MOUSE_OTHER,
+        };
+    }
+
+    pub fn on_mouse_button_up(&mut self, _helper: &mut WindowHelper<String>, button: MouseButton) {
+        self.mouse_buttons &= match button {
+            MouseButton::Left => (!MOUSE_LEFT),
+            MouseButton::Right => (!MOUSE_RIGHT),
+            MouseButton::Middle => (!MOUSE_MID),
+            MouseButton::Other(_) => (!MOUSE_OTHER),
+        };
+        // Mouse up handling if needed
     }
 }
 
