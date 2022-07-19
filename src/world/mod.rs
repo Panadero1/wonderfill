@@ -63,13 +63,13 @@ impl World {
 
     pub fn update_overworld(&mut self) {
 
-        for i in 0..self.post_ops.len() {
-            let op = self.post_ops[i].clone();
+        while let Some(op) = self.post_ops.pop() {
             op.execute(self);
         }
 
         self.clock.tick();
         self.player.update();
+        self.camera.pos = self.player.get_pos();
         self.tile_mgr.update(&self.clock);
     }
 
@@ -85,6 +85,7 @@ impl World {
                 }
             },
             None => {
+                self.player.update();
                 self.draw_world(graphics, manager);
             },
         }
@@ -180,7 +181,6 @@ impl World {
                        self.post_ops.push(tile.on_player_enter(move_pos));
                     }
 
-                    self.camera.moove(self.player.get_pos() - self.camera.pos);
                     self.update_overworld();
                 }
             },

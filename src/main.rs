@@ -2,7 +2,6 @@
 //! that's about it! :))
 
 // [Emergency]
-// player sprite not loading
 
 // [Todo]
 // Finish starting tutorial area

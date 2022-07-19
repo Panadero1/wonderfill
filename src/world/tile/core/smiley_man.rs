@@ -42,7 +42,7 @@ impl Tile for SmileyMan {
     }
 
     fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_minigame(Box::new(SmileyWin::new()))
+        PostOperation::new_empty().with_minigame(Box::new(SmileyWin::new())).with_block_player(move_pos)
     }
 }
 

@@ -43,7 +43,6 @@ impl Tile for Button {
                 if let Some((_, effect_tile)) = w.tile_mgr.tile_at_pos(p.pos[0]) {
                     effect_tile.update_self();
                 }
-                w.player.moove(-move_pos);
             }))
             .params(Params::new_empty().add_pos(self.effect_pos))
     }

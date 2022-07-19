@@ -106,7 +106,7 @@ pub mod operation {
         World,
     };
 
-    use serde::{Deserialize, Serialize};
+    use serde::{de::Visitor, Deserialize, Serialize};
 
     pub struct PostOperation {
         op_fns: Rc<RefCell<Vec<OpFn>>>,
@@ -127,16 +127,16 @@ pub mod operation {
         where
             S: serde::Serializer,
         {
-            serializer.serialize_u8(0)
+            serializer.serialize_str("0")
         }
     }
 
     impl<'de> Deserialize<'de> for PostOperation {
-        fn deserialize<D>(_: D) -> Result<Self, D::Error>
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where
             D: serde::Deserializer<'de>,
         {
-            Ok(PostOperation::new_empty())
+            deserializer.deserialize_str(PostOperationVisitor)
         }
     }
 
@@ -201,6 +201,23 @@ pub mod operation {
             for op_fn in op_fns {
                 op_fn(world, &self.params)
             }
+        }
+    }
+
+    struct PostOperationVisitor;
+
+    impl<'de> Visitor<'de> for PostOperationVisitor {
+        type Value = PostOperation;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("str")
+        }
+
+        fn visit_str<E>(self, _v: &str) -> Result<Self::Value, E>
+        where
+            E: serde::de::Error,
+        {
+            Ok(PostOperation::new_empty())
         }
     }
 

@@ -10,16 +10,16 @@ impl Serialize for NInstant {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_u8(0)
+        serializer.serialize_str("0")
     }
 }
 
 impl<'de> Deserialize<'de> for NInstant {
-    fn deserialize<D>(_: D) -> Result<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        Ok(NInstant(Instant::now()))
+        deserializer.deserialize_str(NInstantVisitor)
     }
 }
 
@@ -35,5 +35,22 @@ impl NInstant {
     }
     pub fn get_instant(&self) -> Instant {
         self.0
+    }
+}
+
+struct NInstantVisitor;
+
+impl<'de> Visitor<'de> for NInstantVisitor {
+    type Value = NInstant;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        formatter.write_str("str")
+    }
+
+    fn visit_str<E>(self, _v: &str) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
+        Ok(NInstant::now())
     }
 }

@@ -148,6 +148,8 @@ impl GameScreen {
         let file: File = File::open(path)?;
         let rdr = BufReader::new(file);
 
-        Ok(serde_json::from_reader(rdr)?)
+        let result = Ok(serde_json::from_reader(rdr)?);
+
+        result
     }
 }
