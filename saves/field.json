@@ -1,0 +1,1 @@
+{"name":"field","tiles":[{"type":"Warp","pos":{"x":0.0,"y":18.0},"anim":{"src":"assets/img/tiles.png","frame_size":[7,10],"frames":{"base":[true,[[2,4]]]},"default":[5,0],"frame_loop":[true,[[2,4]]],"start":"0","iter_speed_ms":100},"load_name":"temple"}]}
