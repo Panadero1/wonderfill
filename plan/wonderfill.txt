@@ -39,4 +39,7 @@ vessel, the ship to slay the host
 - not realistic because this is a figuratice world
 - locations of parts are scattered across the world
 ? don't know exactly where but the scientist knows the name of the towns where they all are
+- player can locate map if they need but it should be navigable without map
 
+world:
+- 
