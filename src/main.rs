@@ -4,8 +4,11 @@
 // [Emergency]
 
 // [Todo]
+// Make a build script that copies the image assets
+// Make entities
+// Color config file
 // Finish starting tutorial area
-// Have response to GameResult::Success or GameResult::Failure
+// When minigame over, return PostOperation
 
 // [Maybe]
 // Consolidate drawing requirements into one struct
