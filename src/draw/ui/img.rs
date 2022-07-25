@@ -32,6 +32,7 @@ impl ImgManager {
         if let Some(val) = self.imgs.get(path) {
             return Rc::clone(&val);
         } else {
+            println!("{}", path);
             let result = Rc::new(get_image_handle(graphics, path).unwrap());
             self.imgs.insert(path.clone(), Rc::clone(&result));
             return result;

@@ -1,23 +1,20 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    draw::animation::Animation,
-    world::{
-        space::GamePos,
-        tile::{get_default_anim, match_directions, Tile, TileVariant},
-    },
+use crate::world::{
+    tile::{get_default_anim, match_directions, Animation},
+    GamePos, PostOperation, Tile, TileVariant,
 };
 
-use super::invis_wall::InvisWall;
+// HoneyComb
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Grass {
+pub struct HoneyComb {
     pos: GamePos,
     anim: Animation,
 }
 
 #[typetag::serde]
-impl Tile for Grass {
+impl Tile for HoneyComb {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -27,11 +24,11 @@ impl Tile for Grass {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(InvisWall::new((0, 0).into())))
+        Some(Box::new(super::core::Arrow::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Grass::new(pos, variant))
+        Box::new(HoneyComb::new(pos, variant))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -42,11 +39,11 @@ impl Tile for Grass {
     }
 }
 
-impl Grass {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Grass {
-        Grass {
+impl HoneyComb {
+    pub fn new(pos: GamePos, direction: TileVariant) -> HoneyComb {
+        HoneyComb {
             pos,
-            anim: get_default_anim(match_directions(direction, (10, 1))),
+            anim: get_default_anim(match_directions(direction, (4, 4))),
         }
     }
 }

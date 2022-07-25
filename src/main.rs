@@ -9,6 +9,7 @@
 
 // [Maybe]
 // Consolidate drawing requirements into one struct
+// Save compression
 
 // [Housekeeping]
 // Fix options page

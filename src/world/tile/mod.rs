@@ -11,7 +11,7 @@ use crate::{
     screen::camera::Camera,
 };
 
-use self::{core::arrow::Arrow, operation::*};
+use self::{core::Arrow, operation::*};
 
 use super::{space::GamePos, time::Clock};
 

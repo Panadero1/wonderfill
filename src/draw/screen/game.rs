@@ -15,7 +15,6 @@ use crate::{
     screen::{title::TitleScreen, Screen},
     draw::ui::img::ImgManager,
     world::{
-        entity::Entity,
         generation,
         World,
     },

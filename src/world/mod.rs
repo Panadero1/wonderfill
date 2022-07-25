@@ -22,7 +22,7 @@ use speedy2d::{
 use self::{
     entity::Entity,
     minigame::{GameResult, Minigame},
-    tile::{core::base_ground::BaseGround, operation::*, TileVariant},
+    tile::{core::BaseGround, operation::*, TileVariant},
 };
 
 pub mod entity;

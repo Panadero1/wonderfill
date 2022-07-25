@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
 use speedy2d::{shape::Rectangle, window::VirtualKeyCode, Graphics2D};
 
