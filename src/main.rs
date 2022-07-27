@@ -22,6 +22,8 @@
 // Hat properties
 // Comment your code lol
 // Add music
+// Asset editor message tells where to color config
+// Make options work + config file + add to build script
 
 // [Before release]
 // Remove invisible wall texture

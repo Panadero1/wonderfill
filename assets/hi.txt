@@ -1,0 +1,5 @@
+Hi there! I see you're trying to mess around with assets in the executable (or maybe you're working in the source code)
+
+Feel free to do so. As long as you don't delete files, nothing bad will happen
+
+**If you need to configure colors for colorblindness, there are settings in-game for that! (There is also a config file)**
