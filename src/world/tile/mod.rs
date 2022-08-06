@@ -99,7 +99,6 @@ pub mod operation {
     use std::{cell::RefCell, rc::Rc};
 
     use crate::world::{
-        entity::Entity,
         minigame::Minigame,
         space::GamePos,
         tile::{Obstruction, TileVariant},
@@ -148,13 +147,17 @@ pub mod operation {
             }
         }
 
-        pub fn with_custom(mut self, op_fn: OpFn) -> PostOperation {
+        pub fn with_custom(self, op_fn: OpFn) -> PostOperation {
             self.op_fns.borrow_mut().push(op_fn);
             self
         }
 
         pub fn with_block_player(self, move_pos: GamePos) -> PostOperation {
-            self.with_custom(Box::new(move |w, _p| w.player.moove(-move_pos)))
+            self.with_move_player(-move_pos)
+        }
+
+        pub fn with_move_player(self, move_pos: GamePos) -> PostOperation {
+            self.with_custom(Box::new(move |w, _p| w.player.moove(move_pos)))
         }
 
         pub fn with_block_when<P>(self, predicate: P, move_pos: GamePos) -> PostOperation
@@ -300,13 +303,13 @@ pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, _move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty()
     }
-    fn on_update(&mut self, clock: &Clock) {}
+    fn on_update(&mut self, _clock: &Clock) {}
     fn update_self(&mut self) {}
 
-    fn update_anim(&mut self, clock: &Clock) {
+    fn update_anim(&mut self, _clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();
     }
 

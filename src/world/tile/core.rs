@@ -115,7 +115,7 @@ impl Tile for BasePillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
     }
 
@@ -174,7 +174,7 @@ impl Tile for Button {
         Box::new(Button::new(pos))
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty()
             .with_block_player(move_pos)
             .with_custom(Box::new(move |w, p| {
@@ -249,7 +249,7 @@ impl Tile for Door {
         &mut self.anim
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
     }
 
@@ -417,7 +417,7 @@ impl Tile for InvisWall {
         })
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
     }
 }
@@ -449,7 +449,7 @@ impl Tile for Moon {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
     }
     fn on_update(&mut self, clock: &Clock) {
@@ -522,7 +522,7 @@ impl Tile for OneWay {
         })
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty()
             .with_block_when(
                 move |p| {
@@ -578,7 +578,7 @@ impl Tile for SmileyMan {
         })
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty()
             .with_minigame(Box::new(SmileyWin::new()))
             .with_block_player(move_pos)
@@ -666,7 +666,7 @@ impl Tile for Sun {
         &mut self.anim
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
     }
 
@@ -732,7 +732,7 @@ impl Tile for Warp {
         Box::new(Warp::new(pos))
     }
 
-    fn on_player_enter(&self, _move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, _move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty()
             .with_custom(Box::new(|w, p| {
                 w.load_region(p.text.as_ref().unwrap())

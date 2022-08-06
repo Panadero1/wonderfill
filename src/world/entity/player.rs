@@ -30,8 +30,8 @@ pub struct Player {
     size: GamePos,
     hat: PlayerHat,
 }
-impl Entity for Player {
-    fn draw(
+impl Player {
+    pub fn draw(
         &mut self,
         graphics: &mut speedy2d::Graphics2D,
         manager: &mut ImgManager,
@@ -47,38 +47,37 @@ impl Entity for Player {
         );
     }
 
-    fn moove(&mut self, change_pos: GamePos) {
+    pub fn moove(&mut self, change_pos: GamePos) {
         self.pos += change_pos;
     }
 
-    fn set_anim(
+    pub fn set_anim(
         &mut self,
         anim_name: &str,
     ) -> Result<(), AnimationSelectError> {
         self.anim.select(anim_name)
     }
 
-    fn intercept_anim(
+    pub fn intercept_anim(
         &mut self,
         anim_name: &str,
     ) -> Result<(), AnimationSelectError> {
         self.anim.intercept(anim_name)
     }
 
-    fn remove_anim(&mut self) {
+    pub fn remove_anim(&mut self) {
         self.anim.deselect()
     }
 
-    fn get_pos(&self) -> GamePos {
+    pub fn get_pos(&self) -> GamePos {
         self.pos
     }
 
-    fn update(&mut self) {
+    pub fn update(&mut self) {
         if let Err(AnimationSelectError::NotFound) = self
-            .anim
-            .select(&(format!("{:?}", self.hat).to_lowercase())[..])
+            .intercept_anim(&(format!("{:?}", self.hat).to_lowercase())[..])
         {
-            panic!("Animation not found");
+            panic!("Animation not found. Trying to select: {:?}", self.hat);
         }
     }
 }

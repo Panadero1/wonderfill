@@ -20,7 +20,7 @@ use speedy2d::{
 };
 
 use self::{
-    entity::Entity,
+    entity::{Entity, Enemy, Friend},
     minigame::{GameResult, Minigame},
     tile::{core::BaseGround, operation::*, TileVariant},
 };
@@ -39,6 +39,8 @@ pub struct World {
     pub camera: Camera,
     pub clock: Clock,
     pub minigame: Option<Box<dyn Minigame>>,
+    pub enemies: Vec<Box<dyn Enemy>>,
+    pub friends: Vec<Box<dyn Friend>>,
     // For editing
     draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
@@ -61,6 +63,8 @@ impl World {
             camera,
             clock,
             minigame: None,
+            enemies: Vec::new(),
+            friends: Vec::new(),
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
             post_ops: Vec::new(),

@@ -23,7 +23,7 @@ impl Tile for Boulder {
         &mut self.anim
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
     }
 
@@ -85,7 +85,7 @@ impl Tile for CliffFace {
         })
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
     }
 }
@@ -117,7 +117,7 @@ impl Tile for Rock {
         &mut self.anim
     }
 
-    fn on_player_enter(&self, move_pos: GamePos) -> PostOperation {
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
     }
 

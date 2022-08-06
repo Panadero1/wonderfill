@@ -6,6 +6,8 @@ use crate::{
     world::{space::GamePos, time::Clock},
 };
 
+use super::tile::operation::PostOperation;
+
 pub mod player;
 
 pub trait Entity {
@@ -22,4 +24,20 @@ pub trait Entity {
     fn remove_anim(&mut self);
     fn get_pos(&self) -> GamePos;
     fn update(&mut self);
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
+        PostOperation::new_empty().with_block_player(move_pos)
+    }
+    fn do_turn(&mut self) -> PostOperation {
+        PostOperation::new_empty()
+    }
+}
+
+#[typetag::serde(tag = "type")]
+pub trait Enemy : Entity {
+
+}
+
+#[typetag::serde(tag = "type")]
+pub trait Friend : Entity {
+    
 }
