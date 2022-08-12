@@ -8,6 +8,8 @@ use crate::{world::{
 
 use std::collections::HashMap;
 
+use super::mountain::Boulder;
+
 // Arrow
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -115,12 +117,12 @@ impl Tile for BasePillar {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_player(move_pos)
+    fn block_movement(&self) -> bool {
+        true
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Button::default()))
+        Some(Box::new(Door::new((0, 0).into())))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -148,87 +150,71 @@ impl BasePillar {
 }
 
 // Button
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Button {
-    pos: GamePos,
-    anim: Animation,
-    effect_pos: GamePos,
-}
-
-#[typetag::serde]
-impl Tile for Button {
-    fn get_pos(&self) -> GamePos {
-        self.pos
-    }
-
-    fn get_anim_mut(&mut self) -> &mut Animation {
-        &mut self.anim
-    }
-
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Door::new((0, 0).into())))
-    }
-
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Button::new(pos))
-    }
-
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty()
-            .with_block_player(move_pos)
-            .with_custom(Box::new(move |w, p| {
-                if let Some((_, effect_tile)) = w.tile_mgr.tile_at_pos(p.pos[0]) {
-                    effect_tile.update_self();
-                }
-            }))
-            .params(Params::new_empty().add_pos(self.effect_pos))
-    }
-
-    fn pick_tile(&self) -> Box<dyn Tile> {
-        Box::new(Self {
-            pos: (0, 0).into(),
-            anim: get_default_anim((0, 0)),
-            effect_pos: (0, 0).into(),
-        })
-    }
-}
-
-impl Button {
-    pub fn new(pos: GamePos) -> Button {
-        let mut x = String::new();
-
-        println!("Enter the x of the tile to be affected by the button: ");
-
-        std::io::stdin().read_line(&mut x).unwrap();
-
-        let mut y = String::new();
-
-        println!("Enter the y of the tile to be affected by the button: ");
-
-        std::io::stdin().read_line(&mut y).unwrap();
-
-        let effect_pos = (
-            x.trim().parse::<i32>().unwrap_or_default(),
-            y.trim().parse::<i32>().unwrap_or_default(),
-        )
-            .into();
-
-        Button {
-            pos,
-            anim: get_default_anim((0, 5)),
-            effect_pos,
-        }
-    }
-
-    pub fn default() -> Button {
-        Button {
-            pos: (0, 0).into(),
-            anim: get_default_anim((2, 4)),
-            effect_pos: (0, 0).into(),
-        }
-    }
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct Button {
+//     pos: GamePos,
+//     anim: Animation,
+//     effect_pos: GamePos,
+// }
+// #[typetag::serde]
+// impl Tile for Button {
+//     fn get_pos(&self) -> GamePos {
+//         self.pos
+//     }
+//     fn get_anim_mut(&mut self) -> &mut Animation {
+//         &mut self.anim
+//     }
+//     fn next(&self) -> Option<Box<dyn Tile>> {
+//         Some(Box::new(Door::new((0, 0).into())))
+//     }
+//     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+//         Box::new(Button::new(pos))
+//     }
+//     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
+//         PostOperation::new_empty()
+//             .with_block_player(move_pos)
+//             .with_custom(Box::new(move |w, p| {
+//                 if let Some((_, effect_tile)) = w.tile_mgr.tile_at_pos(p.pos[0]) {
+//                     effect_tile.update_self();
+//                 }
+//             }))
+//             .params(Params::new_empty().add_pos(self.effect_pos))
+//     }
+//     fn pick_tile(&self) -> Box<dyn Tile> {
+//         Box::new(Self {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((0, 0)),
+//             effect_pos: (0, 0).into(),
+//         })
+//     }
+// }
+// impl Button {
+//     pub fn new(pos: GamePos) -> Button {
+//         let mut x = String::new();
+//         println!("Enter the x of the tile to be affected by the button: ");
+//         std::io::stdin().read_line(&mut x).unwrap();
+//         let mut y = String::new();
+//         println!("Enter the y of the tile to be affected by the button: ");
+//         std::io::stdin().read_line(&mut y).unwrap();
+//         let effect_pos = (
+//             x.trim().parse::<i32>().unwrap_or_default(),
+//             y.trim().parse::<i32>().unwrap_or_default(),
+//         )
+//             .into();
+//         Button {
+//             pos,
+//             anim: get_default_anim((0, 5)),
+//             effect_pos,
+//         }
+//     }
+//     pub fn default() -> Button {
+//         Button {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((2, 4)),
+//             effect_pos: (0, 0).into(),
+//         }
+//     }
+// }
 
 // Door
 
@@ -249,8 +235,8 @@ impl Tile for Door {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
+    fn block_movement(&self) -> bool {
+        self.state == Obstruction::Blocking
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
@@ -270,7 +256,7 @@ impl Tile for Door {
         };
     }
 
-    fn update_self(&mut self) {
+    fn change_self(&mut self) {
         self.state.toggle();
     }
 
@@ -417,8 +403,8 @@ impl Tile for InvisWall {
         })
     }
 
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_player(move_pos)
+    fn block_movement(&self) -> bool {
+        true
     }
 }
 
@@ -449,8 +435,8 @@ impl Tile for Moon {
     fn get_anim_mut(&mut self) -> &mut Animation {
         &mut self.anim
     }
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
+    fn block_movement(&self) -> bool {
+        self.state == Obstruction::Blocking
     }
     fn on_update(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
@@ -461,7 +447,7 @@ impl Tile for Moon {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(OneWay::new((0, 0).into(), TileVariant::Center)))
+        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -488,111 +474,95 @@ impl Moon {
 }
 
 // OneWay
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct OneWay {
-    pos: GamePos,
-    anim: Animation,
-    direction: TileVariant,
-}
-
-#[typetag::serde]
-impl Tile for OneWay {
-    fn get_pos(&self) -> GamePos {
-        self.pos
-    }
-
-    fn get_anim_mut(&mut self) -> &mut Animation {
-        &mut self.anim
-    }
-
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(SmileyMan::new((0, 0).into())))
-    }
-
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(OneWay::new(pos, variant))
-    }
-
-    fn pick_tile(&self) -> Box<dyn Tile> {
-        Box::new(Self {
-            pos: (0, 0).into(),
-            anim: get_default_anim((0, 0)),
-            direction: TileVariant::Center,
-        })
-    }
-
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty()
-            .with_block_when(
-                move |p| {
-                    let dir_vec = p.tile_variant.unwrap().direction_vector();
-                    ((dir_vec.x * move_pos.x) < 0.) || ((dir_vec.y * move_pos.y) < 0.)
-                },
-                move_pos,
-            )
-            .params(Params::new_empty().with_tile_variant(self.direction))
-    }
-}
-
-impl OneWay {
-    pub fn new(pos: GamePos, direction: TileVariant) -> OneWay {
-        OneWay {
-            pos,
-            anim: get_default_anim(match_directions(direction, (10, 4))),
-            direction,
-        }
-    }
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct OneWay {
+//     pos: GamePos,
+//     anim: Animation,
+//     direction: TileVariant,
+// }
+// #[typetag::serde]
+// impl Tile for OneWay {
+//     fn get_pos(&self) -> GamePos {
+//         self.pos
+//     }
+//     fn get_anim_mut(&mut self) -> &mut Animation {
+//         &mut self.anim
+//     }
+//     fn next(&self) -> Option<Box<dyn Tile>> {
+//         Some(Box::new(SmileyMan::new((0, 0).into())))
+//     }
+//     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+//         Box::new(OneWay::new(pos, variant))
+//     }
+//     fn pick_tile(&self) -> Box<dyn Tile> {
+//         Box::new(Self {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((0, 0)),
+//             direction: TileVariant::Center,
+//         })
+//     }
+//     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
+//         PostOperation::new_empty()
+//             .with_block_when(
+//                 move |p| {
+//                     let dir_vec = p.tile_variant.unwrap().direction_vector();
+//                     ((dir_vec.x * move_pos.x) < 0.) || ((dir_vec.y * move_pos.y) < 0.)
+//                 },
+//                 move_pos,
+//             )
+//             .params(Params::new_empty().with_tile_variant(self.direction))
+//     }
+// }
+// impl OneWay {
+//     pub fn new(pos: GamePos, direction: TileVariant) -> OneWay {
+//         OneWay {
+//             pos,
+//             anim: get_default_anim(match_directions(direction, (10, 4))),
+//             direction,
+//         }
+//     }
+// }
 
 // SmileyMan
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SmileyMan {
-    pos: GamePos,
-    anim: Animation,
-}
-
-#[typetag::serde]
-impl Tile for SmileyMan {
-    fn get_pos(&self) -> GamePos {
-        self.pos
-    }
-
-    fn get_anim_mut(&mut self) -> &mut Animation {
-        &mut self.anim
-    }
-
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
-    }
-
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(SmileyMan::new(pos))
-    }
-
-    fn pick_tile(&self) -> Box<dyn Tile> {
-        Box::new(Self {
-            pos: (0, 0).into(),
-            anim: get_default_anim((0, 0)),
-        })
-    }
-
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty()
-            .with_minigame(Box::new(SmileyWin::new()))
-            .with_block_player(move_pos)
-    }
-}
-
-impl SmileyMan {
-    pub fn new(pos: GamePos) -> SmileyMan {
-        SmileyMan {
-            pos,
-            anim: get_default_anim((0, 7)),
-        }
-    }
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct SmileyMan {
+//     pos: GamePos,
+//     anim: Animation,
+// }
+// #[typetag::serde]
+// impl Tile for SmileyMan {
+//     fn get_pos(&self) -> GamePos {
+//         self.pos
+//     }
+//     fn get_anim_mut(&mut self) -> &mut Animation {
+//         &mut self.anim
+//     }
+//     fn next(&self) -> Option<Box<dyn Tile>> {
+//         Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+//     }
+//     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+//         Box::new(SmileyMan::new(pos))
+//     }
+//     fn pick_tile(&self) -> Box<dyn Tile> {
+//         Box::new(Self {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((0, 0)),
+//         })
+//     }
+//     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
+//         PostOperation::new_empty()
+//             .with_minigame(Box::new(SmileyWin::new()))
+//             .with_block_player(move_pos)
+//     }
+// }
+// impl SmileyMan {
+//     pub fn new(pos: GamePos) -> SmileyMan {
+//         SmileyMan {
+//             pos,
+//             anim: get_default_anim((0, 7)),
+//         }
+//     }
+// }
 
 // Stair
 
@@ -666,8 +636,8 @@ impl Tile for Sun {
         &mut self.anim
     }
 
-    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_when_obstructing(move_pos, self.state)
+    fn block_movement(&self) -> bool {
+        self.state == Obstruction::Blocking
     }
 
     fn on_update(&mut self, clock: &Clock) {
@@ -679,7 +649,7 @@ impl Tile for Sun {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Warp::default()))
+        Some(Box::new(Boulder::new((0, 0).into(), TileVariant::Center)))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -706,70 +676,58 @@ impl Sun {
 }
 
 // Warp
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Warp {
-    pos: GamePos,
-    anim: Animation,
-    load_name: String,
-}
-
-#[typetag::serde]
-impl Tile for Warp {
-    fn get_pos(&self) -> GamePos {
-        self.pos
-    }
-
-    fn get_anim_mut(&mut self) -> &mut Animation {
-        &mut self.anim
-    }
-
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(super::mountain::Boulder::new((0, 0).into(), TileVariant::Center)))
-    }
-
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(Warp::new(pos))
-    }
-
-    fn on_player_enter(&mut self, _move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty()
-            .with_custom(Box::new(|w, p| {
-                w.load_region(p.text.as_ref().unwrap())
-                    .expect("load region wrong");
-            }))
-            .params(Params::new_empty().with_text(self.load_name.clone()))
-    }
-
-    fn pick_tile(&self) -> Box<dyn Tile> {
-        Box::new(Self {
-            pos: (0, 0).into(),
-            anim: get_default_anim((0, 0)),
-            load_name: String::from("a"),
-        })
-    }
-}
-
-impl Warp {
-    pub fn new(pos: GamePos) -> Warp {
-        let mut name = String::new();
-
-        println!("Enter the name of the zone for this tile to load: ");
-
-        std::io::stdin().read_line(&mut name).unwrap();
-
-        Warp {
-            load_name: name.trim().to_string(),
-            pos,
-            anim: get_default_anim((2, 4)),
-        }
-    }
-
-    pub fn default() -> Warp {
-        Warp {
-            pos: (0, 0).into(),
-            anim: get_default_anim((2, 4)),
-            load_name: String::from(""),
-        }
-    }
-}
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct Warp {
+//     pos: GamePos,
+//     anim: Animation,
+//     load_name: String,
+// }
+// #[typetag::serde]
+// impl Tile for Warp {
+//     fn get_pos(&self) -> GamePos {
+//         self.pos
+//     }
+//     fn get_anim_mut(&mut self) -> &mut Animation {
+//         &mut self.anim
+//     }
+//     fn next(&self) -> Option<Box<dyn Tile>> {
+//         Some(Box::new(super::mountain::Boulder::new((0, 0).into(), TileVariant::Center)))
+//     }
+//     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+//         Box::new(Warp::new(pos))
+//     }
+//     fn on_player_enter(&mut self, _move_pos: GamePos) -> PostOperation {
+//         PostOperation::new_empty()
+//             .with_custom(Box::new(|w, p| {
+//                 w.load_region(p.text.as_ref().unwrap())
+//                     .expect("load region wrong");
+//             }))
+//             .params(Params::new_empty().with_text(self.load_name.clone()))
+//     }
+//     fn pick_tile(&self) -> Box<dyn Tile> {
+//         Box::new(Self {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((0, 0)),
+//             load_name: String::from("a"),
+//         })
+//     }
+// }
+// impl Warp {
+//     pub fn new(pos: GamePos) -> Warp {
+//         let mut name = String::new();
+//         println!("Enter the name of the zone for this tile to load: ");
+//         std::io::stdin().read_line(&mut name).unwrap();
+//         Warp {
+//             load_name: name.trim().to_string(),
+//             pos,
+//             anim: get_default_anim((2, 4)),
+//         }
+//     }
+//     pub fn default() -> Warp {
+//         Warp {
+//             pos: (0, 0).into(),
+//             anim: get_default_anim((2, 4)),
+//             load_name: String::from(""),
+//         }
+//     }
+// }

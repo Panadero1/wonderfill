@@ -19,6 +19,8 @@ pub mod beehive;
 pub mod core;
 pub mod mountain;
 
+const VIEW_DIST: f32 = 40.0;
+
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -303,11 +305,11 @@ pub trait Tile: Debug {
     fn get_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
 
-    fn on_player_enter(&mut self, _move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty()
+    fn block_movement(&self) -> bool {
+        false
     }
     fn on_update(&mut self, _clock: &Clock) {}
-    fn update_self(&mut self) {}
+    fn change_self(&mut self) {}
 
     fn update_anim(&mut self, _clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();
@@ -376,5 +378,96 @@ fn match_directions(direction: TileVariant, top_left: (u16, u16)) -> (u16, u16) 
         TileVariant::CornerTR => (top_left.0 + 4, top_left.1),
         TileVariant::CornerTL => top_left,
         TileVariant::Center => (top_left.0 + 2, top_left.1 + 1),
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TileManager {
+    pub name: String,
+    tiles: Vec<Box<dyn Tile>>,
+}
+
+impl TileManager {
+    pub fn new(name: String, tiles: Vec<Box<dyn Tile>>) -> TileManager {
+        TileManager { name, tiles }
+    }
+
+    pub fn draw_before_player(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        camera: &Camera,
+        player_pos: GamePos,
+    ) {
+        self.draw_where(graphics, manager, clock, camera, |t| {
+            t.get_pos().y <= player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
+        });
+    }
+    pub fn draw_after_player(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        camera: &Camera,
+        player_pos: GamePos,
+    ) {
+        self.draw_where(graphics, manager, clock, camera, |t| {
+            t.get_pos().y > player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
+        });
+    }
+
+    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool>(
+        &mut self,
+        graphics: &mut Graphics2D,
+        manager: &mut ImgManager,
+        clock: &Clock,
+        camera: &Camera,
+        predicate: P,
+    ) {
+        let mut tiles = self.tiles.iter_mut().filter(predicate).collect::<Vec<_>>();
+
+        tiles.sort_by(|t1, t2| t1.get_pos().y.partial_cmp(&t2.get_pos().y).unwrap());
+
+        for tile in tiles {
+            tile.draw(graphics, manager, clock, camera);
+        }
+    }
+
+    pub fn tile_at_pos(&mut self, pos: GamePos) -> Option<(usize, &mut Box<dyn Tile>)> {
+        self.tiles
+            .iter_mut()
+            .enumerate()
+            .find(|(_, t)| t.get_pos() == pos)
+    }
+    pub fn update(&mut self, clock: &Clock) {
+        for t in &mut self.tiles {
+            t.update_anim(clock);
+            t.on_update(clock);
+        }
+    }
+    pub fn push(&mut self, mut tile: Box<dyn Tile>) {
+        tile.get_anim_mut().select("base").unwrap();
+        self.tiles.push(tile);
+    }
+    pub fn push_override(&mut self, tile: Box<dyn Tile>) {
+        if let Some((to_remove, _)) = self.tile_at_pos(tile.get_pos()) {
+            self.tiles.remove(to_remove);
+        }
+        self.push(tile);
+    }
+    pub fn remove_where<P: Fn(&Box<dyn Tile>) -> bool>(&mut self, predicate: P) {
+        let mut remove_indices = vec![];
+        for (i, tile) in self.tiles.iter().enumerate() {
+            if predicate(tile) {
+                remove_indices.push(i);
+            }
+        }
+        for i in remove_indices {
+            self.tiles.remove(i);
+        }
+    }
+    pub fn remove_at(&mut self, pos: GamePos) {
+        self.remove_where(|t| t.get_pos() == pos);
     }
 }

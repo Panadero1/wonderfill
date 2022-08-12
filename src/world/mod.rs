@@ -10,7 +10,7 @@ use crate::{
         screen::{self, camera::Camera},
         ui::img::ImgManager,
     },
-    world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
+    world::{entity::player::Player, space::GamePos, tile::{Tile, TileManager}, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
@@ -47,8 +47,6 @@ pub struct World {
     post_ops: Vec<PostOperation>,
     mouse_buttons: u8,
 }
-
-const VIEW_DIST: f32 = 40.0;
 
 const MOUSE_LEFT: u8 = 0b10000000;
 const MOUSE_RIGHT: u8 = 0b01000000;
@@ -198,10 +196,11 @@ impl World {
                         _ => (0.0, 0.0),
                     }
                     .into();
-                    self.player.moove(move_pos);
 
-                    if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos()) {
-                        self.post_ops.push(tile.on_player_enter(move_pos));
+                    if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos() + move_pos) {
+                        if !tile.block_movement() {
+                            self.player.moove(move_pos);
+                        }
                     }
 
                     self.update_overworld();
@@ -259,95 +258,4 @@ fn get_file_path(file_name: &String) -> PathBuf {
     }
     let file_name = format!("{}.json", file_name);
     path.join(file_name)
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TileManager {
-    name: String,
-    tiles: Vec<Box<dyn Tile>>,
-}
-
-impl TileManager {
-    pub fn new(name: String, tiles: Vec<Box<dyn Tile>>) -> TileManager {
-        TileManager { name, tiles }
-    }
-
-    pub fn draw_before_player(
-        &mut self,
-        graphics: &mut Graphics2D,
-        manager: &mut ImgManager,
-        clock: &Clock,
-        camera: &Camera,
-        player_pos: GamePos,
-    ) {
-        self.draw_where(graphics, manager, clock, camera, |t| {
-            t.get_pos().y <= player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
-        });
-    }
-    pub fn draw_after_player(
-        &mut self,
-        graphics: &mut Graphics2D,
-        manager: &mut ImgManager,
-        clock: &Clock,
-        camera: &Camera,
-        player_pos: GamePos,
-    ) {
-        self.draw_where(graphics, manager, clock, camera, |t| {
-            t.get_pos().y > player_pos.y && (player_pos - t.get_pos()).magnitude() < VIEW_DIST
-        });
-    }
-
-    fn draw_where<P: FnMut(&&mut Box<dyn Tile>) -> bool>(
-        &mut self,
-        graphics: &mut Graphics2D,
-        manager: &mut ImgManager,
-        clock: &Clock,
-        camera: &Camera,
-        predicate: P,
-    ) {
-        let mut tiles = self.tiles.iter_mut().filter(predicate).collect::<Vec<_>>();
-
-        tiles.sort_by(|t1, t2| t1.get_pos().y.partial_cmp(&t2.get_pos().y).unwrap());
-
-        for tile in tiles {
-            tile.draw(graphics, manager, clock, camera);
-        }
-    }
-
-    pub fn tile_at_pos(&mut self, pos: GamePos) -> Option<(usize, &mut Box<dyn Tile>)> {
-        self.tiles
-            .iter_mut()
-            .enumerate()
-            .find(|(_, t)| t.get_pos() == pos)
-    }
-    pub fn update(&mut self, clock: &Clock) {
-        for t in &mut self.tiles {
-            t.update_anim(clock);
-            t.on_update(clock);
-        }
-    }
-    pub fn push(&mut self, mut tile: Box<dyn Tile>) {
-        tile.get_anim_mut().select("base").unwrap();
-        self.tiles.push(tile);
-    }
-    pub fn push_override(&mut self, tile: Box<dyn Tile>) {
-        if let Some((to_remove, _)) = self.tile_at_pos(tile.get_pos()) {
-            self.tiles.remove(to_remove);
-        }
-        self.push(tile);
-    }
-    pub fn remove_where<P: Fn(&Box<dyn Tile>) -> bool>(&mut self, predicate: P) {
-        let mut remove_indices = vec![];
-        for (i, tile) in self.tiles.iter().enumerate() {
-            if predicate(tile) {
-                remove_indices.push(i);
-            }
-        }
-        for i in remove_indices {
-            self.tiles.remove(i);
-        }
-    }
-    pub fn remove_at(&mut self, pos: GamePos) {
-        self.remove_where(|t| t.get_pos() == pos);
-    }
 }
