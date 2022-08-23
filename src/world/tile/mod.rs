@@ -104,7 +104,7 @@ pub mod operation {
         minigame::Minigame,
         space::GamePos,
         tile::{Obstruction, TileVariant},
-        World,
+        World, entity::Entity,
     };
 
     use serde::{de::Visitor, Deserialize, Serialize};

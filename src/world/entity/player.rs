@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Entity;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum PlayerHat {
     None,
     Helmet,
@@ -30,8 +30,9 @@ pub struct Player {
     size: GamePos,
     hat: PlayerHat,
 }
-impl Player {
-    pub fn draw(
+
+impl Entity for Player {
+    fn draw(
         &mut self,
         graphics: &mut speedy2d::Graphics2D,
         manager: &mut ImgManager,
@@ -47,35 +48,25 @@ impl Player {
         );
     }
 
-    pub fn moove(&mut self, change_pos: GamePos) {
+    fn moove(&mut self, change_pos: GamePos) {
         self.pos += change_pos;
     }
 
-    pub fn set_anim(
-        &mut self,
-        anim_name: &str,
-    ) -> Result<(), AnimationSelectError> {
-        self.anim.select(anim_name)
+    fn get_anim_mut(&mut self) -> &mut Animation {
+        &mut self.anim
     }
 
-    pub fn intercept_anim(
-        &mut self,
-        anim_name: &str,
-    ) -> Result<(), AnimationSelectError> {
-        self.anim.intercept(anim_name)
-    }
-
-    pub fn remove_anim(&mut self) {
-        self.anim.deselect()
-    }
-
-    pub fn get_pos(&self) -> GamePos {
+    fn get_pos(&self) -> GamePos {
         self.pos
     }
 
-    pub fn update(&mut self) {
+    fn update(&mut self) {}
+
+    fn update_anim(&mut self) {
+        let hat = self.hat;
         if let Err(AnimationSelectError::NotFound) = self
-            .intercept_anim(&(format!("{:?}", self.hat).to_lowercase())[..])
+            .get_anim_mut()
+            .intercept(&(format!("{:?}", hat).to_lowercase())[..])
         {
             panic!("Animation not found. Trying to select: {:?}", self.hat);
         }
@@ -95,7 +86,7 @@ impl Player {
         frames.insert(String::from("teardrop"), (true, vec![(2, 2)]));
 
         Player {
-            pos: (0.0, 0.0).into(),
+            pos: (0, 0).into(),
             anim: Animation::new(
                 Img::new(String::from("assets/img/player.png")),
                 (7, 7),
@@ -103,7 +94,7 @@ impl Player {
                 (9, 0),
                 100,
             ),
-            size: (1.0, 1.0).into(),
+            size: (1, 1).into(),
             hat: PlayerHat::None,
         }
     }

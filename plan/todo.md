@@ -1,5 +1,5 @@
-## Next
-Change some tiles to entity (button, OneWay, SmileyMan)
+## Now
+* Clean update system for entities
 
 ## Eventually
 * Line drawing algorithm
@@ -12,6 +12,9 @@ Change some tiles to entity (button, OneWay, SmileyMan)
 * Add music
 
 ## Engine
+* Add entity manager to world
+* ?Merge managers
+* Change some tiles to entity (button, OneWay, SmileyMan)
 * Make entities
 * When minigame over, return PostOperation
 * Fix options page 
@@ -27,7 +30,8 @@ Change some tiles to entity (button, OneWay, SmileyMan)
 * Dynamic color palette (would need to write my own shader)
 
 ## Before release
-* Remove invisible wall texture 
+* Remove invisible wall texture
+* Remove editor controls
 
 ## Done
 * Make a build script that copies assets

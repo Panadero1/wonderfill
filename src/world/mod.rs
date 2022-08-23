@@ -10,7 +10,7 @@ use crate::{
         screen::{self, camera::Camera},
         ui::img::ImgManager,
     },
-    world::{entity::player::Player, space::GamePos, tile::{Tile, TileManager}, time::Clock},
+    world::{entity::player::Player, space::GamePos, tile::{Tile, TileManager}, time::Clock}, utility::key::match_wasd_directions,
 };
 
 use serde::{Deserialize, Serialize};
@@ -71,13 +71,27 @@ impl World {
     }
 
     pub fn update_overworld(&mut self) {
+        // Player moved ✅
+        // Tile checked ✅
+        // Camera moves ⬇️
+        // Player enter entity 😬
+        // Entity turn 😬
+        // Execute postops ⬇️
+        // 
+        // Tick clock ⬇️
+
+        self.camera.pos = self.player.get_pos();
+
         while let Some(op) = self.post_ops.pop() {
             op.execute(self);
         }
 
+        self.update_anims();
         self.clock.tick();
-        self.player.update();
-        self.camera.pos = self.player.get_pos();
+    }
+
+    fn update_anims(&mut self) {
+        self.player.update_anim();
         self.tile_mgr.update(&self.clock);
     }
 
@@ -93,7 +107,7 @@ impl World {
                 }
             },
             None => {
-                self.player.update();
+                self.player.update_anim();
                 self.draw_world(graphics, manager);
             }
         }
@@ -163,49 +177,54 @@ impl World {
                 minigame.key_down(key);
             }
             None => match key {
-                VirtualKeyCode::N => {
-                    println!("Please enter name of new region: ");
-
-                    let mut line = String::new();
-
-                    std::io::stdin().read_line(&mut line).unwrap();
-
-                    self.new_region(line.trim().to_string());
-                }
-                VirtualKeyCode::B => {
-                    let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
-                    println!("({},{})", pos.x, pos.y);
-                }
-                VirtualKeyCode::Q => {
-                    let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
-                    self.player.moove(pos - self.player.get_pos());
-                    self.camera.moove(self.player.get_pos() - self.camera.pos);
-                }
-                VirtualKeyCode::R => {
-                    self.tile_variant.rotate_cw();
-                }
-                VirtualKeyCode::T => {
-                    self.draw_tile = self.draw_tile.cycle();
-                }
-                _ => {
-                    let move_pos = match key {
-                        VirtualKeyCode::W => (0.0, -1.0),
-                        VirtualKeyCode::A => (-1.0, 0.0),
-                        VirtualKeyCode::S => (0.0, 1.0),
-                        VirtualKeyCode::D => (1.0, 0.0),
-                        _ => (0.0, 0.0),
-                    }
-                    .into();
-
-                    if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos() + move_pos) {
-                        if !tile.block_movement() {
-                            self.player.moove(move_pos);
-                        }
-                    }
-
-                    self.update_overworld();
-                }
+                // Need to remove this (V) before release
+                VirtualKeyCode::N | VirtualKeyCode::B | VirtualKeyCode::Q | VirtualKeyCode::R | VirtualKeyCode::T => self.handle_editor_controls(key),
+                VirtualKeyCode::W | VirtualKeyCode::A | VirtualKeyCode::S | VirtualKeyCode::D => self.handle_movement_controls(key),
+                _ => (),
             },
+        }
+    }
+
+    fn handle_movement_controls(&mut self, key: &VirtualKeyCode) {
+
+        let move_pos = match_wasd_directions(key);
+
+        if let Some((_, tile)) = self.tile_mgr.tile_at_pos(self.player.get_pos() + move_pos) {
+            if !tile.block_movement() {
+                self.player.moove(move_pos);
+            }
+        }
+
+        self.update_overworld();
+    }
+
+    fn handle_editor_controls(&mut self, key: &VirtualKeyCode) {
+        match key {
+            VirtualKeyCode::N => {
+                println!("Please enter name of new region: ");
+
+                let mut line = String::new();
+
+                std::io::stdin().read_line(&mut line).unwrap();
+
+                self.new_region(line.trim().to_string());
+            }
+            VirtualKeyCode::B => {
+                let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
+                println!("({},{})", pos.x, pos.y);
+            }
+            VirtualKeyCode::Q => {
+                let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
+                self.player.moove(pos - self.player.get_pos());
+                self.camera.moove(self.player.get_pos() - self.camera.pos);
+            }
+            VirtualKeyCode::R => {
+                self.tile_variant.rotate_cw();
+            }
+            VirtualKeyCode::T => {
+                self.draw_tile = self.draw_tile.cycle();
+            }
+            _ => unreachable!(),
         }
     }
 
