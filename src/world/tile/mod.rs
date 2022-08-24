@@ -383,13 +383,12 @@ fn match_directions(direction: TileVariant, top_left: (u16, u16)) -> (u16, u16) 
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TileManager {
-    pub name: String,
     tiles: Vec<Box<dyn Tile>>,
 }
 
 impl TileManager {
-    pub fn new(name: String, tiles: Vec<Box<dyn Tile>>) -> TileManager {
-        TileManager { name, tiles }
+    pub fn new() -> TileManager {
+        TileManager { tiles: Vec::new() }
     }
 
     pub fn draw_before_player(
@@ -440,7 +439,7 @@ impl TileManager {
             .enumerate()
             .find(|(_, t)| t.get_pos() == pos)
     }
-    pub fn update(&mut self, clock: &Clock) {
+    pub fn update_anims(&mut self, clock: &Clock) {
         for t in &mut self.tiles {
             t.update_anim(clock);
             t.on_update(clock);

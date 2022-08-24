@@ -1,5 +1,5 @@
 ## Now
-* Clean update system for entities
+* World::on_frame(), World::on_update()
 
 ## Eventually
 * Line drawing algorithm
@@ -12,8 +12,6 @@
 * Add music
 
 ## Engine
-* Add entity manager to world
-* ?Merge managers
 * Change some tiles to entity (button, OneWay, SmileyMan)
 * Make entities
 * When minigame over, return PostOperation

@@ -31,6 +31,7 @@ pub struct Player {
     hat: PlayerHat,
 }
 
+#[typetag::serde]
 impl Entity for Player {
     fn draw(
         &mut self,
@@ -62,7 +63,7 @@ impl Entity for Player {
 
     fn update(&mut self) {}
 
-    fn update_anim(&mut self) {
+    fn update_anim(&mut self, _clock: &Clock) {
         let hat = self.hat;
         if let Err(AnimationSelectError::NotFound) = self
             .get_anim_mut()
