@@ -14,6 +14,7 @@
 ## Engine
 * Change some tiles to entity (button, OneWay, SmileyMan)
 * Make entities
+* Entity creating in editor
 * When minigame over, return PostOperation
 * Fix options page 
 * Hats
