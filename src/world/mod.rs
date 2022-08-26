@@ -20,7 +20,7 @@ use speedy2d::{
 };
 
 use self::{
-    entity::{Entity, Enemy, Friend, EntityManager},
+    entity::{Entity, EntityManager, player::PlayerHat},
     minigame::{GameResult, Minigame},
     tile::{core::BaseGround, operation::*, TileVariant},
 };
@@ -39,8 +39,6 @@ pub struct World {
     pub camera: Camera,
     pub clock: Clock,
     pub minigame: Option<Box<dyn Minigame>>,
-    pub enemies: Vec<Box<dyn Enemy>>,
-    pub friends: Vec<Box<dyn Friend>>,
     // For editing
     draw_tile: Box<dyn Tile>,
     tile_variant: TileVariant,
@@ -53,6 +51,8 @@ const MOUSE_RIGHT: u8 = 0b01000000;
 const MOUSE_MID: u8 = 0b00100000;
 const MOUSE_OTHER: u8 = 0b00000000;
 
+const VIEW_DIST: f32 = 40.0;
+
 impl World {
     pub fn new() -> World {
         World {
@@ -61,8 +61,6 @@ impl World {
             camera: Camera::new((0, 0).into(), 10.0, 10.0),
             clock: Clock::new(),
             minigame: None,
-            enemies: Vec::new(),
-            friends: Vec::new(),
             draw_tile: Box::new(BaseGround::default((0, 0).into())),
             tile_variant: TileVariant::Top,
             post_ops: Vec::new(),
@@ -73,28 +71,42 @@ impl World {
     pub fn update_overworld(&mut self) {
         // Player moved ✅
         // Tile checked ✅
-        // Camera moves ⬇️
-        // Player enter entity 😬
-        // Entity turn 😬
+        // Player enter entity ⬇️
+        // Entity turn ⬇️
         // Execute postops ⬇️
-        // 
+        // Camera moves ⬇️
+        // Update anims ⬇️
         // Tick clock ⬇️
 
-        self.camera.pos = self.player.get_pos();
+        let player_pos = self.player.get_pos();
 
+        // Player enter entity
+        if let Some((_, entity)) = self.mgr.get_entity_mgr_mut().entity_at_pos(player_pos) {
+            self.post_ops.push(entity.on_player_enter(self.player.get_last_move_pos()));
+        }
+
+        // Entity turn
+        self.post_ops.extend(self.mgr.get_entity_mgr_mut().do_entity_turn());
+
+        // Execute postops
         while let Some(op) = self.post_ops.pop() {
             op.execute(self);
         }
 
+        // Camera moves
+        self.camera.pos = player_pos;
+
+        // Update anims & tick clock
         self.update_anims();
         self.clock.tick();
     }
 
-    fn update_anims(&mut self) {
+    pub fn update_anims(&mut self) {
         self.player.update_anim(&self.clock);
         self.mgr.update_anims(&self.clock);
     }
 
+    /// Every frame. Draws world to screen
     pub fn draw(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
         match &mut self.minigame {
             Some(minigame) => match minigame.update() {
@@ -107,7 +119,6 @@ impl World {
                 }
             },
             None => {
-                self.player.update_anim(&self.clock);
                 self.draw_world(graphics, manager);
             }
         }
@@ -155,14 +166,18 @@ impl World {
             None => match key {
                 // Need to remove this (V) before release
                 VirtualKeyCode::N | VirtualKeyCode::B | VirtualKeyCode::Q | VirtualKeyCode::R | VirtualKeyCode::T => self.handle_editor_controls(key),
-                VirtualKeyCode::W | VirtualKeyCode::A | VirtualKeyCode::S | VirtualKeyCode::D => self.handle_movement_controls(key),
+                VirtualKeyCode::W | VirtualKeyCode::A | VirtualKeyCode::S | VirtualKeyCode::D /*| VirtualKeyCode::H*/=> self.handle_movement_controls(key),
                 _ => (),
             },
         }
     }
 
+    /// Only update world on movement key press
     fn handle_movement_controls(&mut self, key: &VirtualKeyCode) {
 
+        // if let VirtualKeyCode::H = key {
+        //     self.player.cycle_hat();
+        // }
         let move_pos = match_wasd_directions(key);
 
         if let Some((_, tile)) = self.mgr.get_tile_mgr_mut().tile_at_pos(self.player.get_pos() + move_pos) {

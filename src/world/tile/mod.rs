@@ -13,13 +13,11 @@ use crate::{
 
 use self::{core::Arrow, operation::*};
 
-use super::{space::GamePos, time::Clock};
+use super::{space::GamePos, time::Clock, VIEW_DIST};
 
 pub mod beehive;
 pub mod core;
 pub mod mountain;
-
-const VIEW_DIST: f32 = 40.0;
 
 const HEIGHT_GAMEPOS: f32 = 1.0 / 0.7;
 
@@ -308,7 +306,7 @@ pub trait Tile: Debug {
     fn block_movement(&self) -> bool {
         false
     }
-    fn on_update(&mut self, _clock: &Clock) {}
+    fn update_state(&mut self, _clock: &Clock) {}
     fn change_self(&mut self) {}
 
     fn update_anim(&mut self, _clock: &Clock) {
@@ -442,7 +440,7 @@ impl TileManager {
     pub fn update_anims(&mut self, clock: &Clock) {
         for t in &mut self.tiles {
             t.update_anim(clock);
-            t.on_update(clock);
+            t.update_state(clock);
         }
     }
     pub fn push(&mut self, mut tile: Box<dyn Tile>) {

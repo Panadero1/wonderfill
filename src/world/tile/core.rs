@@ -438,7 +438,7 @@ impl Tile for Moon {
     fn block_movement(&self) -> bool {
         self.state == Obstruction::Blocking
     }
-    fn on_update(&mut self, clock: &Clock) {
+    fn update_state(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
             Obstruction::Free
         } else {
@@ -640,7 +640,7 @@ impl Tile for Sun {
         self.state == Obstruction::Blocking
     }
 
-    fn on_update(&mut self, clock: &Clock) {
+    fn update_state(&mut self, clock: &Clock) {
         self.state = if clock.is_day() {
             Obstruction::Blocking
         } else {

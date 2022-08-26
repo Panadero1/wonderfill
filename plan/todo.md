@@ -1,5 +1,6 @@
 ## Now
-* World::on_frame(), World::on_update()
+* Entity creating in editor
+* Change some tiles to entity (button, OneWay, SmileyMan)
 
 ## Eventually
 * Line drawing algorithm
@@ -12,9 +13,7 @@
 * Add music
 
 ## Engine
-* Change some tiles to entity (button, OneWay, SmileyMan)
 * Make entities
-* Entity creating in editor
 * When minigame over, return PostOperation
 * Fix options page 
 * Hats

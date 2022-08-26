@@ -29,6 +29,7 @@ pub struct Player {
     anim: Animation,
     size: GamePos,
     hat: PlayerHat,
+    last_move_pos: GamePos,
 }
 
 #[typetag::serde]
@@ -51,6 +52,7 @@ impl Entity for Player {
 
     fn moove(&mut self, change_pos: GamePos) {
         self.pos += change_pos;
+        self.last_move_pos = change_pos;
     }
 
     fn get_anim_mut(&mut self) -> &mut Animation {
@@ -97,9 +99,24 @@ impl Player {
             ),
             size: (1, 1).into(),
             hat: PlayerHat::None,
+            last_move_pos: (0, 0).into()
         }
     }
+
     pub fn set_hat(&mut self, hat: PlayerHat) {
         self.hat = hat;
+    }
+
+    pub fn cycle_hat(&mut self) {
+        self.hat = match self.hat {
+            PlayerHat::None => PlayerHat::Helmet,
+            PlayerHat::Helmet => PlayerHat::Acid,
+            PlayerHat::Acid => PlayerHat::Teardrop,
+            PlayerHat::Teardrop => PlayerHat::None,
+        }
+    }
+
+    pub fn get_last_move_pos(&self) -> GamePos {
+        self.last_move_pos
     }
 }

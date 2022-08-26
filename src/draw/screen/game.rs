@@ -124,7 +124,8 @@ impl GameScreen {
         Ok(GameScreen::with_world(result))
     }
 
-    fn with_world(world: World) -> GameScreen {
+    fn with_world(mut world: World) -> GameScreen {
+        world.update_anims();
         GameScreen {
             new_screen: None,
             current_input: HashMap::new(),
