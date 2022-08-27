@@ -63,8 +63,6 @@ impl Entity for Player {
         self.pos
     }
 
-    fn update(&mut self) {}
-
     fn update_anim(&mut self, _clock: &Clock) {
         let hat = self.hat;
         if let Err(AnimationSelectError::NotFound) = self

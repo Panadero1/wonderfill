@@ -1,16 +1,11 @@
-use std::{
-    env,
-    fs::{self, File},
-    io::{self, BufReader},
-    path::{Path, PathBuf},
-};
+
 
 use crate::{
     draw::{
         screen::{self, camera::Camera},
         ui::img::ImgManager,
     },
-    world::{entity::player::Player, space::GamePos, tile::{Tile, TileManager}, time::Clock}, utility::key::match_wasd_directions,
+    world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock}, utility::key::match_wasd_directions,
 };
 
 use serde::{Deserialize, Serialize};
@@ -20,11 +15,12 @@ use speedy2d::{
 };
 
 use self::{
-    entity::{Entity, EntityManager, player::PlayerHat},
+    entity::Entity,
     minigame::{GameResult, Minigame},
-    tile::{core::BaseGround, operation::*, TileVariant},
+    tile::{core::BaseGround, operation::*, TileVariant}, data::DataManager,
 };
 
+pub mod data;
 pub mod entity;
 pub mod generation;
 pub mod minigame;
@@ -81,12 +77,12 @@ impl World {
         let player_pos = self.player.get_pos();
 
         // Player enter entity
-        if let Some((_, entity)) = self.mgr.get_entity_mgr_mut().entity_at_pos(player_pos) {
+        if let Some((_, entity)) = self.mgr.get_entity_at_pos(player_pos) {
             self.post_ops.push(entity.on_player_enter(self.player.get_last_move_pos()));
         }
 
         // Entity turn
-        self.post_ops.extend(self.mgr.get_entity_mgr_mut().do_entity_turn());
+        self.post_ops.extend(self.mgr.do_entity_turn());
 
         // Execute postops
         while let Some(op) = self.post_ops.pop() {
@@ -129,18 +125,16 @@ impl World {
 
         if self.mouse_buttons & MOUSE_LEFT > 0 {
             let tile = self.draw_tile.create(pos, self.tile_variant);
-            self.mgr.get_tile_mgr_mut().push_override(tile);
+            self.mgr.push_tile_override(tile);
         } else if self.mouse_buttons & MOUSE_RIGHT > 0 {
-            self.mgr.get_tile_mgr_mut().remove_at(pos);
+            self.mgr.remove_tile_at(pos);
         }
     }
 
     fn draw_world(&mut self, graphics: &mut Graphics2D, manager: &mut ImgManager) {
         self.create_tiles();
 
-        let tile_mgr = self.mgr.get_tile_mgr_mut();
-
-        tile_mgr.draw_before_player(
+        self.mgr.draw_before_player(
             graphics,
             manager,
             &self.clock,
@@ -149,7 +143,7 @@ impl World {
         );
         self.player
             .draw(graphics, manager, &self.clock, &self.camera);
-        tile_mgr.draw_after_player(
+        self.mgr.draw_after_player(
             graphics,
             manager,
             &self.clock,
@@ -180,7 +174,7 @@ impl World {
         // }
         let move_pos = match_wasd_directions(key);
 
-        if let Some((_, tile)) = self.mgr.get_tile_mgr_mut().tile_at_pos(self.player.get_pos() + move_pos) {
+        if let Some((_, tile)) = self.mgr.get_tile_at_pos(self.player.get_pos() + move_pos) {
             if !tile.block_movement() {
                 self.player.moove(move_pos);
             }
@@ -235,7 +229,7 @@ impl World {
 
         // No line-dragging for this action. Keep it here
         if let MouseButton::Middle = button {
-            if let Some((_, tile)) = self.mgr.get_tile_mgr_mut().tile_at_pos(pos) {
+            if let Some((_, tile)) = self.mgr.get_tile_at_pos(pos) {
                 self.draw_tile = tile.pick_tile();
             }
         }
@@ -257,67 +251,4 @@ impl World {
         };
         // Mouse up handling if needed
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DataManager {
-    entity_mgr: EntityManager,
-    tile_mgr: TileManager,
-    name: String,
-}
-
-impl DataManager {
-    pub fn new(name: String) -> DataManager {
-        DataManager { entity_mgr: EntityManager::new(), tile_mgr: TileManager::new(), name}
-    }
-
-    fn update_anims(&mut self, clock: &Clock) {
-        self.entity_mgr.update_anims(clock);
-        self.tile_mgr.update_anims(clock);
-    }
-
-    fn get_tile_mgr_mut(&mut self) -> &mut TileManager {
-        &mut self.tile_mgr
-    }
-
-    fn get_entity_mgr_mut(&mut self) -> &mut EntityManager {
-        &mut self.entity_mgr
-    }
-
-    pub fn load_region(&mut self, name: &String) -> io::Result<()> {
-        self.save_region();
-
-        let path = get_file_path(name);
-        let file = File::open(path)?;
-        let rdr = BufReader::new(file);
-
-        *self = serde_json::from_reader(rdr).unwrap();
-
-        Ok(())
-    }
-
-    pub fn new_region(&mut self, name: String) {
-        self.save_region();
-
-        *self = DataManager::new(name);
-    }
-
-    pub fn save_region(&self) {
-        let path = get_file_path(&self.name);
-        let file = fs::File::create(path).unwrap();
-        let writer = io::LineWriter::new(file);
-
-        serde_json::to_writer(writer, &self).unwrap();
-    }
-}
-
-fn get_file_path(file_name: &String) -> PathBuf {
-    assert!(*file_name != "save");
-    let dir = env::current_dir().unwrap();
-    let path = Path::new(&dir).join("saves/");
-    if !path.exists() {
-        fs::create_dir(&path).unwrap();
-    }
-    let file_name = format!("{}.json", file_name);
-    path.join(file_name)
 }

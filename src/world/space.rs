@@ -86,6 +86,10 @@ impl GamePos {
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
+    pub fn largest_component_difference(&self, rhs: GamePos) -> f32 {
+        let dif = rhs.sub(*self);
+        dif.x.max(dif.y)
+    }
     pub fn abs(&self) -> GamePos {
         (self.x.abs(), self.y.abs()).into()
     }

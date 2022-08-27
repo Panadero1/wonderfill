@@ -247,7 +247,7 @@ impl Tile for Door {
         Box::new(Door::new(pos))
     }
 
-    fn update_anim(&mut self, _clock: &Clock) {
+    fn update_anim(&mut self) {
         if let Err(AnimationSelectError::NotFound) = self.anim.select(match self.state {
             Obstruction::Blocking => "base",
             Obstruction::Free => "open",

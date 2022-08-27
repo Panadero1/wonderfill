@@ -8,7 +8,9 @@
 
 ## Game
 * Tutorial/start area
-* Time pressure for combat (spawns time-based enemy?)
+* Design enemy behavior (tethering, movement, attacks)
+* Design friend behavior
+* Time pressure for combat (makes you move randomly after timer)
 * Bee area
 * Add music
 
@@ -34,3 +36,4 @@
 ## Done
 * Make a build script that copies assets
 * Coloring spec basic
+* Migrate to DataManager
