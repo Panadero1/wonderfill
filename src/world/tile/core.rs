@@ -35,7 +35,7 @@ impl Tile for Arrow {
         Box::new(Arrow::new(pos, variant))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -78,7 +78,7 @@ impl Tile for BaseGround {
         Box::new(BaseGround::default(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -128,7 +128,7 @@ impl Tile for BasePillar {
         Box::new(BasePillar::default(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -256,10 +256,11 @@ impl Tile for Door {
     }
 
     fn change_self(&mut self) {
+        println!("Changing door!");
         self.state.toggle();
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -309,7 +310,7 @@ impl Tile for Edge {
         Box::new(Edge::new(pos, variant))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -352,7 +353,7 @@ impl Tile for Grass {
         Box::new(Grass::new(pos, variant))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -395,7 +396,7 @@ impl Tile for InvisWall {
         Box::new(InvisWall::new(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -453,7 +454,7 @@ impl Tile for Moon {
         Box::new(Moon::new(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -589,7 +590,7 @@ impl Tile for Stair {
         Box::new(Stair::new(pos, variant))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -655,7 +656,7 @@ impl Tile for Sun {
         Box::new(Sun::new(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),

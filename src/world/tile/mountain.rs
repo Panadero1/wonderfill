@@ -36,7 +36,7 @@ impl Tile for Boulder {
         Box::new(Boulder::new(pos, variant))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -79,7 +79,7 @@ impl Tile for CliffFace {
         Box::new(CliffFace::new(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),
@@ -130,7 +130,7 @@ impl Tile for Rock {
         Box::new(Rock::new(pos))
     }
 
-    fn pick_tile(&self) -> Box<dyn Tile> {
+    fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
             pos: (0, 0).into(),
             anim: get_default_anim((0, 0)),

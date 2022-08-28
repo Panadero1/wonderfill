@@ -49,6 +49,7 @@ pub trait Entity {
     fn get_anim_mut(&mut self) -> &mut Animation;
     fn get_pos(&self) -> GamePos;
     fn create(&self, pos: GamePos) -> Box<dyn Entity>;
+    fn pick(&self) -> Box<dyn Entity>;
     fn update(&mut self) {}
     fn update_anim(&mut self, clock: &Clock) {
         self.get_anim_mut().select("base").unwrap();

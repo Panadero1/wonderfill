@@ -47,6 +47,10 @@ impl Entity for Player {
         unreachable!()
     }
 
+    fn pick(&self) -> Box<dyn Entity> {
+        unreachable!()
+    }
+
     fn get_frame_size_and_offset(&self) -> (GamePos, GamePos) {
         super::square_anim_size()
     }

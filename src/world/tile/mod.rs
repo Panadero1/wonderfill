@@ -140,7 +140,7 @@ pub trait Tile: Debug {
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile>;
-    fn pick_tile(&self) -> Box<dyn Tile>;
+    fn pick(&self) -> Box<dyn Tile>;
 
     fn next(&self) -> Option<Box<dyn Tile>>;
     fn cycle(&self) -> Box<dyn Tile> {

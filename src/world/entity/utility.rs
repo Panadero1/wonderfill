@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use speedy2d::color::Color;
 
-use crate::{world::{space::GamePos, operation::PostOperation}, draw::animation::Animation};
+use crate::{world::{space::GamePos, operation::{PostOperation, Params}}, draw::animation::Animation};
 
 use super::{Entity, get_default_anim};
 
@@ -34,12 +34,17 @@ impl Entity for Button {
         Box::new(Button::new(pos))
     }
 
+    fn pick(&self) -> Box<dyn Entity> {
+        Box::new(Button::new((0, 0).into()))
+    }
+
     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        PostOperation::new_empty().with_block_player(move_pos).with_custom(|w, _| {
-            if let Some((_, tile)) = &mut w.mgr.get_tile_at_pos(w.player.get_pos()) {
+        println!("player enters");
+        PostOperation::new_empty().with_block_player(move_pos).with_custom(|w, p| {
+            if let Some((_, tile)) = &mut w.mgr.get_tile_at_pos(p.pos[0]) {
                 tile.change_self();
             }
-        })
+        }).params(Params::new_empty().add_pos(self.effect_pos))
     }
 
     fn do_turn(&mut self) -> PostOperation {

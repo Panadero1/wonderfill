@@ -88,10 +88,9 @@ impl World {
         // Update anims ⬇️
         // Tick clock ⬇️
 
-        let player_pos = self.player.get_pos();
 
         // Player enter entity
-        if let Some((_, entity)) = self.mgr.get_entity_at_pos(player_pos) {
+        if let Some((_, entity)) = self.mgr.get_entity_at_pos(self.player.get_pos()) {
             self.post_ops
                 .push(entity.on_player_enter(self.player.get_last_move_pos()));
         }
@@ -105,7 +104,7 @@ impl World {
         }
 
         // Camera moves
-        self.camera.pos = player_pos;
+        self.camera.pos = self.player.get_pos();
 
         // Update anims & tick clock
         self.update_anims();
@@ -150,7 +149,10 @@ impl World {
                 }
             }
         } else if self.mouse_buttons & MOUSE_RIGHT > 0 {
-            self.mgr.remove_tile_at(pos);
+            match &self.draw_item {
+                DrawItem::Tile(_) => self.mgr.remove_tile_at(pos),
+                DrawItem::Entity(_) => self.mgr.remove_entity_at(pos),
+            }
         }
     }
 
@@ -241,8 +243,14 @@ impl World {
             }
             VirtualKeyCode::Z => {
                 self.draw_item = match self.draw_item {
-                    DrawItem::Entity(_) => DrawItem::Tile(Box::new(BaseGround::default((0, 0).into()))),
-                    DrawItem::Tile(_) => DrawItem::Entity(Box::new(Button::default())),
+                    DrawItem::Entity(_) => {
+                        println!("Tile");
+                        DrawItem::Tile(Box::new(BaseGround::default((0, 0).into())))
+                    }
+                    DrawItem::Tile(_) => {
+                        println!("Entity");
+                        DrawItem::Entity(Box::new(Button::default()))
+                    }
                 }
             }
             _ => unreachable!(),
@@ -269,8 +277,17 @@ impl World {
 
         // No line-dragging for this action. Keep it here
         if let MouseButton::Middle = button {
-            if let Some((_, tile)) = self.mgr.get_tile_at_pos(pos) {
-                self.draw_item = DrawItem::Tile(tile.pick_tile());
+            match &self.draw_item {
+                DrawItem::Tile(_) => {
+                    if let Some((_, tile)) = self.mgr.get_tile_at_pos(pos) {
+                        self.draw_item = DrawItem::Tile(tile.pick());
+                    }
+                }
+                DrawItem::Entity(_) => {
+                    if let Some((_, entity)) = self.mgr.get_entity_at_pos(pos) {
+                        self.draw_item = DrawItem::Entity(entity.pick());
+                    }
+                }
             }
         }
 
