@@ -23,8 +23,8 @@ impl Tile for HoneyComb {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(super::core::Arrow::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(super::core::Arrow::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -33,7 +33,7 @@ impl Tile for HoneyComb {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }

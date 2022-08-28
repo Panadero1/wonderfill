@@ -86,6 +86,9 @@ impl Neg for GamePos {
 }
 
 impl GamePos {
+    pub fn origin() -> GamePos {
+        (0, 0).into()
+    }
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }

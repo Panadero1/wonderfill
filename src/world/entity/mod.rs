@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Debug};
 
 use speedy2d::{color::Color, Graphics2D};
 
@@ -13,11 +13,12 @@ use crate::{
 
 use super::{operation::PostOperation, space::SPRITE_EXTENSION_HEIGHT};
 
+pub mod friendly;
 pub mod player;
 pub mod utility;
 
 #[typetag::serde(tag = "type")]
-pub trait Entity {
+pub trait Entity: Debug {
     fn draw(
         &mut self,
         graphics: &mut Graphics2D,
@@ -43,12 +44,19 @@ pub trait Entity {
         )
     }
     fn draw_color(&self) -> Color {
-        Color::WHITE
+        Color::YELLOW
     }
     fn moove(&mut self, change_pos: GamePos);
+    fn get_last_move_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
     fn get_pos(&self) -> GamePos;
     fn create(&self, pos: GamePos) -> Box<dyn Entity>;
+    fn next(&self) -> Box<dyn Entity>;
+    fn cycle(&self) -> Box<dyn Entity> {
+        let next_entity = self.next();
+        println!("{}", format!("{:?}", next_entity).split_once(' ').unwrap().0);
+        return next_entity;
+    }
     fn pick(&self) -> Box<dyn Entity>;
     fn update(&mut self) {}
     fn update_anim(&mut self, clock: &Clock) {
@@ -56,6 +64,9 @@ pub trait Entity {
     }
     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
         PostOperation::new_empty().with_block_player(move_pos)
+    }
+    fn on_entity_enter(&mut self, move_pos: GamePos, index: usize) -> PostOperation {
+        PostOperation::new_empty()
     }
     fn do_turn(&mut self) -> PostOperation {
         PostOperation::new_empty()
@@ -81,5 +92,5 @@ fn anim_with_frames(frames: HashMap<String, (bool, Vec<(u16, u16)>)>) -> Animati
 }
 
 fn square_anim_size() -> (GamePos, GamePos) {
-    ((1, 1).into(), (0, 0).into())
+    ((1, 1).into(), GamePos::origin())
 }

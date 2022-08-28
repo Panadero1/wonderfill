@@ -14,7 +14,7 @@ impl Tile for !!Name {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
+    fn next(&self) -> Box<dyn Tile> {
         Some(Box::new(!!Next))
     }
 
@@ -24,7 +24,7 @@ impl Tile for !!Name {
 
     fn pick_tile(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }

@@ -22,7 +22,7 @@ pub enum PlayerHat {
     Teardrop,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Player {
     pos: GamePos,
     anim: Animation,
@@ -51,6 +51,10 @@ impl Entity for Player {
         unreachable!()
     }
 
+    fn next(&self) -> Box<dyn Entity> {
+        unreachable!()
+    }
+
     fn get_frame_size_and_offset(&self) -> (GamePos, GamePos) {
         super::square_anim_size()
     }
@@ -72,6 +76,10 @@ impl Entity for Player {
             panic!("Animation not found. Trying to select: {:?}", self.hat);
         }
     }
+
+    fn get_last_move_pos(&self) -> GamePos {
+        self.last_move_pos
+    }
 }
 
 impl Player {
@@ -87,7 +95,7 @@ impl Player {
         frames.insert(String::from("teardrop"), (true, vec![(2, 2)]));
 
         Player {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: Animation::new(
                 Img::new(String::from("assets/img/player.png")),
                 (7, 7),
@@ -97,7 +105,7 @@ impl Player {
             ),
             size: (1, 1).into(),
             hat: PlayerHat::None,
-            last_move_pos: (0, 0).into()
+            last_move_pos: GamePos::origin()
         }
     }
 
@@ -114,7 +122,4 @@ impl Player {
         }
     }
 
-    pub fn get_last_move_pos(&self) -> GamePos {
-        self.last_move_pos
-    }
 }

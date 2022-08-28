@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{world::{
-    GamePos, PostOperation, Tile, TileVariant,
+    GamePos, Tile, TileVariant,
 }, draw::animation::Animation};
 
 use super::{get_default_anim, match_directions};
@@ -28,8 +28,8 @@ impl Tile for Boulder {
         true
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(CliffFace::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(CliffFace::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -38,7 +38,7 @@ impl Tile for Boulder {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -71,8 +71,8 @@ impl Tile for CliffFace {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Rock::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Rock::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -81,7 +81,7 @@ impl Tile for CliffFace {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -122,8 +122,8 @@ impl Tile for Rock {
         true
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(super::beehive::HoneyComb::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(super::beehive::HoneyComb::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -132,7 +132,7 @@ impl Tile for Rock {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }

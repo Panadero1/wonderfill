@@ -27,8 +27,8 @@ impl Tile for Arrow {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(BaseGround::default((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(BaseGround::default(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -37,7 +37,7 @@ impl Tile for Arrow {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -70,8 +70,8 @@ impl Tile for BaseGround {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(BasePillar::default((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(BasePillar::default(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -80,7 +80,7 @@ impl Tile for BaseGround {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -120,8 +120,8 @@ impl Tile for BasePillar {
         true
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Door::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Door::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -130,7 +130,7 @@ impl Tile for BasePillar {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -163,8 +163,8 @@ impl BasePillar {
 //     fn get_anim_mut(&mut self) -> &mut Animation {
 //         &mut self.anim
 //     }
-//     fn next(&self) -> Option<Box<dyn Tile>> {
-//         Some(Box::new(Door::new((0, 0).into())))
+//     fn next(&self) -> Box<dyn Tile> {
+//         Some(Box::new(Door::new(GamePos::origin())))
 //     }
 //     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
 //         Box::new(Button::new(pos))
@@ -181,9 +181,9 @@ impl BasePillar {
 //     }
 //     fn pick_tile(&self) -> Box<dyn Tile> {
 //         Box::new(Self {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((0, 0)),
-//             effect_pos: (0, 0).into(),
+//             effect_pos: GamePos::origin(),
 //         })
 //     }
 // }
@@ -208,9 +208,9 @@ impl BasePillar {
 //     }
 //     pub fn default() -> Button {
 //         Button {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((2, 4)),
-//             effect_pos: (0, 0).into(),
+//             effect_pos: GamePos::origin(),
 //         }
 //     }
 // }
@@ -238,8 +238,8 @@ impl Tile for Door {
         self.state == Obstruction::Blocking
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Edge::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Edge::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -262,7 +262,7 @@ impl Tile for Door {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
             state: Obstruction::Free,
         })
@@ -302,8 +302,8 @@ impl Tile for Edge {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Grass::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Grass::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -312,7 +312,7 @@ impl Tile for Edge {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -345,8 +345,8 @@ impl Tile for Grass {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(InvisWall::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(InvisWall::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -355,7 +355,7 @@ impl Tile for Grass {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -388,8 +388,8 @@ impl Tile for InvisWall {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Moon::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Moon::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -398,7 +398,7 @@ impl Tile for InvisWall {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -446,8 +446,8 @@ impl Tile for Moon {
         };
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Stair::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -456,7 +456,7 @@ impl Tile for Moon {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
             state: Obstruction::Free,
         })
@@ -488,15 +488,15 @@ impl Moon {
 //     fn get_anim_mut(&mut self) -> &mut Animation {
 //         &mut self.anim
 //     }
-//     fn next(&self) -> Option<Box<dyn Tile>> {
-//         Some(Box::new(SmileyMan::new((0, 0).into())))
+//     fn next(&self) -> Box<dyn Tile> {
+//         Some(Box::new(SmileyMan::new(GamePos::origin())))
 //     }
 //     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
 //         Box::new(OneWay::new(pos, variant))
 //     }
 //     fn pick_tile(&self) -> Box<dyn Tile> {
 //         Box::new(Self {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((0, 0)),
 //             direction: TileVariant::Center,
 //         })
@@ -537,15 +537,15 @@ impl Moon {
 //     fn get_anim_mut(&mut self) -> &mut Animation {
 //         &mut self.anim
 //     }
-//     fn next(&self) -> Option<Box<dyn Tile>> {
-//         Some(Box::new(Stair::new((0, 0).into(), TileVariant::Center)))
+//     fn next(&self) -> Box<dyn Tile> {
+//         Some(Box::new(Stair::new(GamePos::origin(), TileVariant::Center)))
 //     }
 //     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
 //         Box::new(SmileyMan::new(pos))
 //     }
 //     fn pick_tile(&self) -> Box<dyn Tile> {
 //         Box::new(Self {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((0, 0)),
 //         })
 //     }
@@ -582,8 +582,8 @@ impl Tile for Stair {
         &mut self.anim
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Sun::new((0, 0).into())))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Sun::new(GamePos::origin()))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
@@ -592,7 +592,7 @@ impl Tile for Stair {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
         })
     }
@@ -648,8 +648,8 @@ impl Tile for Sun {
         };
     }
 
-    fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(Boulder::new((0, 0).into(), TileVariant::Center)))
+    fn next(&self) -> Box<dyn Tile> {
+        Box::new(Boulder::new(GamePos::origin(), TileVariant::Center))
     }
 
     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
@@ -658,7 +658,7 @@ impl Tile for Sun {
 
     fn pick(&self) -> Box<dyn Tile> {
         Box::new(Self {
-            pos: (0, 0).into(),
+            pos: GamePos::origin(),
             anim: get_default_anim((0, 0)),
             state: Obstruction::Free,
         })
@@ -690,8 +690,8 @@ impl Sun {
 //     fn get_anim_mut(&mut self) -> &mut Animation {
 //         &mut self.anim
 //     }
-//     fn next(&self) -> Option<Box<dyn Tile>> {
-//         Some(Box::new(super::mountain::Boulder::new((0, 0).into(), TileVariant::Center)))
+//     fn next(&self) -> Box<dyn Tile> {
+//         Some(Box::new(super::mountain::Boulder::new(GamePos::origin(), TileVariant::Center)))
 //     }
 //     fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
 //         Box::new(Warp::new(pos))
@@ -706,7 +706,7 @@ impl Sun {
 //     }
 //     fn pick_tile(&self) -> Box<dyn Tile> {
 //         Box::new(Self {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((0, 0)),
 //             load_name: String::from("a"),
 //         })
@@ -725,7 +725,7 @@ impl Sun {
 //     }
 //     pub fn default() -> Warp {
 //         Warp {
-//             pos: (0, 0).into(),
+//             pos: GamePos::origin(),
 //             anim: get_default_anim((2, 4)),
 //             load_name: String::from(""),
 //         }

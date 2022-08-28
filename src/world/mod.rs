@@ -51,7 +51,7 @@ enum DrawItem {
 }
 impl DrawItem {
     fn default() -> DrawItem {
-        DrawItem::Tile(Box::new(BaseGround::default((0, 0).into())))
+        DrawItem::Tile(Box::new(BaseGround::default(GamePos::origin())))
     }
 }
 
@@ -68,7 +68,7 @@ impl World {
         World {
             mgr: DataManager::new(String::from("start")),
             player: Player::new(),
-            camera: Camera::new((0, 0).into(), 10.0, 10.0),
+            camera: Camera::new(GamePos::origin(), 10.0, 10.0),
             clock: Clock::new(),
             minigame: None,
             draw_item: DrawItem::default(),
@@ -87,7 +87,6 @@ impl World {
         // Camera moves ⬇️
         // Update anims ⬇️
         // Tick clock ⬇️
-
 
         // Player enter entity
         if let Some((_, entity)) = self.mgr.get_entity_at_pos(self.player.get_pos()) {
@@ -237,7 +236,7 @@ impl World {
                     }
                     DrawItem::Entity(entity) => {
                         // todo add cycling
-                        *entity = Box::new(Button::default());
+                        *entity = entity.cycle();
                     }
                 }
             }
@@ -245,7 +244,7 @@ impl World {
                 self.draw_item = match self.draw_item {
                     DrawItem::Entity(_) => {
                         println!("Tile");
-                        DrawItem::Tile(Box::new(BaseGround::default((0, 0).into())))
+                        DrawItem::Tile(Box::new(BaseGround::default(GamePos::origin())))
                     }
                     DrawItem::Tile(_) => {
                         println!("Entity");

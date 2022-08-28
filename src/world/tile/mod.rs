@@ -142,13 +142,11 @@ pub trait Tile: Debug {
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile>;
     fn pick(&self) -> Box<dyn Tile>;
 
-    fn next(&self) -> Option<Box<dyn Tile>>;
+    fn next(&self) -> Box<dyn Tile>;
     fn cycle(&self) -> Box<dyn Tile> {
-        if let Some(next_tile) = self.next() {
-            println!("{}", format!("{:?}", next_tile).split_once(' ').unwrap().0);
-            return next_tile;
-        }
-        return Box::new(Arrow::new((0, 0).into(), TileVariant::Center));
+        let next_tile = self.next();
+        println!("{}", format!("{:?}", next_tile).split_once(' ').unwrap().0);
+        return next_tile;
     }
 }
 

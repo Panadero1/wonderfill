@@ -1,5 +1,4 @@
 ## Now
-* Something's wrong with buttons and postop
 * Change some tiles to entity (button, OneWay, SmileyMan)
 
 ## Eventually
@@ -16,6 +15,7 @@
 
 ## Engine
 * Make entities
+* Draw trait
 * When minigame over, return PostOperation
 * Fix options page 
 * Hats

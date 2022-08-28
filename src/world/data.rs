@@ -4,6 +4,8 @@ use std::{
     fs::{self, File},
     io::{self, BufReader},
     path::{Path, PathBuf},
+    thread,
+    time::Duration,
 };
 
 use serde::{Deserialize, Serialize};
@@ -12,19 +14,8 @@ use speedy2d::Graphics2D;
 use crate::draw::{screen::camera::Camera, ui::img::ImgManager};
 
 use super::{
-    entity::Entity,
-    space::GamePos,
-    tile::Tile,
-    time::Clock,
-    VIEW_DIST, operation::PostOperation,
+    entity::Entity, operation::PostOperation, space::GamePos, tile::Tile, time::Clock, VIEW_DIST,
 };
-
-#[derive(Serialize, Deserialize)]
-pub struct DataManager {
-    entities: Vec<Box<dyn Entity>>,
-    tiles: Vec<Box<dyn Tile>>,
-    name: String,
-}
 
 enum TileOrEntity<'a> {
     Tile(&'a mut Box<dyn Tile>),
@@ -53,12 +44,21 @@ impl<'a> TileOrEntity<'a> {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct DataManager {
+    entities: Vec<Box<dyn Entity>>,
+    tiles: Vec<Box<dyn Tile>>,
+    name: String,
+    last_turn_entity_index: usize,
+}
+
 impl DataManager {
     pub fn new(name: String) -> DataManager {
         DataManager {
             entities: Vec::new(),
             tiles: Vec::new(),
             name,
+            last_turn_entity_index: 0,
         }
     }
 
@@ -201,6 +201,7 @@ impl DataManager {
         self.entities.push(entity);
     }
 
+    /// Gets entity at given position
     pub fn get_entity_at_pos(&mut self, pos: GamePos) -> Option<(usize, &mut Box<dyn Entity>)> {
         self.entities
             .iter_mut()
@@ -208,15 +209,30 @@ impl DataManager {
             .find(|(_, e)| e.get_pos() == pos)
     }
 
+    pub fn get_entities_at_pos(&mut self, pos: GamePos) -> Vec<(usize, &mut Box<dyn Entity>)> {
+        self.entities
+            .iter_mut()
+            .enumerate()
+            .filter(|(_, e)| e.get_pos() == pos)
+            .collect::<Vec<_>>()
+    }
+
+    pub fn get_entity(&mut self, index: usize) -> Option<&mut Box<dyn Entity>> {
+        self.entities.get_mut(index)
+    }
+
     pub fn remove_entity_where<P: Fn(&Box<dyn Entity>) -> bool>(&mut self, predicate: P) {
-        let mut remove_indices = vec![];
+        let mut remove_indices = Vec::new();
         for (i, entity) in self.entities.iter().enumerate() {
             if predicate(entity) {
                 remove_indices.push(i);
             }
         }
+        // remove_indices is sorted because we added the indices in increasing order
+        let mut offset = 0;
         for i in remove_indices {
-            self.entities.remove(i);
+            self.entities.remove(i - offset);
+            offset += 1;
         }
     }
 
@@ -226,8 +242,40 @@ impl DataManager {
 
     pub fn do_entity_turn(&mut self) -> Vec<PostOperation> {
         let mut post_ops = Vec::new();
-        for entity in &mut self.entities {
+        for index in 0..self.entities.len() {
+            
+            let entity = self.entities.get_mut(index).unwrap();
+            
+            // Entity does turn
             post_ops.push(entity.do_turn());
+
+            let last_move_pos = entity.get_last_move_pos();
+            let entity_pos = entity.get_pos();
+
+            // entity dropped so we can borrow self
+            
+            // See if it moved onto another entity
+            if self.get_entities_at_pos(entity_pos).iter_mut().find(|(i, _)| *i != index).is_some() {
+                self.entities.get_mut(index).unwrap().moove(-last_move_pos);
+            }
+            // See if it moved onto another tile that is blocking
+            else if let Some((_, tile)) = self.get_tile_at_pos(entity_pos) {
+                if tile.block_movement() {
+                    self.entities.get_mut(index).unwrap().moove(-last_move_pos);
+                }
+            }
+        }
+
+        for index in 0..self.entities.len() {
+            let entity = self.entities.get_mut(index).unwrap();
+            let entity_pos = entity.get_pos();
+            let last_move_pos = entity.get_last_move_pos();
+
+            // See if it moved onto another entity
+            let mut at_pos = self.get_entities_at_pos(entity_pos);
+            if let Some((_, other)) = at_pos.iter_mut().find(|(i, _)| *i != index) {
+                post_ops.push(other.on_entity_enter(last_move_pos, index));
+            }
         }
         return post_ops;
     }
