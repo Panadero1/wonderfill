@@ -1,5 +1,5 @@
 ## Now
-* Entity creating in editor
+* Something's wrong with buttons and postop
 * Change some tiles to entity (button, OneWay, SmileyMan)
 
 ## Eventually

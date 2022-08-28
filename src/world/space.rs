@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
+/// The height of a wall or other standard extended sprite. Measured in tiles, not pixels
+pub const SPRITE_EXTENSION_HEIGHT: f32 = 1.0 / 0.7;
+
 // GamePos
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct GamePos {

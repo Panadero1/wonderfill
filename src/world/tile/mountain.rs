@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::world::{
-    tile::{get_default_anim, match_directions, Animation},
+use crate::{world::{
     GamePos, PostOperation, Tile, TileVariant,
-};
+}, draw::animation::Animation};
+
+use super::{get_default_anim, match_directions};
 
 // Boulder
 

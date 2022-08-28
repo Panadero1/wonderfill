@@ -1,4 +1,4 @@
-Hi there! I see you're trying to mess around with assets in the executable (or maybe you're working in the source code)
+Hi there! I see you're trying to mess around with assets (or maybe you're working in the source code)
 
 Feel free to do so. As long as you don't delete files, nothing bad will happen
 

@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{world::{
-    minigame::smiley_win::SmileyWin,
     tile::{self, get_default_anim, Animation, match_directions, Obstruction},
-    GamePos, Tile, TileVariant, PostOperation, Params, Clock
+    GamePos, Tile, TileVariant, Clock
 }, draw::animation::AnimationSelectError};
 
 use std::collections::HashMap;

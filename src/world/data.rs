@@ -14,9 +14,9 @@ use crate::draw::{screen::camera::Camera, ui::img::ImgManager};
 use super::{
     entity::Entity,
     space::GamePos,
-    tile::{operation::PostOperation, Tile},
+    tile::Tile,
     time::Clock,
-    VIEW_DIST,
+    VIEW_DIST, operation::PostOperation,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -84,7 +84,7 @@ impl DataManager {
         player_pos: GamePos,
     ) {
         self.draw_where(graphics, manager, clock, camera, |te| {
-            te.get_pos().y <= player_pos.y
+            te.get_pos().y > player_pos.y
                 && te.get_pos().largest_component_difference(player_pos) < VIEW_DIST
         })
     }

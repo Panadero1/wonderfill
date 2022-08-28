@@ -1,11 +1,10 @@
-
-
 use crate::{
     draw::{
         screen::{self, camera::Camera},
         ui::img::ImgManager,
     },
-    world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock}, utility::key::match_wasd_directions,
+    utility::key::match_wasd_directions,
+    world::{entity::player::Player, space::GamePos, tile::Tile, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
@@ -15,15 +14,18 @@ use speedy2d::{
 };
 
 use self::{
-    entity::Entity,
+    data::DataManager,
+    entity::{utility::Button, Entity},
     minigame::{GameResult, Minigame},
-    tile::{core::BaseGround, operation::*, TileVariant}, data::DataManager,
+    operation::PostOperation,
+    tile::{core::BaseGround, TileVariant},
 };
 
 pub mod data;
 pub mod entity;
 pub mod generation;
 pub mod minigame;
+pub mod operation;
 pub mod space;
 pub mod tile;
 pub mod time;
@@ -36,15 +38,27 @@ pub struct World {
     pub clock: Clock,
     pub minigame: Option<Box<dyn Minigame>>,
     // For editing
-    draw_tile: Box<dyn Tile>,
+    draw_item: DrawItem,
     tile_variant: TileVariant,
     post_ops: Vec<PostOperation>,
     mouse_buttons: u8,
 }
 
+#[derive(Serialize, Deserialize)]
+enum DrawItem {
+    Tile(Box<dyn Tile>),
+    Entity(Box<dyn Entity>),
+}
+impl DrawItem {
+    fn default() -> DrawItem {
+        DrawItem::Tile(Box::new(BaseGround::default((0, 0).into())))
+    }
+}
+
 const MOUSE_LEFT: u8 = 0b10000000;
 const MOUSE_RIGHT: u8 = 0b01000000;
 const MOUSE_MID: u8 = 0b00100000;
+/// No bitflag value so it doesn't affect anything
 const MOUSE_OTHER: u8 = 0b00000000;
 
 const VIEW_DIST: f32 = 40.0;
@@ -57,7 +71,7 @@ impl World {
             camera: Camera::new((0, 0).into(), 10.0, 10.0),
             clock: Clock::new(),
             minigame: None,
-            draw_tile: Box::new(BaseGround::default((0, 0).into())),
+            draw_item: DrawItem::default(),
             tile_variant: TileVariant::Top,
             post_ops: Vec::new(),
             mouse_buttons: 0,
@@ -78,7 +92,8 @@ impl World {
 
         // Player enter entity
         if let Some((_, entity)) = self.mgr.get_entity_at_pos(player_pos) {
-            self.post_ops.push(entity.on_player_enter(self.player.get_last_move_pos()));
+            self.post_ops
+                .push(entity.on_player_enter(self.player.get_last_move_pos()));
         }
 
         // Entity turn
@@ -124,8 +139,16 @@ impl World {
         let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
 
         if self.mouse_buttons & MOUSE_LEFT > 0 {
-            let tile = self.draw_tile.create(pos, self.tile_variant);
-            self.mgr.push_tile_override(tile);
+            match &self.draw_item {
+                DrawItem::Tile(tile) => {
+                    let tile = tile.create(pos, self.tile_variant);
+                    self.mgr.push_tile_override(tile);
+                }
+                DrawItem::Entity(entity) => {
+                    let entity = entity.create(pos);
+                    self.mgr.push_entity_override(entity);
+                }
+            }
         } else if self.mouse_buttons & MOUSE_RIGHT > 0 {
             self.mgr.remove_tile_at(pos);
         }
@@ -159,7 +182,7 @@ impl World {
             }
             None => match key {
                 // Need to remove this (V) before release
-                VirtualKeyCode::N | VirtualKeyCode::B | VirtualKeyCode::Q | VirtualKeyCode::R | VirtualKeyCode::T => self.handle_editor_controls(key),
+                VirtualKeyCode::N | VirtualKeyCode::B | VirtualKeyCode::Q | VirtualKeyCode::R | VirtualKeyCode::T | VirtualKeyCode::Z => self.handle_editor_controls(key),
                 VirtualKeyCode::W | VirtualKeyCode::A | VirtualKeyCode::S | VirtualKeyCode::D /*| VirtualKeyCode::H*/=> self.handle_movement_controls(key),
                 _ => (),
             },
@@ -168,7 +191,6 @@ impl World {
 
     /// Only update world on movement key press
     fn handle_movement_controls(&mut self, key: &VirtualKeyCode) {
-
         // if let VirtualKeyCode::H = key {
         //     self.player.cycle_hat();
         // }
@@ -207,7 +229,21 @@ impl World {
                 self.tile_variant.rotate_cw();
             }
             VirtualKeyCode::T => {
-                self.draw_tile = self.draw_tile.cycle();
+                match &mut self.draw_item {
+                    DrawItem::Tile(tile) => {
+                        *tile = tile.cycle();
+                    }
+                    DrawItem::Entity(entity) => {
+                        // todo add cycling
+                        *entity = Box::new(Button::default());
+                    }
+                }
+            }
+            VirtualKeyCode::Z => {
+                self.draw_item = match self.draw_item {
+                    DrawItem::Entity(_) => DrawItem::Tile(Box::new(BaseGround::default((0, 0).into()))),
+                    DrawItem::Tile(_) => DrawItem::Entity(Box::new(Button::default())),
+                }
             }
             _ => unreachable!(),
         }
@@ -224,13 +260,17 @@ impl World {
         }
     }
 
-    pub fn on_mouse_button_down(&mut self, _helper: &mut WindowHelper<String>, button: MouseButton) {
+    pub fn on_mouse_button_down(
+        &mut self,
+        _helper: &mut WindowHelper<String>,
+        button: MouseButton,
+    ) {
         let pos = self.camera.pix_to_game(screen::get_mouse_pos()).round();
 
         // No line-dragging for this action. Keep it here
         if let MouseButton::Middle = button {
             if let Some((_, tile)) = self.mgr.get_tile_at_pos(pos) {
-                self.draw_tile = tile.pick_tile();
+                self.draw_item = DrawItem::Tile(tile.pick_tile());
             }
         }
 

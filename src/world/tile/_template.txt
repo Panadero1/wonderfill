@@ -1,22 +1,11 @@
-use serde::{Deserialize, Serialize};
-
-use crate::{
-    draw::animation::Animation,
-    world::{
-        space::GamePos,
-        tile::{get_default_anim, match_directions, Tile, TileVariant},
-    },
-};
-
 #[derive(Debug, Serialize, Deserialize)]
-pub struct !TileName {
+pub struct !!Name {
     pos: GamePos,
     anim: Animation,
-    !anything else?
 }
 
 #[typetag::serde]
-impl Tile for !TileName {
+impl Tile for !!Name {
     fn get_pos(&self) -> GamePos {
         self.pos
     }
@@ -26,11 +15,11 @@ impl Tile for !TileName {
     }
 
     fn next(&self) -> Option<Box<dyn Tile>> {
-        Some(Box::new(!NextTile::new(!params)))
+        Some(Box::new(!!Next))
     }
 
     fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
-        Box::new(!TileName::new(pos, variant))
+        Box::new(!!Name::new(pos, variant))
     }
 
     fn pick_tile(&self) -> Box<dyn Tile> {
@@ -41,11 +30,11 @@ impl Tile for !TileName {
     }
 }
 
-impl !TileName {
-    pub fn new(pos: GamePos, direction: TileVariant) -> !TileName {
-        !TileName {
+impl !!Name {
+    pub fn new(pos: GamePos, direction: TileVariant) -> !!Name {
+        !!Name {
             pos,
-            anim: get_default_anim((!match_directions or not???)match_directions(direction, !spritesheet_coordinates)),
+            anim: get_default_anim(match_directions(direction, (4, 7))),
         }
     }
 }

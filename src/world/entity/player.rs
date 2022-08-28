@@ -5,9 +5,8 @@ use speedy2d::color::Color;
 use crate::{
     draw::{
         animation::{Animation, AnimationSelectError},
-        ui::img::{Img, ImgManager},
+        ui::img::Img,
     },
-    screen::camera::Camera,
     world::{space::GamePos, time::Clock},
 };
 
@@ -34,25 +33,22 @@ pub struct Player {
 
 #[typetag::serde]
 impl Entity for Player {
-    fn draw(
-        &mut self,
-        graphics: &mut speedy2d::Graphics2D,
-        manager: &mut ImgManager,
-        clock: &Clock,
-        camera: &Camera,
-    ) {
-        self.anim.draw_overworld(
-            graphics,
-            manager,
-            clock,
-            camera.rect_from_center(self.pos, self.size),
-            Color::WHITE,
-        );
+
+    fn draw_color(&self) -> Color {
+        Color::RED
     }
 
     fn moove(&mut self, change_pos: GamePos) {
         self.pos += change_pos;
         self.last_move_pos = change_pos;
+    }
+
+    fn create(&self, pos: GamePos) -> Box<dyn Entity> {
+        unreachable!()
+    }
+
+    fn get_frame_size_and_offset(&self) -> (GamePos, GamePos) {
+        super::square_anim_size()
     }
 
     fn get_anim_mut(&mut self) -> &mut Animation {
