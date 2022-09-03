@@ -105,8 +105,7 @@ impl PostOperation {
     }
 
     pub fn with_minigame(mut self, minigame: Box<dyn Minigame>) -> PostOperation {
-        // The `Some(p.minigame.unwrap())` may seem unneccessary but we want to assert that p always has a minigame
-        // ... and we want to break when it doesn't because that's UB
+        // The `Some(p.minigame...unwrap())` may seem unneccessary but we want to assert that p always has a minigame
         // I could do assert! but then I'd have to make the closure multi-line and that's kinda ugly
         self.params = self.params.with_minigame(minigame);
         self.with_custom(move |w, p| w.minigame = Some(p.minigame.as_ref().unwrap().create()))

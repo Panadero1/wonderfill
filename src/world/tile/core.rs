@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{world::{
-    tile::{self, get_default_anim, Animation, match_directions, Obstruction},
-    GamePos, Tile, TileVariant, Clock
-}, draw::animation::AnimationSelectError};
+    tile::{self, get_default_anim, Animation, Obstruction},
+    GamePos, Tile, Direction, Clock
+}, draw::animation::{AnimationSelectError, self}};
 
 use std::collections::HashMap;
 
@@ -31,7 +31,7 @@ impl Tile for Arrow {
         Box::new(BaseGround::default(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile> {
         Box::new(Arrow::new(pos, variant))
     }
 
@@ -44,10 +44,10 @@ impl Tile for Arrow {
 }
 
 impl Arrow {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Arrow {
+    pub fn new(pos: GamePos, direction: Direction) -> Arrow {
         Arrow {
             pos,
-            anim: get_default_anim(match_directions(direction, (4, 7))),
+            anim: get_default_anim(animation::match_directions(direction, (4, 7))),
         }
     }
 }
@@ -74,7 +74,7 @@ impl Tile for BaseGround {
         Box::new(BasePillar::default(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(BaseGround::default(pos))
     }
 
@@ -124,7 +124,7 @@ impl Tile for BasePillar {
         Box::new(Door::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(BasePillar::default(pos))
     }
 
@@ -239,10 +239,10 @@ impl Tile for Door {
     }
 
     fn next(&self) -> Box<dyn Tile> {
-        Box::new(Edge::new(GamePos::origin(), TileVariant::Center))
+        Box::new(Edge::new(GamePos::origin(), Direction::Center))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(Door::new(pos))
     }
 
@@ -256,7 +256,6 @@ impl Tile for Door {
     }
 
     fn change_self(&mut self) {
-        println!("Changing door!");
         self.state.toggle();
     }
 
@@ -303,10 +302,10 @@ impl Tile for Edge {
     }
 
     fn next(&self) -> Box<dyn Tile> {
-        Box::new(Grass::new(GamePos::origin(), TileVariant::Center))
+        Box::new(Grass::new(GamePos::origin(), Direction::Center))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile> {
         Box::new(Edge::new(pos, variant))
     }
 
@@ -319,10 +318,10 @@ impl Tile for Edge {
 }
 
 impl Edge {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Edge {
+    pub fn new(pos: GamePos, direction: Direction) -> Edge {
         Edge {
             pos,
-            anim: get_default_anim(match_directions(direction, (4, 1))),
+            anim: get_default_anim(animation::match_directions(direction, (4, 1))),
         }
     }
 }
@@ -349,7 +348,7 @@ impl Tile for Grass {
         Box::new(InvisWall::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile> {
         Box::new(Grass::new(pos, variant))
     }
 
@@ -362,10 +361,10 @@ impl Tile for Grass {
 }
 
 impl Grass {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Grass {
+    pub fn new(pos: GamePos, direction: Direction) -> Grass {
         Grass {
             pos,
-            anim: get_default_anim(match_directions(direction, (10, 1))),
+            anim: get_default_anim(animation::match_directions(direction, (10, 1))),
         }
     }
 }
@@ -392,7 +391,7 @@ impl Tile for InvisWall {
         Box::new(Moon::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(InvisWall::new(pos))
     }
 
@@ -447,10 +446,10 @@ impl Tile for Moon {
     }
 
     fn next(&self) -> Box<dyn Tile> {
-        Box::new(Stair::new(GamePos::origin(), TileVariant::Center))
+        Box::new(Stair::new(GamePos::origin(), Direction::Center))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(Moon::new(pos))
     }
 
@@ -586,7 +585,7 @@ impl Tile for Stair {
         Box::new(Sun::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile> {
         Box::new(Stair::new(pos, variant))
     }
 
@@ -599,19 +598,19 @@ impl Tile for Stair {
 }
 
 impl Stair {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Stair {
+    pub fn new(pos: GamePos, direction: Direction) -> Stair {
         Stair {
             pos,
             anim: get_default_anim(match direction {
-                TileVariant::Left => (0, 1),
-                TileVariant::Right => (0, 1),
-                TileVariant::Top => (2, 1),
-                TileVariant::Bottom => (2, 1),
-                TileVariant::CornerBL => (0, 3),
-                TileVariant::CornerBR => (2, 3),
-                TileVariant::CornerTR => (2, 2),
-                TileVariant::CornerTL => (0, 2),
-                TileVariant::Center => (0, 0),
+                Direction::Left => (0, 1),
+                Direction::Right => (0, 1),
+                Direction::Top => (2, 1),
+                Direction::Bottom => (2, 1),
+                Direction::CornerBL => (0, 3),
+                Direction::CornerBR => (2, 3),
+                Direction::CornerTR => (2, 2),
+                Direction::CornerTL => (0, 2),
+                Direction::Center => (0, 0),
             }),
         }
     }
@@ -649,10 +648,10 @@ impl Tile for Sun {
     }
 
     fn next(&self) -> Box<dyn Tile> {
-        Box::new(Boulder::new(GamePos::origin(), TileVariant::Center))
+        Box::new(Boulder::new(GamePos::origin(), Direction::Center))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(Sun::new(pos))
     }
 

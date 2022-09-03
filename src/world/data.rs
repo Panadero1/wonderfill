@@ -240,41 +240,35 @@ impl DataManager {
         self.remove_entity_where(|t| t.get_pos() == pos);
     }
 
-    pub fn do_entity_turn(&mut self) -> Vec<PostOperation> {
+    pub fn do_entity_turn(&mut self, player_pos: GamePos) -> Vec<PostOperation> {
         let mut post_ops = Vec::new();
         for index in 0..self.entities.len() {
-            
             let entity = self.entities.get_mut(index).unwrap();
-            
+
+            let mut move_poss = Vec::new();
+
+            // Entity moves
+            entity.request_moves(&mut move_poss, player_pos);
+
             // Entity does turn
             post_ops.push(entity.do_turn());
 
-            let last_move_pos = entity.get_last_move_pos();
             let entity_pos = entity.get_pos();
 
-            // entity dropped so we can borrow self
-            
-            // See if it moved onto another entity
-            if self.get_entities_at_pos(entity_pos).iter_mut().find(|(i, _)| *i != index).is_some() {
-                self.entities.get_mut(index).unwrap().moove(-last_move_pos);
-            }
-            // See if it moved onto another tile that is blocking
-            else if let Some((_, tile)) = self.get_tile_at_pos(entity_pos) {
-                if tile.block_movement() {
-                    self.entities.get_mut(index).unwrap().moove(-last_move_pos);
+            for move_pos in move_poss {
+                let new_pos = entity_pos + move_pos;
+
+                // See if it moved onto an entity or blocking tile
+                if new_pos != player_pos && self.get_entity_at_pos(new_pos).is_none() && {
+                    if let Some((_, tile)) = self.get_tile_at_pos(new_pos) {
+                        !tile.block_movement()
+                    } else {
+                        false
+                    }
+                } {
+                    self.entities.get_mut(index).unwrap().moove(move_pos);
+                    break;
                 }
-            }
-        }
-
-        for index in 0..self.entities.len() {
-            let entity = self.entities.get_mut(index).unwrap();
-            let entity_pos = entity.get_pos();
-            let last_move_pos = entity.get_last_move_pos();
-
-            // See if it moved onto another entity
-            let mut at_pos = self.get_entities_at_pos(entity_pos);
-            if let Some((_, other)) = at_pos.iter_mut().find(|(i, _)| *i != index) {
-                post_ops.push(other.on_entity_enter(last_move_pos, index));
             }
         }
         return post_ops;

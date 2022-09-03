@@ -87,7 +87,7 @@ impl Neg for GamePos {
 
 impl GamePos {
     pub fn origin() -> GamePos {
-        (0, 0).into()
+        GamePos { x: 0.0, y: 0.0 }
     }
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
@@ -106,5 +106,96 @@ impl GamePos {
         // Need this bc Rust can't infer type :((
         let result: GamePos = (self.x + 0.5, self.y + 0.5).into();
         result.floor()
+    }
+}
+
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
+pub enum Direction {
+    Left,
+    Right,
+    Top,
+    Bottom,
+    CornerBL,
+    CornerBR,
+    CornerTR,
+    CornerTL,
+    Center,
+}
+impl Direction {
+    pub fn rotate_cw(&mut self) {
+        use Direction::*;
+        *self = match self {
+            Center => CornerTL,
+            CornerTL => Top,
+            Top => CornerTR,
+            CornerTR => Right,
+            Right => CornerBR,
+            CornerBR => Bottom,
+            Bottom => CornerBL,
+            CornerBL => Left,
+            Left => Center,
+        };
+    }
+    pub fn rotate_ccw(&mut self) {
+        use Direction::*;
+        *self = match self {
+            Center => CornerBL,
+            CornerBL => Bottom,
+            Bottom => CornerBR,
+            CornerBR => Right,
+            Right => CornerTR,
+            CornerTR => Top,
+            Top => CornerTL,
+            CornerTL => Left,
+            Left => Center,
+        };
+    }
+    pub fn direction_vector(&self) -> GamePos {
+        use Direction::*;
+        match self {
+            Left => (-1, 0),
+            Right => (1, 0),
+            Top => (0, -1),
+            Bottom => (0, 1),
+            CornerBL => (-1, 1),
+            CornerBR => (1, 1),
+            CornerTR => (1, -1),
+            CornerTL => (-1, -1),
+            Center => (0, 0),
+        }
+        .into()
+    }
+}
+impl From<GamePos> for Direction {
+    fn from(dir: GamePos) -> Self {
+        let unit_dir = (
+            if dir.x > 0. {
+                1
+            } else if dir.x < 0. {
+                -1
+            } else {
+                0
+            },
+            if dir.y > 0. {
+                1
+            } else if dir.y < 0. {
+                -1
+            } else {
+                0
+            },
+        );
+        use Direction::*;
+        match unit_dir {
+            (-1, 0) => Left,
+            (1, 0) => Right,
+            (0, -1) => Top,
+            (0, 1) => Bottom,
+            (-1, 1) => CornerBL,
+            (1, 1) => CornerBR,
+            (1, -1) => CornerTR,
+            (-1, -1) => CornerTL,
+            (0, 0) => Center,
+            _ => panic!("Not expected unit direction: {:?}", unit_dir),
+        }
     }
 }

@@ -1,23 +1,27 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use speedy2d::color::Color;
 
-use crate::{world::{space::GamePos, operation::{PostOperation, Params}}, draw::animation::Animation};
+use crate::{
+    draw::animation::{self, Animation},
+    world::{
+        operation::PostOperation,
+        space::{Direction, GamePos},
+    },
+};
 
-use super::{Entity, get_default_anim, friendly::MoveLeft};
+use super::{friendly::MoveLeft, get_default_anim, Entity};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Button {
     pos: GamePos,
     anim: Animation,
     effect_pos: GamePos,
-    last_move_pos: GamePos,
 }
 
 #[typetag::serde]
 impl Entity for Button {
     fn moove(&mut self, change_pos: GamePos) {
         self.pos += change_pos;
-        self.last_move_pos = change_pos;
     }
 
     fn get_anim_mut(&mut self) -> &mut Animation {
@@ -28,7 +32,7 @@ impl Entity for Button {
         self.pos
     }
 
-    fn create(&self, pos: GamePos) -> Box<dyn Entity> {
+    fn create(&self, pos: GamePos, _direction: Direction) -> Box<dyn Entity> {
         Box::new(Button::new(pos))
     }
 
@@ -37,24 +41,18 @@ impl Entity for Button {
     }
 
     fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
-        println!("player enters");
-        PostOperation::new_empty().with_block_player(move_pos).with_custom(move |w, p| {
-            if let Some((_, tile)) = &mut w.mgr.get_tile_at_pos(move_pos) {
-                tile.change_self();
-            }
-        })
-    }
-
-    fn do_turn(&mut self) -> PostOperation {
+        let effect_pos = self.effect_pos;
         PostOperation::new_empty()
+            .with_block_player(move_pos)
+            .with_custom(move |w, p| {
+                if let Some((_, tile)) = &mut w.mgr.get_tile_at_pos(effect_pos) {
+                    tile.change_self();
+                }
+            })
     }
 
-    fn get_last_move_pos(&self) -> GamePos {
-        self.last_move_pos
-    }
-
-    fn next (&self) -> Box<dyn Entity> {
-        Box::new(MoveLeft::new(GamePos::origin()))
+    fn next(&self) -> Box<dyn Entity> {
+        Box::new(OneWay::new(GamePos::origin(), Direction::Center))
     }
 }
 
@@ -75,7 +73,6 @@ impl Button {
             pos,
             anim: get_default_anim((0, 0)),
             effect_pos,
-            last_move_pos: GamePos::origin(),
         }
     }
     pub fn default() -> Button {
@@ -83,7 +80,65 @@ impl Button {
             pos: GamePos::origin(),
             anim: get_default_anim((2, 4)),
             effect_pos: GamePos::origin(),
-            last_move_pos: GamePos::origin(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct OneWay {
+    pos: GamePos,
+    anim: Animation,
+    direction: Direction,
+}
+
+#[typetag::serde]
+impl Entity for OneWay {
+    fn draw_color(&self) -> Color {
+        Color::from_hex_argb(0xFFAAAAAA)
+    }
+
+    fn moove(&mut self, change_pos: GamePos) {
+        self.pos += change_pos;
+    }
+
+    fn get_anim_mut(&mut self) -> &mut Animation {
+        &mut self.anim
+    }
+
+    fn get_pos(&self) -> GamePos {
+        self.pos
+    }
+
+    fn create(&self, pos: GamePos, direction: Direction) -> Box<dyn Entity> {
+        Box::new(OneWay::new(pos, direction))
+    }
+
+    fn pick(&self) -> Box<dyn Entity> {
+        Box::new(OneWay::new(GamePos::origin(), Direction::Center))
+    }
+
+    fn on_player_enter(&mut self, move_pos: GamePos) -> PostOperation {
+        let direction = self.direction;
+        PostOperation::new_empty().with_block_when(
+            move |_| {
+                let dir_vec = direction.direction_vector();
+                ((dir_vec.x * move_pos.x) < 0.) || ((dir_vec.y * move_pos.y) < 0.)
+            },
+            move_pos,
+        )
+    }
+
+    fn next(&self) -> Box<dyn Entity> {
+        Box::new(MoveLeft::new(GamePos::origin()))
+    }
+}
+
+impl OneWay {
+    pub fn new(pos: GamePos, direction: Direction) -> OneWay {
+        OneWay {
+            pos,
+            anim: get_default_anim(animation::match_directions(direction, (2, 1))),
+            direction,
         }
     }
 }

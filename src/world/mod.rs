@@ -18,7 +18,7 @@ use self::{
     entity::{utility::Button, Entity},
     minigame::{GameResult, Minigame},
     operation::PostOperation,
-    tile::{core::BaseGround, TileVariant},
+    tile::core::BaseGround, space::Direction,
 };
 
 pub mod data;
@@ -39,7 +39,7 @@ pub struct World {
     pub minigame: Option<Box<dyn Minigame>>,
     // For editing
     draw_item: DrawItem,
-    tile_variant: TileVariant,
+    editor_direction: Direction,
     post_ops: Vec<PostOperation>,
     mouse_buttons: u8,
 }
@@ -72,7 +72,7 @@ impl World {
             clock: Clock::new(),
             minigame: None,
             draw_item: DrawItem::default(),
-            tile_variant: TileVariant::Top,
+            editor_direction: Direction::Top,
             post_ops: Vec::new(),
             mouse_buttons: 0,
         }
@@ -95,7 +95,7 @@ impl World {
         }
 
         // Entity turn
-        self.post_ops.extend(self.mgr.do_entity_turn());
+        self.post_ops.extend(self.mgr.do_entity_turn(self.player.get_pos()));
 
         // Execute postops
         while let Some(op) = self.post_ops.pop() {
@@ -139,11 +139,11 @@ impl World {
         if self.mouse_buttons & MOUSE_LEFT > 0 {
             match &self.draw_item {
                 DrawItem::Tile(tile) => {
-                    let tile = tile.create(pos, self.tile_variant);
+                    let tile = tile.create(pos, self.editor_direction);
                     self.mgr.push_tile_override(tile);
                 }
                 DrawItem::Entity(entity) => {
-                    let entity = entity.create(pos);
+                    let entity = entity.create(pos, self.editor_direction);
                     self.mgr.push_entity_override(entity);
                 }
             }
@@ -227,7 +227,7 @@ impl World {
                 self.camera.moove(self.player.get_pos() - self.camera.pos);
             }
             VirtualKeyCode::R => {
-                self.tile_variant.rotate_cw();
+                self.editor_direction.rotate_cw();
             }
             VirtualKeyCode::T => {
                 match &mut self.draw_item {

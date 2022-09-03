@@ -1,5 +1,5 @@
 ## Now
-* Change some tiles to entity (button, OneWay, SmileyMan)
+* When minigame over, return PostOperation
 
 ## Eventually
 * Line drawing algorithm
@@ -14,9 +14,7 @@
 * Add music
 
 ## Engine
-* Make entities
 * Draw trait
-* When minigame over, return PostOperation
 * Fix options page 
 * Hats
 * Comment your code lol 
@@ -37,3 +35,6 @@
 * Make a build script that copies assets
 * Coloring spec basic
 * Migrate to DataManager
+* Entity requests movement to data manager
+* Change some tiles to entity (button, OneWay, SmileyMan)
+* Make entities

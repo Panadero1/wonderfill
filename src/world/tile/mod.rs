@@ -11,10 +11,9 @@ use crate::{
     screen::camera::Camera,
 };
 
-use self::core::Arrow;
 
 use super::{
-    space::{GamePos, SPRITE_EXTENSION_HEIGHT},
+    space::{GamePos, SPRITE_EXTENSION_HEIGHT, Direction},
     time::Clock,
     VIEW_DIST,
 };
@@ -22,64 +21,6 @@ use super::{
 pub mod beehive;
 pub mod core;
 pub mod mountain;
-
-#[derive(PartialEq, Eq, Clone, Copy, Debug, Serialize, Deserialize)]
-pub enum TileVariant {
-    Left,
-    Right,
-    Top,
-    Bottom,
-    CornerBL,
-    CornerBR,
-    CornerTR,
-    CornerTL,
-    Center,
-}
-impl TileVariant {
-    pub fn rotate_cw(&mut self) {
-        use TileVariant::*;
-        *self = match self {
-            Center => CornerTL,
-            CornerTL => Top,
-            Top => CornerTR,
-            CornerTR => Right,
-            Right => CornerBR,
-            CornerBR => Bottom,
-            Bottom => CornerBL,
-            CornerBL => Left,
-            Left => Center,
-        };
-    }
-    pub fn rotate_ccw(&mut self) {
-        use TileVariant::*;
-        *self = match self {
-            Center => CornerBL,
-            CornerBL => Bottom,
-            Bottom => CornerBR,
-            CornerBR => Right,
-            Right => CornerTR,
-            CornerTR => Top,
-            Top => CornerTL,
-            CornerTL => Left,
-            Left => Center,
-        };
-    }
-    pub fn direction_vector(&self) -> GamePos {
-        use TileVariant::*;
-        match self {
-            Left => (-1, 0),
-            Right => (1, 0),
-            Top => (0, -1),
-            Bottom => (0, 1),
-            CornerBL => (-1, 1),
-            CornerBR => (1, 1),
-            CornerTR => (1, -1),
-            CornerTL => (-1, -1),
-            Center => (0, 0),
-        }
-        .into()
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum Obstruction {
@@ -139,7 +80,7 @@ pub trait Tile: Debug {
         Color::WHITE
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile>;
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile>;
     fn pick(&self) -> Box<dyn Tile>;
 
     fn next(&self) -> Box<dyn Tile>;
@@ -147,20 +88,6 @@ pub trait Tile: Debug {
         let next_tile = self.next();
         println!("{}", format!("{:?}", next_tile).split_once(' ').unwrap().0);
         return next_tile;
-    }
-}
-
-pub fn match_directions(direction: TileVariant, top_left: (u16, u16)) -> (u16, u16) {
-    match direction {
-        TileVariant::Top => (top_left.0 + 2, top_left.1),
-        TileVariant::Bottom => (top_left.0 + 2, top_left.1 + 2),
-        TileVariant::Left => (top_left.0, top_left.1 + 1),
-        TileVariant::Right => (top_left.0 + 4, top_left.1 + 1),
-        TileVariant::CornerBL => (top_left.0, top_left.1 + 2),
-        TileVariant::CornerBR => (top_left.0 + 4, top_left.1 + 2),
-        TileVariant::CornerTR => (top_left.0 + 4, top_left.1),
-        TileVariant::CornerTL => top_left,
-        TileVariant::Center => (top_left.0 + 2, top_left.1 + 1),
     }
 }
 

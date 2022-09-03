@@ -7,7 +7,7 @@ use crate::{
         animation::{Animation, AnimationSelectError},
         ui::img::Img,
     },
-    world::{space::GamePos, time::Clock},
+    world::{space::{GamePos, Direction}, time::Clock},
 };
 
 use serde::{Deserialize, Serialize};
@@ -43,7 +43,7 @@ impl Entity for Player {
         self.last_move_pos = change_pos;
     }
 
-    fn create(&self, pos: GamePos) -> Box<dyn Entity> {
+    fn create(&self, pos: GamePos, _direction: Direction) -> Box<dyn Entity> {
         unreachable!()
     }
 
@@ -77,8 +77,8 @@ impl Entity for Player {
         }
     }
 
-    fn get_last_move_pos(&self) -> GamePos {
-        self.last_move_pos
+    fn request_moves(&mut self, move_pos: &mut Vec<GamePos>, player_pos: GamePos) {
+        unreachable!();
     }
 }
 
@@ -122,4 +122,7 @@ impl Player {
         }
     }
 
+    pub fn get_last_move_pos(&self) -> GamePos {
+        self.last_move_pos
+    }
 }

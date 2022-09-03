@@ -11,7 +11,7 @@ use crate::{
     world::{space::GamePos, time::Clock},
 };
 
-use super::{operation::PostOperation, space::SPRITE_EXTENSION_HEIGHT};
+use super::{operation::PostOperation, space::{SPRITE_EXTENSION_HEIGHT, Direction}};
 
 pub mod friendly;
 pub mod player;
@@ -47,10 +47,9 @@ pub trait Entity: Debug {
         Color::YELLOW
     }
     fn moove(&mut self, change_pos: GamePos);
-    fn get_last_move_pos(&self) -> GamePos;
     fn get_anim_mut(&mut self) -> &mut Animation;
     fn get_pos(&self) -> GamePos;
-    fn create(&self, pos: GamePos) -> Box<dyn Entity>;
+    fn create(&self, pos: GamePos, direction: Direction) -> Box<dyn Entity>;
     fn next(&self) -> Box<dyn Entity>;
     fn cycle(&self) -> Box<dyn Entity> {
         let next_entity = self.next();
@@ -71,6 +70,8 @@ pub trait Entity: Debug {
     fn do_turn(&mut self) -> PostOperation {
         PostOperation::new_empty()
     }
+    /// !Warning! Do NOT update state in this method as it is called multiple times per turn!
+    fn request_moves(&mut self, move_pos: &mut Vec<GamePos>, player_pos: GamePos){}
 }
 
 fn get_default_anim(frame: (u16, u16)) -> Animation {

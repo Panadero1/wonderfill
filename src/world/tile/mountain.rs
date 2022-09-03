@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{world::{
-    GamePos, Tile, TileVariant,
-}, draw::animation::Animation};
+    GamePos, Tile, Direction,
+}, draw::animation::{Animation, self}};
 
-use super::{get_default_anim, match_directions};
+use super::get_default_anim;
 
 // Boulder
 
@@ -32,7 +32,7 @@ impl Tile for Boulder {
         Box::new(CliffFace::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, variant: Direction) -> Box<dyn Tile> {
         Box::new(Boulder::new(pos, variant))
     }
 
@@ -45,10 +45,10 @@ impl Tile for Boulder {
 }
 
 impl Boulder {
-    pub fn new(pos: GamePos, direction: TileVariant) -> Boulder {
+    pub fn new(pos: GamePos, direction: Direction) -> Boulder {
         Boulder {
             pos,
-            anim: get_default_anim(match_directions(direction, (4, 10))),
+            anim: get_default_anim(animation::match_directions(direction, (4, 10))),
         }
     }
 }
@@ -75,7 +75,7 @@ impl Tile for CliffFace {
         Box::new(Rock::new(GamePos::origin()))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(CliffFace::new(pos))
     }
 
@@ -123,10 +123,10 @@ impl Tile for Rock {
     }
 
     fn next(&self) -> Box<dyn Tile> {
-        Box::new(super::beehive::HoneyComb::new(GamePos::origin(), TileVariant::Center))
+        Box::new(super::beehive::HoneyComb::new(GamePos::origin(), Direction::Center))
     }
 
-    fn create(&self, pos: GamePos, _variant: TileVariant) -> Box<dyn Tile> {
+    fn create(&self, pos: GamePos, _variant: Direction) -> Box<dyn Tile> {
         Box::new(Rock::new(pos))
     }
 

@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     draw::ui::img::{Img, ImgManager},
-    world::time::Clock,
+    world::{time::Clock, space::Direction},
     utility::time::NInstant,
 };
 
@@ -138,5 +138,19 @@ impl Animation {
             ((pos.1 as f32 + 1.0) * (self.frame_size.1 as f32 + 2.0) - 1.0) / (img_bounds.y as f32),
         );
         return Rectangle::from_tuples(top_left, bottom_right);
+    }
+}
+
+pub fn match_directions(direction: Direction, top_left: (u16, u16)) -> (u16, u16) {
+    match direction {
+        Direction::Top => (top_left.0 + 2, top_left.1),
+        Direction::Bottom => (top_left.0 + 2, top_left.1 + 2),
+        Direction::Left => (top_left.0, top_left.1 + 1),
+        Direction::Right => (top_left.0 + 4, top_left.1 + 1),
+        Direction::CornerBL => (top_left.0, top_left.1 + 2),
+        Direction::CornerBR => (top_left.0 + 4, top_left.1 + 2),
+        Direction::CornerTR => (top_left.0 + 4, top_left.1),
+        Direction::CornerTL => top_left,
+        Direction::Center => (top_left.0 + 2, top_left.1 + 1),
     }
 }
